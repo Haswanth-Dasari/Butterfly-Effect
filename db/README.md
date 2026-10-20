@@ -17,3 +17,17 @@ psql -U postgres -d butterfly -f db/tests/01_constraint_tests.sql
 ```
 
 For a clean rebuild, run `db/schema/drop_all.sql` first, then `db/schema/_all.sql`.
+
+## Event store and tamper evidence
+
+For a clean rebuild, run `db/schema/drop_all.sql` first, then `db/schema/_all.sql`. Run both test files from the repository root:
+
+```sh
+psql -U postgres -d butterfly -f db/tests/01_constraint_tests.sql
+psql -U postgres -d butterfly -f db/tests/02_event_store_tests.sql
+```
+
+- The immutability trigger rejects updates, deletes, and truncation of events; the table also revokes `UPDATE`, `DELETE`, and `TRUNCATE` from `PUBLIC`.
+- `event_hash` defines the SHA-256 hash formula over the previous hash and canonical event fields.
+- Each branch maintains its own chain; an advisory transaction lock serializes inserts within that branch.
+- `verify_event_chain()` follows stored hash links and reports the first integrity problem it finds for each branch.
