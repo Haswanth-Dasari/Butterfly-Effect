@@ -1,15 +1,16 @@
 BEGIN;
 
 INSERT INTO action_type (action_type, description)
-VALUES ('gift', 'Give a gift');
+VALUES ('test_gift', 'Give a gift')
+ON CONFLICT DO NOTHING;
 
 INSERT INTO branch (name)
-VALUES ('main'), ('fork');
+VALUES ('test_main'), ('test_fork');
 
 INSERT INTO event (branch_id, tick, action_type, payload)
-SELECT branch_id, 0, 'gift', '{}'::jsonb
+SELECT branch_id, 0, 'test_gift', '{}'::jsonb
 FROM branch
-WHERE name = 'main';
+WHERE name = 'test_main';
 
 DO $$
 DECLARE
@@ -18,7 +19,7 @@ BEGIN
     SELECT event.event_id INTO v_event_id
     FROM event
     JOIN branch ON branch.branch_id = event.branch_id
-    WHERE branch.name = 'main'
+    WHERE branch.name = 'test_main'
     ORDER BY event.event_id
     LIMIT 1;
 
@@ -43,7 +44,7 @@ BEGIN
     SELECT event.event_id INTO v_event_id
     FROM event
     JOIN branch ON branch.branch_id = event.branch_id
-    WHERE branch.name = 'main'
+    WHERE branch.name = 'test_main'
     ORDER BY event.event_id
     LIMIT 1;
 
@@ -83,9 +84,9 @@ DECLARE
     v_event_id BIGINT;
     v_hash BYTEA;
 BEGIN
-    SELECT branch_id INTO v_branch_id FROM branch WHERE name = 'main';
+    SELECT branch_id INTO v_branch_id FROM branch WHERE name = 'test_main';
     INSERT INTO event (branch_id, tick, action_type, payload)
-    VALUES (v_branch_id, 3, 'gift', '{}'::jsonb)
+    VALUES (v_branch_id, 3, 'test_gift', '{}'::jsonb)
     RETURNING event_id, hash INTO v_event_id, v_hash;
 
     IF octet_length(v_hash) = 32 THEN
@@ -103,7 +104,7 @@ DECLARE
     v_second_hash BYTEA;
     v_second_prev_hash BYTEA;
 BEGIN
-    SELECT branch_id INTO v_branch_id FROM branch WHERE name = 'main';
+    SELECT branch_id INTO v_branch_id FROM branch WHERE name = 'test_main';
     SELECT hash INTO v_first_hash
     FROM event
     WHERE branch_id = v_branch_id
@@ -129,9 +130,9 @@ DECLARE
     v_branch_id INT;
     v_hash BYTEA;
 BEGIN
-    SELECT branch_id INTO v_branch_id FROM branch WHERE name = 'main';
+    SELECT branch_id INTO v_branch_id FROM branch WHERE name = 'test_main';
     INSERT INTO event (branch_id, tick, action_type, payload, hash)
-    VALUES (v_branch_id, 5, 'gift', '{}'::jsonb, '\xdeadbeef'::bytea)
+    VALUES (v_branch_id, 5, 'test_gift', '{}'::jsonb, '\xdeadbeef'::bytea)
     RETURNING hash INTO v_hash;
 
     IF octet_length(v_hash) = 32 AND v_hash <> '\xdeadbeef'::bytea THEN
@@ -147,9 +148,9 @@ DECLARE
     v_branch_id INT;
     v_prev_hash BYTEA;
 BEGIN
-    SELECT branch_id INTO v_branch_id FROM branch WHERE name = 'fork';
+    SELECT branch_id INTO v_branch_id FROM branch WHERE name = 'test_fork';
     INSERT INTO event (branch_id, tick, action_type, payload)
-    VALUES (v_branch_id, 0, 'gift', '{}'::jsonb)
+    VALUES (v_branch_id, 0, 'test_gift', '{}'::jsonb)
     RETURNING prev_hash INTO v_prev_hash;
 
     IF v_prev_hash IS NULL THEN
@@ -181,7 +182,7 @@ DECLARE
     v_problem_event_id BIGINT;
     v_problem TEXT;
 BEGIN
-    SELECT branch_id INTO v_branch_id FROM branch WHERE name = 'main';
+    SELECT branch_id INTO v_branch_id FROM branch WHERE name = 'test_main';
     SELECT event_id INTO v_first_event_id
     FROM event
     WHERE branch_id = v_branch_id
