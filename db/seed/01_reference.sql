@@ -16,7 +16,8 @@ INSERT INTO action_type (action_type, description) VALUES
 ('festival', 'World event: annual village celebration bringing high spirits and trade'),
 ('traveling_merchant', 'World event: itinerant merchant visiting Alderbrook with exotic wares'),
 ('tax_collector', 'World event: royal tax collector arriving to levy dues on households'),
-('world_start', 'System: marks the start of a branch');
+('world_start', 'System: marks the start of a branch'),
+('arrive', 'System: a player arrives in the village');
 
 INSERT INTO item (item_id, name) VALUES
 (1, 'bread'),

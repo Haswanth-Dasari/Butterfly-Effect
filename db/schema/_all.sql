@@ -6,3 +6,6 @@
 \ir 05_event_immutability.sql
 \ir ../procedures/01_event_hash.sql
 \ir ../procedures/02_verify_chain.sql
+\ir ../procedures/03_entity_state.sql
+\ir ../procedures/04_projection.sql
+\ir ../procedures/05_apply_action.sql

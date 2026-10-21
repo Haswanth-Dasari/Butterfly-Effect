@@ -172,7 +172,7 @@ BEGIN
     INTO v_total, v_player_actions
     FROM action_type;
 
-    IF v_total = 16 AND v_player_actions = 10 THEN
+    IF v_total = 17 AND v_player_actions = 10 THEN
         RAISE NOTICE 'PASS: action_type records';
     ELSE
         RAISE EXCEPTION 'FAIL: action_type records (total=%, player_actions=%)', v_total, v_player_actions;
@@ -249,6 +249,11 @@ DECLARE
     v_actor_last BIGINT;
     v_item_last BIGINT;
     v_branch_last BIGINT;
+    v_place_max BIGINT;
+    v_home_max BIGINT;
+    v_actor_max BIGINT;
+    v_item_max BIGINT;
+    v_branch_max BIGINT;
 BEGIN
     SELECT last_value INTO v_place_last FROM pg_sequences WHERE sequencename = 'place_place_id_seq';
     SELECT last_value INTO v_home_last FROM pg_sequences WHERE sequencename = 'home_home_id_seq';
@@ -256,11 +261,22 @@ BEGIN
     SELECT last_value INTO v_item_last FROM pg_sequences WHERE sequencename = 'item_item_id_seq';
     SELECT last_value INTO v_branch_last FROM pg_sequences WHERE sequencename = 'branch_branch_id_seq';
 
-    IF v_place_last = 18 AND v_home_last = 10 AND v_actor_last = 30 AND v_item_last = 3 AND v_branch_last = 1 THEN
+    SELECT COALESCE(max(place_id), 0) INTO v_place_max FROM place;
+    SELECT COALESCE(max(home_id), 0) INTO v_home_max FROM home;
+    SELECT COALESCE(max(actor_id), 0) INTO v_actor_max FROM actor;
+    SELECT COALESCE(max(item_id), 0) INTO v_item_max FROM item;
+    SELECT COALESCE(max(branch_id), 0) INTO v_branch_max FROM branch;
+
+    IF v_place_last IS NOT NULL AND v_place_last >= v_place_max
+       AND v_home_last IS NOT NULL AND v_home_last >= v_home_max
+       AND v_actor_last IS NOT NULL AND v_actor_last >= v_actor_max
+       AND v_item_last IS NOT NULL AND v_item_last >= v_item_max
+       AND v_branch_last IS NOT NULL AND v_branch_last >= v_branch_max THEN
         RAISE NOTICE 'PASS: sequences advanced';
     ELSE
-        RAISE EXCEPTION 'FAIL: sequences advanced (place=%, home=%, actor=%, item=%, branch=%)',
-            v_place_last, v_home_last, v_actor_last, v_item_last, v_branch_last;
+        RAISE EXCEPTION 'FAIL: sequences advanced (place: last=% max=%, home: last=% max=%, actor: last=% max=%, item: last=% max=%, branch: last=% max=%)',
+            v_place_last, v_place_max, v_home_last, v_home_max, v_actor_last, v_actor_max,
+            v_item_last, v_item_max, v_branch_last, v_branch_max;
     END IF;
 END
 $$;
