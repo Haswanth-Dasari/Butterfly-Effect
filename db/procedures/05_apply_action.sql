@@ -1,4 +1,4 @@
--- One call = one transaction; any error undoes the event, witnesses and projections together.
+-- One call = event + witnesses + projection + whole cascade in one transaction.
 
 -- Returns the current tick for a branch based on its latest event.
 CREATE FUNCTION current_tick(p_branch INT)
@@ -121,7 +121,7 @@ DECLARE
     v_actor_kind TEXT;
     v_tick INT;
     v_action_count INT;
-    v_event_id BIGINT;
+    v_event_row event;
 BEGIN
     -- 1. Branch must exist
     IF NOT EXISTS (SELECT 1 FROM branch WHERE branch_id = p_branch) THEN
@@ -174,12 +174,15 @@ BEGIN
     -- 6. Insert event (triggers compute hash/prev_hash and projection)
     INSERT INTO event (branch_id, tick, actor_id, action_type, payload)
     VALUES (p_branch, v_tick, p_actor, p_action, p_payload)
-    RETURNING event_id INTO v_event_id;
+    RETURNING * INTO v_event_row;
 
     -- 7. Add witnesses
-    PERFORM add_witnesses(v_event_id, COALESCE(p_visibility, default_visibility(p_action)));
+    PERFORM add_witnesses(v_event_row.event_id, COALESCE(p_visibility, default_visibility(p_action)));
 
-    -- 8. Return event_id
-    RETURN v_event_id;
+    -- 8. Process rules cascade
+    PERFORM process_event_rules(v_event_row, 0);
+
+    -- 9. Return event_id
+    RETURN v_event_row.event_id;
 END;
 $$;

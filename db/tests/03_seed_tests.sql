@@ -172,7 +172,7 @@ BEGIN
     INTO v_total, v_player_actions
     FROM action_type;
 
-    IF v_total = 17 AND v_player_actions = 10 THEN
+    IF v_total = 19 AND v_player_actions = 10 THEN
         RAISE NOTICE 'PASS: action_type records';
     ELSE
         RAISE EXCEPTION 'FAIL: action_type records (total=%, player_actions=%)', v_total, v_player_actions;
@@ -277,6 +277,28 @@ BEGIN
         RAISE EXCEPTION 'FAIL: sequences advanced (place: last=% max=%, home: last=% max=%, actor: last=% max=%, item: last=% max=%, branch: last=% max=%)',
             v_place_last, v_place_max, v_home_last, v_home_max, v_actor_last, v_actor_max,
             v_item_last, v_item_max, v_branch_last, v_branch_max;
+    END IF;
+END
+$$;
+
+DO $$
+DECLARE
+    v_count INT;
+    v_match_count INT;
+BEGIN
+    SELECT count(*),
+           count(*) FILTER (
+               WHERE (trigger_action_type = 'steal' AND delay_ticks = 1 AND is_active)
+                  OR (trigger_action_type = 'set_price' AND delay_ticks = 1 AND is_active)
+                  OR (trigger_action_type = 'state_change' AND delay_ticks = 0 AND is_active)
+           )
+    INTO v_count, v_match_count
+    FROM "rule";
+
+    IF v_count = 3 AND v_match_count = 3 THEN
+        RAISE NOTICE 'PASS: rules seeded';
+    ELSE
+        RAISE EXCEPTION 'FAIL: rules seeded (count=%, match_count=%)', v_count, v_match_count;
     END IF;
 END
 $$;

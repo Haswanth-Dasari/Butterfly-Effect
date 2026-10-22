@@ -65,3 +65,24 @@ psql -U postgres -d butterfly -f db/tests/03_seed_tests.sql
 psql -U postgres -d butterfly -f db/tests/04_engine_tests.sql
 psql -U postgres -d butterfly -f db/demo/01_first_evening.sql
 ```
+
+## Rules and cascades
+
+- Rules as JSON: Conditions and effect templates are stored as validated JSON objects in relational text columns.
+- Template references: Variable placeholders (`$actor`, `$tick`, `$branch`, `$event`, and `$payload.<key>`) resolve dynamically from triggering events.
+- The 4 condition keys: `payload_eq`, `payload_gte`, `stock_below`, and `state_lt` evaluate event payloads and world state.
+- Delay vs immediate: Immediate rules (`delay_ticks = 0`) cascade synchronously; delayed rules queue in `scheduled_effect`.
+- Depth limit 5: Cascades terminate after 5 immediate hops via `cascade_max_depth()` to avoid infinite loops.
+- `advance_day`: Advances branch tick, emits `day_start`, and processes due scheduled effects via `FOR UPDATE SKIP LOCKED`.
+- Causal links carry `rule_id`: `event_cause` preserves parent events and rules for recursive "Ask Why" provenance queries.
+- Determinism: Serialized event ordering per branch ensures repeatable simulation outcomes and unbroken hash chains.
+
+Run test suites and demos from the repository root:
+
+```sh
+psql -U postgres -d butterfly -f db/tests/03_seed_tests.sql
+psql -U postgres -d butterfly -f db/tests/04_engine_tests.sql
+psql -U postgres -d butterfly -f db/tests/05_rules_tests.sql
+psql -U postgres -d butterfly -f db/demo/01_first_evening.sql
+psql -U postgres -d butterfly -f db/demo/02_ripple.sql
+```

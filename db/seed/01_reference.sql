@@ -17,7 +17,9 @@ INSERT INTO action_type (action_type, description) VALUES
 ('traveling_merchant', 'World event: itinerant merchant visiting Alderbrook with exotic wares'),
 ('tax_collector', 'World event: royal tax collector arriving to levy dues on households'),
 ('world_start', 'System: marks the start of a branch'),
-('arrive', 'System: a player arrives in the village');
+('arrive', 'System: a player arrives in the village'),
+('state_change', 'System: changes the state of one entity'),
+('day_start', 'System: a new day begins');
 
 INSERT INTO item (item_id, name) VALUES
 (1, 'bread'),

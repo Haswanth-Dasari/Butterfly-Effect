@@ -9,6 +9,14 @@ DECLARE
     v_qty INT;
     v_target_actor INT;
     v_item_name TEXT;
+    v_price NUMERIC(10,2);
+    v_current_price NUMERIC(10,2);
+    v_price_pct NUMERIC;
+    v_entity_id INT;
+    v_patch JSONB;
+    v_open_state JSONB;
+    v_k TEXT;
+    v_v JSONB;
 BEGIN
     CASE e.action_type
         WHEN 'arrive' THEN
@@ -70,15 +78,67 @@ BEGIN
             v_place_id := (e.payload->>'place_id')::int;
             v_item_id := (e.payload->>'item_id')::int;
 
-            UPDATE stock
-            SET price = (e.payload->>'price')::numeric
-            WHERE place_id = v_place_id
-              AND item_id = v_item_id
-              AND branch_id = e.branch_id;
+            IF e.payload ? 'price' THEN
+                v_price := (e.payload->>'price')::numeric;
+                UPDATE stock
+                SET price = v_price
+                WHERE place_id = v_place_id
+                  AND item_id = v_item_id
+                  AND branch_id = e.branch_id;
 
-            IF NOT FOUND THEN
-                RAISE EXCEPTION 'no such stock';
+                IF NOT FOUND THEN
+                    RAISE EXCEPTION 'no such stock';
+                END IF;
+            ELSIF e.payload ? 'price_pct' THEN
+                SELECT price INTO v_current_price
+                FROM stock
+                WHERE place_id = v_place_id
+                  AND item_id = v_item_id
+                  AND branch_id = e.branch_id;
+
+                IF NOT FOUND THEN
+                    RAISE EXCEPTION 'no such stock';
+                END IF;
+
+                v_price_pct := (e.payload->>'price_pct')::numeric;
+                v_price := round(v_current_price * (100 + v_price_pct) / 100.0, 2);
+
+                UPDATE stock
+                SET price = v_price
+                WHERE place_id = v_place_id
+                  AND item_id = v_item_id
+                  AND branch_id = e.branch_id;
+            ELSE
+                RAISE EXCEPTION 'set_price needs price or price_pct';
             END IF;
+
+        WHEN 'state_change' THEN
+            v_entity_id := (e.payload->>'entity_id')::int;
+            v_patch := COALESCE(e.payload->'set', '{}'::jsonb);
+
+            IF e.payload ? 'add' AND jsonb_typeof(e.payload->'add') = 'object' THEN
+                SELECT state INTO v_open_state
+                FROM entity_state
+                WHERE entity_id = v_entity_id
+                  AND branch_id = e.branch_id
+                  AND upper_inf(valid_ticks);
+
+                IF NOT FOUND THEN
+                    PERFORM patch_entity_state(v_entity_id, e.branch_id, e.tick, '{}'::jsonb);
+                END IF;
+
+                FOR v_k, v_v IN SELECT key, value FROM jsonb_each(e.payload->'add') LOOP
+                    v_patch := v_patch || jsonb_build_object(
+                        v_k,
+                        COALESCE((v_open_state->>v_k)::numeric, 0) + (v_v#>>'{}')::numeric
+                    );
+                END LOOP;
+            END IF;
+
+            PERFORM patch_entity_state(v_entity_id, e.branch_id, e.tick, v_patch);
+
+        WHEN 'day_start' THEN
+            NULL;
 
         ELSE
             -- other actions are recorded but not projected yet

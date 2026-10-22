@@ -4,8 +4,11 @@
 \ir 03_state_tables.sql
 \ir 04_circular_fk.sql
 \ir 05_event_immutability.sql
+\ir 06_rule_checks.sql
 \ir ../procedures/01_event_hash.sql
 \ir ../procedures/02_verify_chain.sql
 \ir ../procedures/03_entity_state.sql
 \ir ../procedures/04_projection.sql
 \ir ../procedures/05_apply_action.sql
+\ir ../procedures/06_rules_engine.sql
+\ir ../procedures/07_advance_day.sql
