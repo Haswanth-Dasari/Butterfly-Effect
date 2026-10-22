@@ -42,7 +42,7 @@ This uses the `actor`, `action_type`, and `event` relations and attributes shown
 
 The decomposition is lossless-join: the shared `actor_id` is a key of `actor`, and the shared `action_type` is a key of `action_type`. It is dependency-preserving: the event, actor, and action-type dependencies can each be checked in the resulting relation that contains their attributes.
 
-## Section 4: FD list for the final 14 relations
+## Section 4: FD list for the final 14 base relations plus 2 derived
 
 | Relation | Primary key | Non-trivial FDs | Is every determinant a superkey? |
 |---|---|---|---|
@@ -60,6 +60,8 @@ The decomposition is lossless-join: the shared `actor_id` is a key of `actor`, a
 | `entity_state` | `(entity_id, branch_id, valid_ticks)` | `(entity_id, branch_id, valid_ticks) -> state` | Yes |
 | `snapshot` | `snapshot_id` | `snapshot_id -> branch_id, tick, last_event_id, state` | Yes |
 | `scheduled_effect` | `scheduled_id` | `scheduled_id -> branch_id, due_tick, source_event_id, rule_id, payload, processed` | Yes |
+| `causal_closure` | `(ancestor_id, descendant_id)` | `(ancestor_id, descendant_id) -> depth` | Yes |
+| `causal_path` | `event_id` | `event_id -> path` | Yes |
 
 ## Section 5: BCNF proof
 
@@ -77,6 +79,8 @@ The decomposition is lossless-join: the shared `actor_id` is a key of `actor`, a
 - `entity_state`: Every non-trivial FD has a determinant that is a (super)key, therefore BCNF.
 - `snapshot`: Every non-trivial FD has a determinant that is a (super)key, therefore BCNF.
 - `scheduled_effect`: Every non-trivial FD has a determinant that is a (super)key, therefore BCNF.
+- `causal_closure`: Every non-trivial FD has a determinant that is a (super)key, therefore BCNF.
+- `causal_path`: Every non-trivial FD has a determinant that is a (super)key, therefore BCNF.
 
 **Note:** `home.place_id` should also carry a `UNIQUE` constraint because the ER diagram says a place has at most one home; this makes `place_id` a second candidate key and BCNF still holds.
 
@@ -89,3 +93,5 @@ The decomposition is lossless-join: the shared `actor_id` is a key of `actor`, a
 | `event.prev_hash` and `hash` | Derivable from other rows | Stored for tamper evidence |
 | `snapshot.state` | A derived copy of world state | Stored to speed up branch reconstruction |
 | `entity_state.entity_id` | Polymorphic, no FK | It can refer to different entity kinds. |
+| `causal_closure` | Redundant by design, derived from event_cause | Kept by a trigger for fast Ask Why |
+| `causal_path` | Redundant by design, derived from event_cause | Kept by a trigger for fast Ask Why |

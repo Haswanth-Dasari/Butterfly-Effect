@@ -5,6 +5,7 @@
 \ir 04_circular_fk.sql
 \ir 05_event_immutability.sql
 \ir 06_rule_checks.sql
+\ir 07_causal_structures.sql
 \ir ../procedures/01_event_hash.sql
 \ir ../procedures/02_verify_chain.sql
 \ir ../procedures/03_entity_state.sql
@@ -12,3 +13,7 @@
 \ir ../procedures/05_apply_action.sql
 \ir ../procedures/06_rules_engine.sql
 \ir ../procedures/07_advance_day.sql
+\ir ../procedures/08_causal_maintenance.sql
+\ir ../procedures/09_ask_why.sql
+\ir ../views/01_scores.sql
+\ir ../views/02_daily_views.sql

@@ -90,6 +90,15 @@ erDiagram
         jsonb payload
         boolean processed
     }
+    causal_closure {
+        int ancestor_id PK, FK
+        int descendant_id PK, FK
+        int depth
+    }
+    causal_path {
+        int event_id PK, FK
+        string path
+    }
 
     place ||--o| home : "has"
     home ||--o{ actor : "houses"
@@ -113,6 +122,9 @@ erDiagram
     event ||--o{ scheduled_effect : "schedules"
     rule ||--o{ scheduled_effect : "defines"
     branch ||--o{ scheduled_effect : "has scheduled effect"
+    event ||--o{ causal_closure : "ancestor of"
+    event ||--o{ causal_closure : "descendant of"
+    event ||--o| causal_path : "has path"
 ```
 
 ## Design decisions
@@ -127,3 +139,5 @@ erDiagram
 | 6 | stock primary key includes branch_id so each branch has its own stock. | Including branch_id allows the same place and item to have distinct stock records in different branches. |
 | 7 | entity_state.entity_id is polymorphic with no FK (it can refer to an actor, place or item). | A single entity identifier supports state for all three entity kinds without a foreign key to only one table. |
 | 8 | action_type uses a text primary key because it is a small, stable, readable lookup. | Text keys keep action type references readable and directly tied to stable lookup values. |
+| 9 | causal_closure is derived from event_cause by a trigger | Ask Why and butterfly score read it without recursion |
+| 10 | causal_path is derived and follows the first cause only | a cheap materialized-path alternative for the Ask Why benchmark |

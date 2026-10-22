@@ -142,7 +142,25 @@ psql -U postgres -d butterfly -f db/tests/03_seed_tests.sql
 psql -U postgres -d butterfly -f db/tests/04_engine_tests.sql
 psql -U postgres -d butterfly -f db/tests/05_rules_tests.sql
 psql -U postgres -d butterfly -f db/tests/06_game_tests.sql
+psql -U postgres -d butterfly -f db/tests/07_askwhy_tests.sql
 psql -U postgres -d butterfly -f db/demo/01_first_evening.sql
 psql -U postgres -d butterfly -f db/demo/02_ripple.sql
 psql -U postgres -d butterfly -f db/demo/03_a_week.sql
+psql -U postgres -d butterfly -f db/demo/04_ask_why.sql
+```
+
+## Ask Why
+
+- **Closure table + trigger**: `causal_closure` stores all ancestor-descendant pairs and shortest depths, maintained incrementally by the `causal_maintain` trigger on `event_cause`.
+- **Materialized path**: `causal_path` stores slash-delimited causal chains under a first-cause-wins rule for single-parent causal tracing.
+- **Three `why_ids_*` functions**: `why_ids_cte` (recursive query), `why_ids_closure` (direct closure lookup), and `why_ids_path` (materialized path unnesting) provide multiple implementations for causality inspection.
+- **`ask_why` (Chronicle API)**: Returns the full chronological provenance narrative leading to an event, joining causal ancestors with rules and narrative templates.
+- **Butterfly score**: `butterfly_score(event_id)` computes downstream cascade impact as the count of transitive descendants.
+- **Views and materialized views**: `v_action_scores` and `v_player_butterfly` expose real-time metrics; `mv_evening_bell` and `mv_leaderboard` provide high-performance daily summaries refreshed via `refresh_daily_views()`.
+
+Run the Ask Why test suite and demo:
+
+```sh
+psql -U postgres -d butterfly -f db/tests/07_askwhy_tests.sql
+psql -U postgres -d butterfly -f db/demo/04_ask_why.sql
 ```

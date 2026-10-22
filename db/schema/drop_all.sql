@@ -1,4 +1,13 @@
 -- DEVELOPMENT ONLY. Destroys all data.
+DROP FUNCTION IF EXISTS refresh_daily_views CASCADE;
+DROP FUNCTION IF EXISTS butterfly_score CASCADE;
+DROP FUNCTION IF EXISTS ask_why CASCADE;
+DROP FUNCTION IF EXISTS why_ids_path CASCADE;
+DROP FUNCTION IF EXISTS why_ids_closure CASCADE;
+DROP FUNCTION IF EXISTS why_ids_cte CASCADE;
+DROP FUNCTION IF EXISTS verify_causal_structures CASCADE;
+DROP FUNCTION IF EXISTS rebuild_causal_structures CASCADE;
+DROP FUNCTION IF EXISTS causal_maintain CASCADE;
 DROP FUNCTION IF EXISTS advance_day CASCADE;
 DROP FUNCTION IF EXISTS process_event_rules CASCADE;
 DROP FUNCTION IF EXISTS emit_effect CASCADE;
@@ -21,6 +30,10 @@ DROP FUNCTION IF EXISTS verify_event_chain(INT) CASCADE;
 DROP FUNCTION IF EXISTS event_hash_chain() CASCADE;
 DROP FUNCTION IF EXISTS event_hash(BYTEA, BIGINT, INT, INT, INT, TEXT, JSONB) CASCADE;
 DROP FUNCTION IF EXISTS forbid_event_change() CASCADE;
+
+DROP MATERIALIZED VIEW IF EXISTS mv_evening_bell, mv_leaderboard;
+DROP VIEW IF EXISTS v_player_butterfly, v_action_scores;
+DROP TABLE IF EXISTS causal_closure, causal_path CASCADE;
 
 DROP TABLE IF EXISTS
     scheduled_effect,
