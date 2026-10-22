@@ -86,3 +86,63 @@ psql -U postgres -d butterfly -f db/tests/05_rules_tests.sql
 psql -U postgres -d butterfly -f db/demo/01_first_evening.sql
 psql -U postgres -d butterfly -f db/demo/02_ripple.sql
 ```
+
+## Game content
+
+### Player actions
+
+The 10 player actions:
+
+| Action | Description | Notes |
+| --- | --- | --- |
+| `gift` | Transfers an item from actor inventory to target actor's inventory. | Private visibility. Triggers rule 11. |
+| `trade` | Buys goods from a place's stock, paying the target actor (seller) and receiving the goods into actor inventory. | Private visibility. Triggers rule 15 if stock falls low. |
+| `steal` | Takes goods from a place's stock into actor inventory without paying. | Secret visibility. Triggers rule 1 if stock falls low. |
+| `rumor` | Spreads a rumor (`slander`, `praise`, or other) about another actor. | Private visibility. Triggers rules 13 and 14. |
+| `build` | Constructs or upgrades a village structure or workshop. | Public visibility. Recorded-only by design (effects come from rules). |
+| `hire` | Hires another villager for a wage, setting their employer in entity state. | Private visibility. Deducts wage from actor and credits target actor. |
+| `set_price` | Adjusts commodity price at a workplace by fixed amount or percentage. | Public visibility. Triggers rule 2 if price rises >= 20%. |
+| `help_harvest` | Assists with harvesting grain at a farm (up to 10 units), increasing farm grain stock. | Private visibility. Triggers rule 12. |
+| `sabotage` | Destroys goods directly from a place's stock in secret. | Secret visibility. Triggers rule 10 if stock falls low. (Sabotage destroys goods; steal conserves them.) |
+| `feast` | Hosts or attends a community feast in the village. | Public visibility. Recorded-only by design (effects come from rules). |
+
+*Note: `build` and `feast` are recorded-only by design; any gameplay effects arise exclusively through rule triggers.*
+
+### Seed rules (1–15)
+
+| Rule ID | Trigger | Delay | Meaning |
+| --- | --- | --- | --- |
+| 1 | `steal` | 1 | Low bread stock at bakery (< 40) after theft causes a 25% price increase next day. |
+| 2 | `set_price` | 1 | Price increase of >= 20% shuns the culprit and reduces trust by 5 next day. |
+| 3 | `state_change` | 0 | When an entity's trust drops below 50, a public 'thief' rumor is immediately sparked. |
+| 4 | `day_start` | 0 | Hartley Farm brings in the daily harvest (+25 grain). |
+| 5 | `day_start` | 0 | Hartley Farm delivers 20 grain to Tobin's Mill if farm grain stock is at least 20. |
+| 6 | `day_start` | 0 | Tobin's Mill grinds 20 grain into 20 flour if mill grain stock is at least 20. |
+| 7 | `day_start` | 0 | Tobin's Mill delivers 10 flour to Maren's Bakery if mill flour stock is at least 10. |
+| 8 | `day_start` | 0 | Maren's Bakery bakes 10 flour into 20 bread if bakery flour stock is at least 10. |
+| 9 | `day_start` | 0 | The village consumes 15 bread from Maren's Bakery if bakery bread stock is at least 15. |
+| 10 | `sabotage` | 1 | Damaged stock (< 40) causes a 25% price increase next day. |
+| 11 | `gift` | 0 | Receiving a gift leaves the recipient feeling grateful. |
+| 12 | `help_harvest` | 0 | Helping harvest increases the helper's trust by 2. |
+| 13 | `rumor` | 0 | Slander rumors reduce the subject's trust by 3. |
+| 14 | `rumor` | 0 | Praise rumors increase the subject's trust by 3. |
+| 15 | `trade` | 1 | Low stock (< 10) after trade causes a 10% price increase next day. |
+
+### Rule engine conditions
+
+In addition to `payload_eq`, `payload_gte`, `stock_below`, and `state_lt`, the engine supports:
+- `stock_at_least`: Object `{place_id, item_id, qty}` verifying that the stock row for the specified place, item, and branch has `qty >= given qty`. Evaluates to `false` if no stock row exists.
+
+### Running tests and demos
+
+Run test suites and demos from the repository root:
+
+```sh
+psql -U postgres -d butterfly -f db/tests/03_seed_tests.sql
+psql -U postgres -d butterfly -f db/tests/04_engine_tests.sql
+psql -U postgres -d butterfly -f db/tests/05_rules_tests.sql
+psql -U postgres -d butterfly -f db/tests/06_game_tests.sql
+psql -U postgres -d butterfly -f db/demo/01_first_evening.sql
+psql -U postgres -d butterfly -f db/demo/02_ripple.sql
+psql -U postgres -d butterfly -f db/demo/03_a_week.sql
+```

@@ -63,18 +63,32 @@ END
 $$;
 
 DO $$
+DECLARE
+    v_plain_rejected BOOLEAN := FALSE;
+    v_cascade_rejected BOOLEAN := FALSE;
 BEGIN
     BEGIN
         TRUNCATE event;
-        RAISE EXCEPTION 'FAIL: truncate on event is rejected';
+    EXCEPTION
+        WHEN OTHERS THEN
+            v_plain_rejected := TRUE;
+    END;
+
+    BEGIN
+        TRUNCATE event CASCADE;
     EXCEPTION
         WHEN OTHERS THEN
             IF position('immutable' IN SQLERRM) > 0 THEN
-                RAISE NOTICE 'PASS: truncate on event is rejected';
-            ELSE
-                RAISE;
+                v_cascade_rejected := TRUE;
             END IF;
     END;
+
+    IF v_plain_rejected AND v_cascade_rejected THEN
+        RAISE NOTICE 'PASS: truncate on event is rejected';
+    ELSE
+        RAISE EXCEPTION 'FAIL: truncate on event is rejected (plain=%, cascade=%)',
+            v_plain_rejected, v_cascade_rejected;
+    END IF;
 END
 $$;
 

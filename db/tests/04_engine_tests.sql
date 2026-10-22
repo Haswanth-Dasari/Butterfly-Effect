@@ -106,7 +106,7 @@ BEGIN
 
     PERFORM patch_entity_state(v_tt_id, v_branch_id, v_cur_tick, '{"coins": 4}'::jsonb);
 
-    SELECT count(*), (min(state)->>'coins')::int
+    SELECT count(*), max((state->>'coins')::int)
     INTO v_row_count_1, v_coins_1
     FROM entity_state
     WHERE entity_id = v_tt_id AND branch_id = v_branch_id;

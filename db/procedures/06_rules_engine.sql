@@ -133,6 +133,25 @@ BEGIN
                 RETURN FALSE;
             END IF;
 
+        ELSIF v_cond_key = 'stock_at_least' THEN
+            v_place_id := (v_cond_val->>'place_id')::int;
+            v_item_id := (v_cond_val->>'item_id')::int;
+            v_qty := (v_cond_val->>'qty')::numeric;
+
+            SELECT qty INTO v_stock_qty
+            FROM stock
+            WHERE place_id = v_place_id
+              AND item_id = v_item_id
+              AND branch_id = e.branch_id;
+
+            IF NOT FOUND THEN
+                RETURN FALSE;
+            END IF;
+
+            IF NOT (v_stock_qty >= v_qty) THEN
+                RETURN FALSE;
+            END IF;
+
         ELSIF v_cond_key = 'state_lt' THEN
             v_entity_id := (v_cond_val->>'entity_id')::int;
             v_state_key := v_cond_val->>'key';

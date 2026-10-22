@@ -172,7 +172,7 @@ BEGIN
     INTO v_total, v_player_actions
     FROM action_type;
 
-    IF v_total = 19 AND v_player_actions = 10 THEN
+    IF v_total = 22 AND v_player_actions = 10 THEN
         RAISE NOTICE 'PASS: action_type records';
     ELSE
         RAISE EXCEPTION 'FAIL: action_type records (total=%, player_actions=%)', v_total, v_player_actions;
@@ -283,22 +283,44 @@ $$;
 
 DO $$
 DECLARE
-    v_count INT;
-    v_match_count INT;
+    v_total INT;
+    v_active INT;
+    v_steal INT;
+    v_set_price INT;
+    v_state_change INT;
+    v_day_start INT;
+    v_sabotage INT;
+    v_gift INT;
+    v_help_harvest INT;
+    v_rumor INT;
+    v_trade INT;
 BEGIN
-    SELECT count(*),
-           count(*) FILTER (
-               WHERE (trigger_action_type = 'steal' AND delay_ticks = 1 AND is_active)
-                  OR (trigger_action_type = 'set_price' AND delay_ticks = 1 AND is_active)
-                  OR (trigger_action_type = 'state_change' AND delay_ticks = 0 AND is_active)
-           )
-    INTO v_count, v_match_count
+    SELECT
+        count(*),
+        count(*) FILTER (WHERE is_active),
+        count(*) FILTER (WHERE trigger_action_type = 'steal'),
+        count(*) FILTER (WHERE trigger_action_type = 'set_price'),
+        count(*) FILTER (WHERE trigger_action_type = 'state_change'),
+        count(*) FILTER (WHERE trigger_action_type = 'day_start'),
+        count(*) FILTER (WHERE trigger_action_type = 'sabotage'),
+        count(*) FILTER (WHERE trigger_action_type = 'gift'),
+        count(*) FILTER (WHERE trigger_action_type = 'help_harvest'),
+        count(*) FILTER (WHERE trigger_action_type = 'rumor'),
+        count(*) FILTER (WHERE trigger_action_type = 'trade')
+    INTO
+        v_total, v_active, v_steal, v_set_price, v_state_change,
+        v_day_start, v_sabotage, v_gift, v_help_harvest, v_rumor, v_trade
     FROM "rule";
 
-    IF v_count = 3 AND v_match_count = 3 THEN
+    IF v_total = 15 AND v_active = 15
+       AND v_steal = 1 AND v_set_price = 1 AND v_state_change = 1
+       AND v_day_start = 6 AND v_sabotage = 1 AND v_gift = 1
+       AND v_help_harvest = 1 AND v_rumor = 2 AND v_trade = 1 THEN
         RAISE NOTICE 'PASS: rules seeded';
     ELSE
-        RAISE EXCEPTION 'FAIL: rules seeded (count=%, match_count=%)', v_count, v_match_count;
+        RAISE EXCEPTION 'FAIL: rules seeded (total=%, active=%, steal=%, set_price=%, state_change=%, day_start=%, sabotage=%, gift=%, help_harvest=%, rumor=%, trade=%)',
+            v_total, v_active, v_steal, v_set_price, v_state_change,
+            v_day_start, v_sabotage, v_gift, v_help_harvest, v_rumor, v_trade;
     END IF;
 END
 $$;

@@ -89,3 +89,33 @@ BEGIN
     );
 END;
 $$;
+
+-- Adjusts an actor's coins by delta at the given tick.
+CREATE FUNCTION adjust_coins(p_actor INT, p_branch INT, p_tick INT, p_delta NUMERIC)
+RETURNS VOID
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_state JSONB;
+    v_new NUMERIC;
+BEGIN
+    SELECT state
+    INTO v_state
+    FROM entity_state
+    WHERE entity_id = p_actor
+      AND branch_id = p_branch
+      AND upper_inf(valid_ticks);
+
+    IF NOT FOUND THEN
+        PERFORM patch_entity_state(p_actor, p_branch, p_tick, '{}'::jsonb);
+    END IF;
+
+    v_new := COALESCE((v_state ->> 'coins')::numeric, 0) + p_delta;
+
+    IF v_new < 0 THEN
+        RAISE EXCEPTION 'not enough coins';
+    END IF;
+
+    PERFORM patch_entity_state(p_actor, p_branch, p_tick, jsonb_build_object('coins', v_new));
+END;
+$$;

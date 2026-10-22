@@ -19,7 +19,10 @@ INSERT INTO action_type (action_type, description) VALUES
 ('world_start', 'System: marks the start of a branch'),
 ('arrive', 'System: a player arrives in the village'),
 ('state_change', 'System: changes the state of one entity'),
-('day_start', 'System: a new day begins');
+('day_start', 'System: a new day begins'),
+('produce', 'System: a place turns inputs into goods'),
+('deliver', 'System: goods move between places'),
+('consume', 'System: the village uses up goods');
 
 INSERT INTO item (item_id, name) VALUES
 (1, 'bread'),

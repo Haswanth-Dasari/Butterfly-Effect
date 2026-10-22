@@ -38,6 +38,7 @@ SELECT advance_day((SELECT branch_id FROM branch WHERE name = 'main')) AS day_ad
 SELECT advance_day((SELECT branch_id FROM branch WHERE name = 'main')) AS day_advanced_to_2;
 
 -- (A) all events: event_id, tick, actor name or '-', action_type, ORDER BY event_id
+-- daily routine events hidden; see demo 03
 SELECT
     e.event_id,
     e.tick,
@@ -47,6 +48,7 @@ FROM event AS e
 LEFT JOIN actor AS a ON a.actor_id = e.actor_id
 JOIN branch AS b ON b.branch_id = e.branch_id
 WHERE b.name = 'main'
+  AND e.action_type NOT IN ('produce', 'deliver', 'consume')
 ORDER BY e.event_id;
 
 -- (B) Ask Why for the 'rumor' event: recursive CTE; one row per causal link: depth, cause action_type, effect action_type, the rule's narrative_template, ORDER BY depth

@@ -523,13 +523,13 @@ BEGIN
     v_other_id := join_village(v_branch_id, 'test_other');
 
     INSERT INTO "rule" (trigger_action_type, condition, delay_ticks, effect_template, is_active)
-    VALUES ('hire', NULL, 0, '{"action":"state_change","actor":null,"payload":{"entity_id":999999,"set":{"mood":"x"}},"visibility":"private"}', TRUE);
+    VALUES ('build', NULL, 0, '{"action":"state_change","actor":null,"payload":{"entity_id":999999,"set":{"mood":"x"}},"visibility":"private"}', TRUE);
 
     SELECT count(*) INTO v_events_before FROM event;
     SELECT count(*) INTO v_witness_before FROM event_witness;
 
     BEGIN
-        PERFORM apply_action(v_branch_id, v_other_id, 'hire', '{}'::jsonb);
+        PERFORM apply_action(v_branch_id, v_other_id, 'build', '{}'::jsonb);
     EXCEPTION
         WHEN OTHERS THEN
             IF position('no current state' IN SQLERRM) > 0 THEN
