@@ -20,10 +20,13 @@ WITH per_event AS (
         COALESCE(cc.score, 0) AS score
     FROM event e
     LEFT JOIN (
-        SELECT ancestor_id, count(*)::INT AS score
-        FROM causal_closure
-        WHERE depth > 0
-        GROUP BY ancestor_id
+        SELECT cc.ancestor_id, count(*)::INT AS score
+        FROM causal_closure cc
+        JOIN event ea ON ea.event_id = cc.ancestor_id
+        JOIN event ed ON ed.event_id = cc.descendant_id
+        WHERE cc.depth > 0
+          AND ed.branch_id = ea.branch_id
+        GROUP BY cc.ancestor_id
     ) cc ON cc.ancestor_id = e.event_id
 ),
 per_tick AS (

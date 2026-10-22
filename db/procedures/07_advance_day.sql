@@ -41,6 +41,10 @@ BEGIN
         FROM event
         WHERE event_id = s.source_event_id;
 
+        -- If a pending effect was copied from a parent branch, ensure it is emitted into the current child branch.
+        -- The resulting event_cause row will still point at the original source event id.
+        v_source_event.branch_id := p_branch;
+
         v_new_ev := emit_effect(v_source_event, s.rule_id, s.payload, v_new);
 
         UPDATE scheduled_effect

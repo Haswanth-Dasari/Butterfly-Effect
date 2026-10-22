@@ -102,13 +102,18 @@ AS $$
     ORDER BY a.depth DESC, a.event_id;
 $$;
 
--- 5. Butterfly score: count of causal_closure rows with ancestor_id = p_event AND depth > 0.
+-- 5. Butterfly score: count of causal_closure rows with ancestor_id = p_event AND depth > 0
+-- whose descendant event has the same branch_id as the ancestor event.
 CREATE OR REPLACE FUNCTION butterfly_score(p_event BIGINT)
 RETURNS INT
 LANGUAGE sql
 STABLE
 AS $$
     SELECT count(*)::INT
-    FROM causal_closure
-    WHERE ancestor_id = p_event AND depth > 0;
+    FROM causal_closure cc
+    JOIN event ea ON ea.event_id = cc.ancestor_id
+    JOIN event ed ON ed.event_id = cc.descendant_id
+    WHERE cc.ancestor_id = p_event
+      AND cc.depth > 0
+      AND ed.branch_id = ea.branch_id;
 $$;

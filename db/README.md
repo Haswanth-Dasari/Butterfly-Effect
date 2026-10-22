@@ -143,10 +143,12 @@ psql -U postgres -d butterfly -f db/tests/04_engine_tests.sql
 psql -U postgres -d butterfly -f db/tests/05_rules_tests.sql
 psql -U postgres -d butterfly -f db/tests/06_game_tests.sql
 psql -U postgres -d butterfly -f db/tests/07_askwhy_tests.sql
+psql -U postgres -d butterfly -f db/tests/08_branching_tests.sql
 psql -U postgres -d butterfly -f db/demo/01_first_evening.sql
 psql -U postgres -d butterfly -f db/demo/02_ripple.sql
 psql -U postgres -d butterfly -f db/demo/03_a_week.sql
 psql -U postgres -d butterfly -f db/demo/04_ask_why.sql
+psql -U postgres -d butterfly -f db/demo/05_parallel_villages.sql
 ```
 
 ## Ask Why
@@ -163,4 +165,20 @@ Run the Ask Why test suite and demo:
 ```sh
 psql -U postgres -d butterfly -f db/tests/07_askwhy_tests.sql
 psql -U postgres -d butterfly -f db/demo/04_ask_why.sql
+```
+
+## Branching
+
+- **History inheritance**: Child branches store only their own new events starting with a `world_start` fork marker; ancestral events and causal provenance are inherited through `lineage_events` and `lineage_branches`.
+- **Three forking strategies**: `cow` (copy-on-write duplicate of head state, O(state size), valid only at parent's latest event), `replay` (full projection replay from root baseline snapshot), and `snapshot_delta` (fast hybrid replay from latest usable snapshot).
+- **Baseline and periodic snapshots**: Immutable state baselines taken at tick 0 and key checkpoints; snapshot uniqueness per `(branch_id, tick)` ensures baselines are never overwritten.
+- **Digest and branch_diff**: `branch_state_digest` generates canonical SHA-256 digests over world state; `branch_diff` computes full outer joins over stock and entity states to inspect diverging timelines.
+- **Cross-branch causal links**: Rules and scheduled effects triggered on a parent branch can emit effects into child branches while retaining causal provenance back to the original source event.
+- **The two fixes**: In `advance_day`, re-routing copied pending effects to the child branch before `emit_effect`; in scoring (`butterfly_score`, `v_action_scores`, `mv_evening_bell`), restricting butterfly descendant counts to the ancestor event's branch. Test suite 03 now contains 13 tests with the baseline snapshot test.
+
+Run the Branching test suite and demo:
+
+```sh
+psql -U postgres -d butterfly -f db/tests/08_branching_tests.sql
+psql -U postgres -d butterfly -f db/demo/05_parallel_villages.sql
 ```

@@ -29,3 +29,6 @@ ORDER BY actor_id;
 
 INSERT INTO event (branch_id, tick, actor_id, action_type, payload)
 VALUES (1, 0, NULL, 'world_start', '{"note":"Alderbrook begins"}'::jsonb);
+
+-- Baseline for full replay (the baseline snapshot, tick 0).
+SELECT create_snapshot((SELECT branch_id FROM branch WHERE name = 'main' AND parent_id IS NULL));

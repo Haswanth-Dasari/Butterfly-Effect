@@ -325,4 +325,40 @@ BEGIN
 END
 $$;
 
+-- 13. Baseline snapshot
+DO $$
+DECLARE
+    v_snap_count INT;
+    v_snap snapshot;
+    v_genesis_id BIGINT;
+    v_main_id INT;
+    v_stock_len INT;
+    v_entities_len INT;
+    v_pending_len INT;
+BEGIN
+    SELECT branch_id INTO v_main_id FROM branch WHERE name = 'main' AND parent_id IS NULL;
+    SELECT event_id INTO v_genesis_id FROM event WHERE branch_id = v_main_id AND action_type = 'world_start' AND tick = 0;
+
+    SELECT count(*) INTO v_snap_count FROM snapshot;
+    SELECT * INTO v_snap FROM snapshot WHERE branch_id = v_main_id;
+
+    v_stock_len := jsonb_array_length(v_snap.state->'stock');
+    v_entities_len := jsonb_array_length(v_snap.state->'entities');
+    v_pending_len := jsonb_array_length(v_snap.state->'pending');
+
+    IF v_snap_count = 1
+       AND v_snap.branch_id = v_main_id
+       AND v_snap.tick = 0
+       AND v_snap.last_event_id = v_genesis_id
+       AND v_stock_len = 7
+       AND v_entities_len = 30
+       AND v_pending_len = 0 THEN
+        RAISE NOTICE 'PASS: baseline snapshot';
+    ELSE
+        RAISE EXCEPTION 'FAIL: baseline snapshot (count=%, branch=%, tick=%, last_event=%, genesis=%, stock=%, entities=%, pending=%)',
+            v_snap_count, v_snap.branch_id, v_snap.tick, v_snap.last_event_id, v_genesis_id, v_stock_len, v_entities_len, v_pending_len;
+    END IF;
+END
+$$;
+
 ROLLBACK;
