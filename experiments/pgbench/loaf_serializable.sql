@@ -1,0 +1,3 @@
+BEGIN ISOLATION LEVEL SERIALIZABLE;
+SELECT lab.buy_naive(:client_id);
+COMMIT;

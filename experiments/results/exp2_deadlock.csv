@@ -1,0 +1,3 @@
+﻿variant,clients,processed,failed,deadlock_failures,tps,sum_coins,conserved,ledger_consistent
+unordered,4,33,67,0,4.583584,200,true,true
+ordered,4,100,0,0,15.924368,200,true,true

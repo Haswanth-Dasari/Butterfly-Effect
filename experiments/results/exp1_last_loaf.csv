@@ -1,0 +1,11 @@
+﻿variant,mode,clients,tx_per_client,tps,failed,retried,sales,final_qty,removed,phantom,oversold,correct
+naive,control,1,1000,63.78459,0,0,100,0,100,0,0,true
+naive,contended,20,50,1220.101415,0,0,1000,48,52,948,900,false
+for_update,control,1,1000,63.771923,0,0,100,0,100,0,0,true
+for_update,contended,20,50,63.95615,0,0,100,0,100,0,0,true
+atomic_check,control,1,1000,63.883934,0,0,100,0,100,0,0,true
+atomic_check,contended,20,50,1266.106457,0,0,100,0,100,0,0,true
+optimistic,control,1,1000,623.756386,0,0,100,0,100,0,0,true
+optimistic,contended,20,50,636.628011,0,0,100,0,100,0,0,true
+serializable,control,1,1000,63.677184,0,0,100,0,100,0,0,true
+serializable,contended,20,50,429.968967,7,123,100,0,100,0,0,true
