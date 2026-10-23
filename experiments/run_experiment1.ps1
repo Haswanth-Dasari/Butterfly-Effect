@@ -53,7 +53,7 @@ if (-not (Test-Path $resultsDir)) {
 $csvPath = Join-Path $resultsDir "exp1_last_loaf.csv"
 
 # Overwrite CSV at the start
-$csvHeader = "variant,mode,clients,tx_per_client,tps,failed,retried,sales,final_qty,removed,phantom,oversold,correct"
+$csvHeader = "variant,mode,clients,tx_per_client,tps,failed,retried,serialization_failures,deadlock_failures,total_retries,sales,final_qty,removed,phantom,oversold,correct"
 Set-Content -Path $csvPath -Value $csvHeader -Encoding UTF8
 
 $variants = @(
@@ -103,7 +103,7 @@ foreach ($v in $variants) {
         }
 
         # Run pgbench and capture output as flattened string joined with newlines
-        $outputLines = & pgbench -n -U $User -d $Database -c $c -j $threads -t $tx -f $benchFile "--max-tries=$m" 2>&1 | ForEach-Object { "$_" }
+        $outputLines = & pgbench -n -U $User -d $Database -c $c -j $threads -t $tx -f $benchFile --failures-detailed "--max-tries=$m" 2>&1 | ForEach-Object { "$_" }
         $benchText = $outputLines -join "`n"
 
         # Parse metrics with regexes (default to 0 when absent)
@@ -122,6 +122,21 @@ foreach ($v in $variants) {
         $retried = 0
         if ($benchText -match 'number of transactions retried:\s*(\d+)') {
             $retried = [int64]$Matches[1]
+        }
+
+        $serialization_failures = 0
+        if ($benchText -match 'number of serialization failures:\s*(\d+)') {
+            $serialization_failures = [int64]$Matches[1]
+        }
+
+        $deadlock_failures = 0
+        if ($benchText -match 'number of deadlock failures:\s*(\d+)') {
+            $deadlock_failures = [int64]$Matches[1]
+        }
+
+        $total_retries = 0
+        if ($benchText -match 'total number of retries:\s*(\d+)') {
+            $total_retries = [int64]$Matches[1]
         }
 
         # Query state after run
@@ -150,28 +165,31 @@ foreach ($v in $variants) {
         }
 
         # Append row to CSV
-        $csvLine = "$varName,$modeName,$c,$tx,$tps,$failed,$retried,$sales,$final_qty,$removed,$phantom,$oversold,$correct"
+        $csvLine = "$varName,$modeName,$c,$tx,$tps,$failed,$retried,$serialization_failures,$deadlock_failures,$total_retries,$sales,$final_qty,$removed,$phantom,$oversold,$correct"
         Add-Content -Path $csvPath -Value $csvLine -Encoding UTF8
 
         # Record result object
         $rowObj = [PSCustomObject]@{
-            variant       = $varName
-            mode          = $modeName
-            clients       = $c
-            tx_per_client = $tx
-            tps           = $tps
-            failed        = $failed
-            retried       = $retried
-            sales         = $sales
-            final_qty     = $final_qty
-            removed       = $removed
-            phantom       = $phantom
-            oversold      = $oversold
-            correct       = $correct
+            variant                = $varName
+            mode                   = $modeName
+            clients                = $c
+            tx_per_client          = $tx
+            tps                    = $tps
+            failed                 = $failed
+            retried                = $retried
+            serialization_failures = $serialization_failures
+            deadlock_failures      = $deadlock_failures
+            total_retries          = $total_retries
+            sales                  = $sales
+            final_qty              = $final_qty
+            removed                = $removed
+            phantom                = $phantom
+            oversold               = $oversold
+            correct                = $correct
         }
         $results += $rowObj
     }
 }
 
 Write-Host "`n--- Experiment 1 Results ---"
-$results | Format-Table -AutoSize
+$results | Select-Object variant, mode, @{Name='tps'; Expression={[Math]::Round($_.tps, 1)}}, failed, retried, sales, final_qty, phantom, oversold, correct | Format-Table -AutoSize

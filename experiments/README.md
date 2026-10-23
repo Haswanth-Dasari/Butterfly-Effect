@@ -44,18 +44,18 @@ Optional parameters:
 CSV file: `experiments/results/exp1_last_loaf.csv`
 
 ### Results
-| variant | mode | clients | tx_per_client | tps | failed | retried | sales | final_qty | removed | phantom | oversold | correct |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| naive | control | | | | | | | | | | | |
-| naive | contended | | | | | | | | | | | |
-| for_update | control | | | | | | | | | | | |
-| for_update | contended | | | | | | | | | | | |
-| atomic_check | control | | | | | | | | | | | |
-| atomic_check | contended | | | | | | | | | | | |
-| optimistic | control | | | | | | | | | | | |
-| optimistic | contended | | | | | | | | | | | |
-| serializable | control | | | | | | | | | | | |
-| serializable | contended | | | | | | | | | | | |
+| variant | mode | clients | tx_per_client | tps | failed | retried | serialization_failures | deadlock_failures | total_retries | sales | final_qty | removed | phantom | oversold | correct |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| naive | control | | | | | | | | | | | | | | |
+| naive | contended | | | | | | | | | | | | | | |
+| for_update | control | | | | | | | | | | | | | | |
+| for_update | contended | | | | | | | | | | | | | | |
+| atomic_check | control | | | | | | | | | | | | | | |
+| atomic_check | contended | | | | | | | | | | | | | | |
+| optimistic | control | | | | | | | | | | | | | | |
+| optimistic | contended | | | | | | | | | | | | | | |
+| serializable | control | | | | | | | | | | | | | | |
+| serializable | contended | | | | | | | | | | | | | | |
 
 ---
 
@@ -90,10 +90,10 @@ Optional parameters:
 CSV file: `experiments/results/exp2_deadlock.csv`
 
 ### Results
-| variant | clients | processed | failed | deadlock_failures | tps | sum_coins | conserved | ledger_consistent |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| unordered | | | | | | | | |
-| ordered | | | | | | | | |
+| variant | clients | processed | failed | deadlock_failures | serialization_failures | tps | sum_coins | conserved | ledger_consistent |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| unordered | | | | | | | | | |
+| ordered | | | | | | | | | |
 
 ---
 

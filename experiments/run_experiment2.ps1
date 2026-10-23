@@ -51,7 +51,7 @@ if (-not (Test-Path $resultsDir)) {
 $csvPath = Join-Path $resultsDir "exp2_deadlock.csv"
 
 # Write CSV header at the start
-$csvHeader = "variant,clients,processed,failed,deadlock_failures,tps,sum_coins,conserved,ledger_consistent"
+$csvHeader = "variant,clients,processed,failed,deadlock_failures,serialization_failures,tps,sum_coins,conserved,ledger_consistent"
 Set-Content -Path $csvPath -Value $csvHeader -Encoding UTF8
 
 $variants = @(
@@ -85,8 +85,8 @@ try {
             exit 1
         }
 
-        # Run pgbench with -n -c <Clients> -j 2 -t <TxPerClient> -f <script> --max-tries=1
-        $outputLines = & pgbench -n -U $User -d $Database -c $Clients -j 2 -t $TxPerClient -f $benchFile --max-tries=1 2>&1 | ForEach-Object { "$_" }
+        # Run pgbench with -n -c <Clients> -j 2 -t <TxPerClient> -f <script> --failures-detailed --max-tries=1
+        $outputLines = & pgbench -n -U $User -d $Database -c $Clients -j 2 -t $TxPerClient -f $benchFile --failures-detailed --max-tries=1 2>&1 | ForEach-Object { "$_" }
         $benchText = $outputLines -join "`n"
 
         # Parse metrics with regexes
@@ -105,6 +105,11 @@ try {
         $deadlock_failures = 0
         if ($benchText -match 'number of deadlock failures:\s*(\d+)') {
             $deadlock_failures = [int64]$Matches[1]
+        }
+
+        $serialization_failures = 0
+        if ($benchText -match 'number of serialization failures:\s*(\d+)') {
+            $serialization_failures = [int64]$Matches[1]
         }
 
         $tps = 0.0
@@ -137,20 +142,21 @@ try {
         }
 
         # Append row to CSV
-        $csvLine = "$varName,$Clients,$processed,$failed,$deadlock_failures,$tps,$sum_coins,$conserved,$ledger_consistent"
+        $csvLine = "$varName,$Clients,$processed,$failed,$deadlock_failures,$serialization_failures,$tps,$sum_coins,$conserved,$ledger_consistent"
         Add-Content -Path $csvPath -Value $csvLine -Encoding UTF8
 
         # Record result object
         $rowObj = [PSCustomObject]@{
-            variant           = $varName
-            clients           = $Clients
-            processed         = $processed
-            failed            = $failed
-            deadlock_failures = $deadlock_failures
-            tps               = $tps
-            sum_coins         = $sum_coins
-            conserved         = $conserved
-            ledger_consistent = $ledger_consistent
+            variant                = $varName
+            clients                = $Clients
+            processed              = $processed
+            failed                 = $failed
+            deadlock_failures      = $deadlock_failures
+            serialization_failures = $serialization_failures
+            tps                    = $tps
+            sum_coins              = $sum_coins
+            conserved              = $conserved
+            ledger_consistent      = $ledger_consistent
         }
         $results += $rowObj
     }
