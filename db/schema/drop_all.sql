@@ -40,7 +40,7 @@ DROP FUNCTION IF EXISTS event_hash(BYTEA, BIGINT, INT, INT, INT, TEXT, JSONB) CA
 DROP FUNCTION IF EXISTS forbid_event_change() CASCADE;
 
 DROP MATERIALIZED VIEW IF EXISTS mv_evening_bell, mv_leaderboard;
-DROP VIEW IF EXISTS v_player_butterfly, v_action_scores;
+DROP VIEW IF EXISTS v_village_mood, v_player_butterfly, v_action_scores;
 DROP TABLE IF EXISTS causal_closure, causal_path CASCADE;
 
 DROP TABLE IF EXISTS

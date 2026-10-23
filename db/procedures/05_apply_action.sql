@@ -122,6 +122,7 @@ DECLARE
     v_tick INT;
     v_action_count INT;
     v_event_row event;
+    v_claim TEXT;
 BEGIN
     -- 1. Branch must exist
     IF NOT EXISTS (SELECT 1 FROM branch WHERE branch_id = p_branch) THEN
@@ -147,6 +148,12 @@ BEGIN
 
     IF p_payload IS NULL THEN
         RAISE EXCEPTION 'payload must not be null';
+    END IF;
+
+    -- When the backend sets app.actor_id, a player may only act as that actor; when unset (game master) there is no restriction.
+    v_claim := NULLIF(current_setting('app.actor_id', true), '');
+    IF v_claim IS NOT NULL AND v_claim::int <> p_actor THEN
+        RAISE EXCEPTION 'not your character';
     END IF;
 
     -- 4. Current tick

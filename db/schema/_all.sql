@@ -18,3 +18,7 @@
 \ir ../procedures/10_branching.sql
 \ir ../views/01_scores.sql
 \ir ../views/02_daily_views.sql
+\ir ../views/03_public_views.sql
+\ir ../security/01_roles.sql
+\ir ../security/02_rls.sql
+\ir ../security/03_privileges.sql

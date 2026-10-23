@@ -182,3 +182,21 @@ Run the Branching test suite and demo:
 psql -U postgres -d butterfly -f db/tests/08_branching_tests.sql
 psql -U postgres -d butterfly -f db/demo/05_parallel_villages.sql
 ```
+
+## Security
+
+- **Roles**: Three non-login group roles (`player_role`, `game_master_role`, `auditor_role`) enforce least-privilege access; roles are cluster-wide and are intentionally kept by `drop_all.sql`.
+- **Write-only through functions**: All write operations are restricted to hardened `SECURITY DEFINER` functions (`apply_action`, `join_village`, `advance_day`, `fork_branch`, `create_snapshot`, `refresh_daily_views`) running with table-owner rights, so no role needs write privileges on tables.
+- **Identity check**: `apply_action` enforces actor identity by validating `p_actor` against `app.actor_id` (raising `'not your character'` on impersonation attempts) while permitting unrestricted operations when unset for staff roles.
+- **The five RLS tables and player visibility**: Row Level Security is enabled on `event`, `event_witness`, `entity_state`, `event_cause`, and `causal_closure`; players may only see witnessed events, their own witness records, their own entity state, and causal provenance/closure pairs of witnessed effects.
+- **Public mood view**: `v_village_mood` is owned by the table owner and deliberately bypasses RLS to expose public mood indicators across actors without leaking private coins, trust, or inventory.
+- **Deny-by-default execute grants**: Public execution on schema functions is revoked from `PUBLIC` by default; explicit `GRANT EXECUTE` permissions whitelist permitted entry points for player, game master, and auditor roles.
+- **The trust boundary**: The backend service authenticates player sessions, adopts the appropriate role, and securely sets `app.actor_id` per request via `SET LOCAL`.
+
+Run the Security test suite and demo:
+
+```sh
+psql -U postgres -d butterfly -f db/tests/09_security_tests.sql
+psql -U postgres -d butterfly -f db/demo/06_peek_and_tamper.sql
+```
+
