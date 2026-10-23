@@ -97,6 +97,35 @@ CSV file: `experiments/results/exp2_deadlock.csv`
 
 ---
 
+## Experiment 7a: Rebuild from the Event Store (Application-Level Recovery)
+
+### Question Answered
+How does recovery replay time scale with event volume and history length, and does replaying lineage events from a baseline snapshot guarantee identical projection state digests across the world?
+
+### How to Run
+Ensure `$env:PGPASSWORD` is set in your PowerShell session:
+```powershell
+$env:PGPASSWORD = "your_db_password"
+powershell -ExecutionPolicy Bypass -File experiments/recovery/run_experiment7a.ps1
+```
+
+Optional parameters:
+- `-Days` (default: `50, 200, 800`)
+- `-Database` (default: `butterfly_bench`)
+- `-User` (default: `postgres`)
+
+### Results Output
+CSV file: `experiments/results/exp7a_rebuild.csv`
+
+### Results
+| days | events | entity_rows | closure_rows | rebuild_projections_ms | rebuild_world_ms | digest_equal |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 50 | | | | | | |
+| 200 | | | | | | |
+| 800 | | | | | | |
+
+---
+
 ## Sanity Self-Test
 
 To verify function logic without running full concurrent benchmarks, run the isolated self-test:
@@ -104,3 +133,4 @@ To verify function logic without running full concurrent benchmarks, run the iso
 psql -U postgres -d butterfly -f experiments/lab/selftest.sql
 ```
 This runs 6 validation tests inside a single session wrapped in `BEGIN ... ROLLBACK` without modifying database state.
+

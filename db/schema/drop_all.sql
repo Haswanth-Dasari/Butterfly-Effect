@@ -1,4 +1,8 @@
 -- DEVELOPMENT ONLY. Destroys all data.
+DROP FUNCTION IF EXISTS rebuild_world CASCADE;
+DROP FUNCTION IF EXISTS rebuild_all_projections CASCADE;
+DROP FUNCTION IF EXISTS rebuild_projections CASCADE;
+DROP FUNCTION IF EXISTS branch_projection_digest CASCADE;
 DROP FUNCTION IF EXISTS branch_diff CASCADE;
 DROP FUNCTION IF EXISTS fork_branch CASCADE;
 DROP FUNCTION IF EXISTS create_snapshot CASCADE;

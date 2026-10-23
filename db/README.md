@@ -200,3 +200,16 @@ psql -U postgres -d butterfly -f db/tests/09_security_tests.sql
 psql -U postgres -d butterfly -f db/demo/06_peek_and_tamper.sql
 ```
 
+## Recovery (application level)
+
+- **Event store as source of truth**: The append-only, tamper-evident `event` log is the primary authoritative record of the world; projection tables are strictly derived views that can be reconstructed on demand.
+- **Rebuilt vs preserved state**: `stock` and `entity_state` are completely rebuilt by replaying lineage events from the root baseline snapshot; `scheduled_effect` is queue state that cannot be derived from events and is deliberately left untouched, relying on database-level recovery.
+- **The four recovery functions**: `branch_projection_digest` computes a SHA-256 digest of stock and open entities (excluding pending effects); `rebuild_projections` resets and replays projection state for a branch; `rebuild_all_projections` rebuilds every branch in branch_id order; and `rebuild_world` executes `rebuild_projections`, `rebuild_causal_structures`, and `refresh_daily_views`.
+- **The digest proof**: Comparing `branch_projection_digest` before and after recovery mathematically proves deterministic reconstruction down to the exact byte.
+- **Owner-only execution**: Recovery functions alter village-wide projection state and are intentionally owner-only with no execute grants to player, game master, or auditor roles.
+- **Running recovery tests and demo**: Run test suite 10 and demo 07 from the repository root:
+  ```sh
+  psql -U postgres -d butterfly -f db/tests/10_recovery_tests.sql
+  psql -U postgres -d butterfly -f db/demo/07_wipe_and_rebuild.sql
+  ```
+

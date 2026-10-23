@@ -88,6 +88,7 @@ GRANT EXECUTE ON FUNCTION
     entity_state_at,
     branch_diff,
     branch_state_digest,
+    branch_projection_digest,
     serialize_branch_state,
     verify_event_chain,
     verify_causal_structures,
@@ -105,8 +106,12 @@ GRANT EXECUTE ON FUNCTION
     entity_state_at,
     branch_diff,
     branch_state_digest,
+    branch_projection_digest,
     serialize_branch_state,
     verify_event_chain,
     verify_causal_structures,
     event_hash
 TO auditor_role;
+
+-- Note: rebuild_projections, rebuild_all_projections, and rebuild_world are owner-only on purpose (no grants).
+

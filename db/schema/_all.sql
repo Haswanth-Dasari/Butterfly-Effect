@@ -16,6 +16,7 @@
 \ir ../procedures/08_causal_maintenance.sql
 \ir ../procedures/09_ask_why.sql
 \ir ../procedures/10_branching.sql
+\ir ../procedures/11_recovery.sql
 \ir ../views/01_scores.sql
 \ir ../views/02_daily_views.sql
 \ir ../views/03_public_views.sql
