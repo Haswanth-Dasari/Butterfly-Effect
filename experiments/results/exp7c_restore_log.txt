@@ -1,0 +1,3 @@
+﻿2026-10-24 23:34:04.916 IST [8008] LOG:  starting point-in-time recovery to "before_oops"
+2026-10-24 23:34:05.016 IST [8008] LOG:  recovery stopping at restore point "before_oops", time 2026-10-24 23:33:56.949657+05:30
+2026-10-24 23:34:05.016 IST [8008] LOG:  redo done at 0/31D21C8 system usage: CPU: user: 0.00 s, system: 0.03 s, elapsed: 0.09 s

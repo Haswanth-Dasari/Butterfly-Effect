@@ -1,0 +1,5 @@
+﻿2026-10-24 23:32:59.228 IST [35692] LOG:  database system is ready to accept connections
+2026-10-24 23:33:06.157 IST [12420] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-10-24 23:33:06.159 IST [12420] LOG:  redo starts at 0/17F3368
+2026-10-24 23:33:06.333 IST [12420] LOG:  redo done at 0/23FFF68 system usage: CPU: user: 0.00 s, system: 0.09 s, elapsed: 0.17 s
+2026-10-24 23:33:06.647 IST [40568] LOG:  database system is ready to accept connections
