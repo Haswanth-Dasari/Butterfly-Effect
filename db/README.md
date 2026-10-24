@@ -213,3 +213,11 @@ psql -U postgres -d butterfly -f db/demo/06_peek_and_tamper.sql
   psql -U postgres -d butterfly -f db/demo/07_wipe_and_rebuild.sql
   ```
 
+## Recovery (database level)
+
+- **WAL and crash recovery**: PostgreSQL Write-Ahead Logging (`wal_level = replica`, `fsync = on`, `synchronous_commit = on`) guarantees durability of committed transactions across sudden power cuts or process kills, while in-flight transactions are cleanly rolled back during automatic redo restart.
+- **Base backup plus archive**: Physical streaming base backups (`pg_basebackup`) combined with continuous WAL segment archiving (`archive_mode = on`, `archive_command`) retain an unbroken stream of changes for point-in-time recovery beyond checkpoint boundaries.
+- **Named restore points**: Operators can create transactional restore markers (`pg_create_restore_point`) before risky maintenance or migrations, enabling deterministic roll-forward to the exact instant preceding human error.
+- **What the experiments prove**: Experiment 7b confirms zero data loss, zero partial inflight writes, and preserved cryptographic event hash chains following immediate process crash (`taskkill /F`); Experiment 7c confirms complete restoration of dropped tables and truncated data up to a named restore point on a restored instance.
+- **Full-state protection vs projection rebuild**: While application-level recovery reconstructs derived projections (`stock`, `entity_state`) from the event store, database-level recovery protects the entire cluster—including non-derivable state such as pending `scheduled_effect` queues, schema catalogs, and database configuration.
+

@@ -126,6 +126,79 @@ CSV file: `experiments/results/exp7a_rebuild.csv`
 
 ---
 
+## Experiment 7b: Crash and Restart (Database-Level WAL Recovery)
+
+### Question Answered
+How does PostgreSQL's Write-Ahead Logging (WAL) and automatic redo recovery protect committed event store transactions and world state during an abrupt power loss or process kill (`SIGKILL`), and does recovery guarantee zero data loss, zero partial inflight writes, and unbroken event hash chains?
+
+### What is Proven
+- **Atomicity under Sudden Crash**: Inflight transactions active during a sudden kill (`taskkill /F /T`) leave zero partial writes or phantom records (`partial_players_found = 0`).
+- **Durability of Acknowledged Commits**: All transactions acknowledged prior to the crash (`advance_day` 1..5) are fully preserved (`tick_ok = true`, `events_ok = true`).
+- **Cryptographic Chain Integrity**: The cryptographic hash chain (`verify_event_chain()`) remains unbroken with 0 verification errors (`chain_problems = 0`).
+- **State Projection Digest Invariance**: Canonical projection digest before and after crash recovery matches byte-for-byte (`digest_equal = true`).
+- **Automatic Server Redo**: PostgreSQL automatically initiates redo replay upon restart without administrator intervention (`crash_recovery_logged = true`).
+
+> [!NOTE]
+> **Lab Cluster Isolation**: This experiment uses an isolated throwaway cluster on port **5544** under `C:\pg_lab`. It **never** connects to port 5432 or any development database. It uses local trust authentication (no passwords required) and **must be run from a non-administrator (standard user) PowerShell** session.
+
+### How to Run
+Run from a standard (non-elevated) PowerShell session:
+```powershell
+powershell -ExecutionPolicy Bypass -File experiments/recovery/run_experiment7b_crash.ps1
+```
+
+Optional parameters:
+- `-InflightDays` (default: `3000`)
+- `-Keep` (switch to preserve scratch cluster under `C:\pg_lab` for inspection)
+- `-LabRoot` (default: `C:\pg_lab`)
+
+### Results Output
+- CSV file: `experiments/results/exp7b_crash.csv`
+- Log file: `experiments/results/exp7b_recovery_log.txt`
+
+### Results
+| acked_ticks | tick_after | events_before | events_after | partial_players_found | chain_problems | digest_equal | crash_recovery_logged | inflight_at_kill | recovery_seconds |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| | | | | | | | | | |
+
+---
+
+## Experiment 7c: Point-in-Time Recovery (PITR)
+
+### Question Answered
+How does combining continuous WAL archiving with a physical base backup allow restoring the database to a named restore point created immediately prior to catastrophic human error or schema damage (such as an accidental `DROP TABLE` and `TRUNCATE`)?
+
+### What is Proven
+- **Point-in-Time Precision**: WAL replay stops exactly at the named restore point (`before_oops`), completely restoring the dropped `stock` table and truncated `entity_state`.
+- **Identical State Reconstruction**: State reconstructed on the standby/restored cluster on port **5545** matches the exact pre-disaster projection digest (`digest_equal = true`, `events_equal = true`, `entity_equal = true`).
+- **Event Store Hash Chain Continuity**: Restored event history maintains cryptographic chain integrity with 0 verification errors (`chain_problems = 0`).
+- **Disaster Proof & Damage Containment**: While the damaged primary instance on port 5544 remains broken, the restored instance on port 5545 is promoted and fully operational.
+
+> [!NOTE]
+> **Lab Cluster Isolation**: This experiment uses isolated throwaway clusters on ports **5544** (primary) and **5545** (restored) under `C:\pg_lab`. It **never** connects to port 5432 or any development database. It uses local trust authentication (no passwords required) and **must be run from a non-administrator (standard user) PowerShell** session.
+
+### How to Run
+Run from a standard (non-elevated) PowerShell session:
+```powershell
+powershell -ExecutionPolicy Bypass -File experiments/recovery/run_experiment7c_pitr.ps1
+```
+
+Optional parameters:
+- `-Days` (default: `100`)
+- `-Keep` (switch to preserve scratch clusters under `C:\pg_lab` for inspection)
+- `-LabRoot` (default: `C:\pg_lab`)
+
+### Results Output
+- CSV file: `experiments/results/exp7c_pitr.csv`
+- Log file: `experiments/results/exp7c_restore_log.txt`
+
+### Results
+| base_backup_seconds | events_at_restore_point | events_restored | entity_rows_at_restore_point | entity_rows_restored | stock_present | digest_equal | chain_problems | disaster_confirmed | primary_still_damaged | restore_point_reached | archived_wal_files | restore_seconds |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| | | | | | | | | | | | | |
+
+---
+
 ## Sanity Self-Test
 
 To verify function logic without running full concurrent benchmarks, run the isolated self-test:
