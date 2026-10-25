@@ -221,3 +221,20 @@ psql -U postgres -d butterfly -f db/demo/06_peek_and_tamper.sql
 - **What the experiments prove**: Experiment 7b confirms zero data loss, zero partial inflight writes, and preserved cryptographic event hash chains following immediate process crash (`taskkill /F`); Experiment 7c confirms complete restoration of dropped tables and truncated data up to a named restore point on a restored instance.
 - **Full-state protection vs projection rebuild**: While application-level recovery reconstructs derived projections (`stock`, `entity_state`) from the event store, database-level recovery protects the entire cluster—including non-derivable state such as pending `scheduled_effect` queues, schema catalogs, and database configuration.
 
+## Indexes
+
+Secondary and partial indexes defined in `db/schema/08_indexes.sql`:
+
+1. `event_branch_tick_idx ON event (branch_id, tick)`: Range reads on event ticks and fast resolution of `current_tick`.
+2. `event_branch_event_idx ON event (branch_id, event_id)`: Chain-prev hash lookups and branch lineage event reads.
+3. `event_cause_cause_idx ON event_cause (cause_id)`: Downward causal walks from parent causes to dependent effects (the upward walk uses the primary key `(effect_id, cause_id)`).
+4. `causal_closure_desc_idx ON causal_closure (descendant_id, depth)`: High-performance "Ask Why" provenance queries via the transitive closure table.
+5. `causal_path_prefix_idx ON causal_path (path text_pattern_ops)`: Direct downstream descendant lookups using path prefix pattern matching (`LIKE 'id/%'`).
+6. `event_witness_actor_idx ON event_witness (actor_id, event_id)`: Lookup of events witnessed by a specific actor, powering Row Level Security (RLS) policies.
+7. `scheduled_pending_idx ON scheduled_effect (branch_id, due_tick, scheduled_id) WHERE NOT processed`: Partial index for claiming due scheduled effects in `advance_day`.
+8. `entity_state_open_idx ON entity_state (entity_id, branch_id) WHERE upper_inf(valid_ticks)`: Partial index for immediate point lookup of the open (current) state row.
+9. `snapshot_branch_event_idx ON snapshot (branch_id, last_event_id DESC)`: Fast discovery of the best usable snapshot checkpoint for branch forking.
+
+Note: `db/schema/08_indexes_drop.sql` exists solely for the benchmark suite to recreate the unindexed 'before' baseline state; it is never run in normal use.
+
+

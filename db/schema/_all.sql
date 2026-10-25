@@ -6,6 +6,7 @@
 \ir 05_event_immutability.sql
 \ir 06_rule_checks.sql
 \ir 07_causal_structures.sql
+\ir 08_indexes.sql
 \ir ../procedures/01_event_hash.sql
 \ir ../procedures/02_verify_chain.sql
 \ir ../procedures/03_entity_state.sql

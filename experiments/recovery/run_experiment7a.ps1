@@ -34,7 +34,7 @@ if (-not (Test-Path $resultsDir)) {
     New-Item -ItemType Directory -Path $resultsDir -Force | Out-Null
 }
 $csvPath = Join-Path $resultsDir "exp7a_rebuild.csv"
-$csvHeader = "days,events,entity_rows,closure_rows,rebuild_projections_ms,rebuild_world_ms,digest_equal"
+$csvHeader = "days,events,entity_rows,closure_rows,rebuild_projections_ms,rebuild_projections_min_ms,rebuild_world_ms,digest_equal"
 Set-Content -Path $csvPath -Value $csvHeader -Encoding UTF8
 
 foreach ($S in $Days) {
@@ -89,34 +89,47 @@ foreach ($S in $Days) {
     $entityRows = (& psql -X -A -t -U $User -d $Database -c "SELECT count(*) FROM entity_state;").Trim()
     $closureRows = (& psql -X -A -t -U $User -d $Database -c "SELECT count(*) FROM causal_closure;").Trim()
 
-    # 5. Compute pre-rebuild digest
+    # 5. Compute pre-rebuild digest before the first rebuild
     $digestBefore = (& psql -X -A -t -U $User -d $Database -c "SELECT branch_projection_digest($mainId);").Trim()
 
-    # 6. Time rebuild_projections
-    Write-Host "Timing rebuild_projections($mainId)..."
-    $outProj = (& psql -X -U $User -d $Database -c '\timing on' -c "SELECT rebuild_projections($mainId);" 2>&1 | ForEach-Object { "$_" }) -join "`n"
-    $timeProj = "0"
-    if ($outProj -match 'Time:\s*([0-9]+(?:\.[0-9]+)?)\s*ms') {
-        $timeProj = $Matches[1]
+    # 6. Time rebuild_projections three times in a row (median and minimum)
+    Write-Host "Timing rebuild_projections($mainId) (3 runs)..."
+    $timesProj = @()
+    for ($i = 0; $i -lt 3; $i++) {
+        $outProj = (& psql -X -U $User -d $Database -c '\timing on' -c "SELECT rebuild_projections($mainId);" 2>&1 | ForEach-Object { "$_" }) -join "`n"
+        $tProj = 0.0
+        if ($outProj -match 'Time:\s*([0-9]+(?:\.[0-9]+)?)\s*ms') {
+            $tProj = [double]$Matches[1]
+        }
+        $timesProj += $tProj
     }
+    $sortedProj = $timesProj | Sort-Object
+    $timeProjMin = $sortedProj[0]
+    $timeProj = $sortedProj[1]
 
-    # 7. Compute post-rebuild digest and verify equality
+    # 7. Time rebuild_world three times in a row (median)
+    Write-Host "Timing rebuild_world($mainId) (3 runs)..."
+    $timesWorld = @()
+    for ($i = 0; $i -lt 3; $i++) {
+        $outWorld = (& psql -X -U $User -d $Database -c '\timing on' -c "SELECT rebuild_world($mainId);" 2>&1 | ForEach-Object { "$_" }) -join "`n"
+        $tWorld = 0.0
+        if ($outWorld -match 'Time:\s*([0-9]+(?:\.[0-9]+)?)\s*ms') {
+            $tWorld = [double]$Matches[1]
+        }
+        $timesWorld += $tWorld
+    }
+    $sortedWorld = $timesWorld | Sort-Object
+    $timeWorld = $sortedWorld[1]
+
+    # 8. Compute post-rebuild digest after the last rebuild and verify equality
     $digestAfter = (& psql -X -A -t -U $User -d $Database -c "SELECT branch_projection_digest($mainId);").Trim()
     $digestEqual = "false"
     if ($digestBefore -eq $digestAfter) {
         $digestEqual = "true"
     }
 
-    # 8. Time rebuild_world the same way
-    Write-Host "Timing rebuild_world($mainId)..."
-    $outWorld = (& psql -X -U $User -d $Database -c '\timing on' -c "SELECT rebuild_world($mainId);" 2>&1 | ForEach-Object { "$_" }) -join "`n"
-    $timeWorld = "0"
-    if ($outWorld -match 'Time:\s*([0-9]+(?:\.[0-9]+)?)\s*ms') {
-        $timeWorld = $Matches[1]
-    }
-
     # 9. Append CSV row
-    $csvRow = "$S,$events,$entityRows,$closureRows,$timeProj,$timeWorld,$digestEqual"
+    $csvRow = "$S,$events,$entityRows,$closureRows,$timeProj,$timeProjMin,$timeWorld,$digestEqual"
     Add-Content -Path $csvPath -Value $csvRow -Encoding UTF8
     Write-Host "Recorded: $csvRow"
 }
@@ -127,5 +140,6 @@ Write-Host "Dropping benchmark database $Database..."
 
 # Print results table
 Write-Host ""
-Write-Host "Recovery Benchmark Results ($csvPath):"
+Write-Host "Recovery Benchmark Results (${csvPath}):"
 Import-Csv -Path $csvPath | Format-Table -AutoSize
+
