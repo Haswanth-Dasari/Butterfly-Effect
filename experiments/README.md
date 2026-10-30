@@ -97,6 +97,146 @@ CSV file: `experiments/results/exp2_deadlock.csv`
 
 ---
 
+## Experiment 3: Ask Why Strategies (Causal Lineage & Provenance)
+
+### Question Answered
+What is the optimal architectural pattern for causal lineage graph traversals (both upward provenance "Ask Why" and downward impact analysis "Ripple Effect") across varying chain depths and dataset scales, and what are the trade-offs in read latency, write-time trigger overhead, and table storage?
+
+### The 3 Strategies x 2 Directions
+1. **Recursive CTE on `event_cause`**: Graph traversal computed dynamically at query time using `WITH RECURSIVE`. Zero write maintenance and minimal storage, but execution time scales with depth.
+2. **Transitive Closure Table (`causal_closure`)**: Pre-materialized ancestor-descendant pairs indexed by `(descendant_id, depth)` for upward lookups and `(ancestor_id, depth)` for downward lookups. Fast point/range lookups at the expense of $O(D^2)$ storage and trigger maintenance cost.
+3. **Materialized Path Table (`causal_path`)**: Pre-materialized path string `'head/.../tail'` indexed using B-tree with `text_pattern_ops`. Downward impact analysis executes via index prefix scan (`LIKE 'HEAD/%'`), and upward provenance unrolls the delimited path with `unnest() WITH ORDINALITY`.
+
+- **Upward Provenance**: Traverses from effect to cause (Ask Why): `up_cte`, `up_closure`, `up_path`.
+- **Downward Impact**: Traverses from cause to effect (Ripple Effect): `down_cte`, `down_closure`, `down_path`.
+
+### Depth Sweep and Size Sweep
+- **Depth Sweep**: Evaluates $N = 100,000$ events with chain depths $D \in \{2, 4, 8, 16, 32, 64\}$ to observe latency scaling with graph depth.
+- **Size Sweep**: Evaluates fixed depth $D = 8$ across dataset volumes $N \in \{10,000, 100,000, 1,000,000\}$ to observe index and cache behavior with database growth.
+- The shared configuration $(100000, 8)$ is tagged `both`.
+
+### Write Cost and Storage Overhead
+- **Write Cost**: Evaluates per-operation insertion latency (`bench_causal_write`) with trigger `event_cause_derived` enabled (`write_closure_ms`) versus disabled (`write_base_ms`).
+- **Storage**: Measures physical on-disk relation footprints in MB (`pg_total_relation_size`) for `event_cause`, `causal_closure`, and `causal_path`.
+
+### How to Run
+Ensure `$env:PGPASSWORD` is set in your PowerShell session:
+```powershell
+$env:PGPASSWORD = "your_db_password"
+powershell -ExecutionPolicy Bypass -File experiments/benchmarks/run_experiment3.ps1
+```
+
+Optional parameters:
+- `-Database` (default: `butterfly_bench`)
+- `-User` (default: `postgres`)
+- `-Quick` (switch: runs only $(10000, 2)$, $(10000, 8)$, and $(10000, 32)$ with 50 write operations)
+
+### Results Output
+CSV file: `experiments/results/exp3_askwhy.csv`
+
+### Results: Upward Provenance Queries
+| sweep | events | depth | closure_rows_ok | up_cte_ms | up_closure_ms | up_path_ms |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| depth | 100000 | 2 | | | | |
+| depth | 100000 | 4 | | | | |
+| both | 100000 | 8 | | | | |
+| depth | 100000 | 16 | | | | |
+| depth | 100000 | 32 | | | | |
+| depth | 100000 | 64 | | | | |
+| size | 10000 | 8 | | | | |
+| size | 1000000 | 8 | | | | |
+
+### Results: Downward Provenance Queries
+| sweep | events | depth | down_cte_ms | down_closure_ms | down_path_ms |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| depth | 100000 | 2 | | | |
+| depth | 100000 | 4 | | | |
+| both | 100000 | 8 | | | |
+| depth | 100000 | 16 | | | |
+| depth | 100000 | 32 | | | |
+| depth | 100000 | 64 | | | |
+| size | 10000 | 8 | | | |
+| size | 1000000 | 8 | | | |
+
+### Results: Write Cost and Storage Overhead
+| sweep | events | depth | write_base_ms | write_closure_ms | edges_mb | closure_mb | path_mb |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| depth | 100000 | 2 | | | | | |
+| depth | 100000 | 4 | | | | | |
+| both | 100000 | 8 | | | | | |
+| depth | 100000 | 16 | | | | | |
+| depth | 100000 | 32 | | | | | |
+| depth | 100000 | 64 | | | | | |
+| size | 10000 | 8 | | | | | |
+| size | 1000000 | 8 | | | | | |
+
+---
+
+## Experiment 4: Branching Strategies (Parallel Worlds)
+
+### Question Answered
+How do different branch forking strategies scale in creation latency, replayed event volume, state duplication footprint, and subsequent read latency when branching from the head of time versus arbitrary past checkpoints?
+
+### The Three Strategies and Two Scenarios
+- **Strategies**:
+  1. **`cow` (Copy-on-Write)**: Duplicates live tables directly (`stock`, `entity_state`, `scheduled_effect`). $O(\text{state size})$ creation time, zero events replayed, but restricted exclusively to head-of-time forks.
+  2. **`replay` (Full Replay)**: Replays all lineage events from the root baseline snapshot up to the fork event. $O(\text{total lineage history})$ work; deterministic and can fork from any point in history.
+  3. **`snapshot_delta` (Snapshot + Delta Replay)**: Restores from the latest snapshot preceding the fork point and replays only the delta events since that snapshot. $O(\text{events since snapshot})$ work, balancing fork speed and time-travel capability.
+- **Scenarios**:
+  1. **`head` (Latest Event)**: Forks at $H_{\text{HEAD}}$, evaluated across `replay`, `snapshot_delta`, and `cow`.
+  2. **`past` (Mid-History Checkpoint)**: Forks at $H_{\text{PAST}}$, evaluated across `replay` and `snapshot_delta` (`cow` is not applicable to historical points).
+
+### How to Run
+Ensure `$env:PGPASSWORD` is set in your PowerShell session:
+```powershell
+$env:PGPASSWORD = "your_db_password"
+powershell -ExecutionPolicy Bypass -File experiments/benchmarks/run_experiment4.ps1
+```
+
+Optional parameters:
+- `-Sizes` (default: `100, 400, 1600, 3200` days)
+- `-Database` (default: `butterfly_bench`)
+- `-User` (default: `postgres`)
+- `-Quick` (switch: runs only `-Sizes 100, 400`)
+
+### Results Output
+- Forking metrics: `experiments/results/exp4_branching.csv`
+- Snapshot storage metrics: `experiments/results/exp4_snapshots.csv`
+
+### Results: Branching Strategies
+| days | events | scenario | strategy | fork_ms | replayed_events | digest_ok | child_entity_rows | child_stock_rows | child_state_kb | read_ms |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 100 | | head | replay | | | | | | | |
+| 100 | | head | snapshot_delta | | | | | | | |
+| 100 | | head | cow | | | | | | | |
+| 100 | | past | replay | | | | | | | |
+| 100 | | past | snapshot_delta | | | | | | | |
+| 400 | | head | replay | | | | | | | |
+| 400 | | head | snapshot_delta | | | | | | | |
+| 400 | | head | cow | | | | | | | |
+| 400 | | past | replay | | | | | | | |
+| 400 | | past | snapshot_delta | | | | | | | |
+| 1600 | | head | replay | | | | | | | |
+| 1600 | | head | snapshot_delta | | | | | | | |
+| 1600 | | head | cow | | | | | | | |
+| 1600 | | past | replay | | | | | | | |
+| 1600 | | past | snapshot_delta | | | | | | | |
+| 3200 | | head | replay | | | | | | | |
+| 3200 | | head | snapshot_delta | | | | | | | |
+| 3200 | | head | cow | | | | | | | |
+| 3200 | | past | replay | | | | | | | |
+| 3200 | | past | snapshot_delta | | | | | | | |
+
+### Results: Snapshot Storage Overhead
+| days | events | snapshots | snapshot_kb | parent_entity_rows |
+| :--- | :--- | :--- | :--- | :--- |
+| 100 | | | | |
+| 400 | | | | |
+| 1600 | | | | |
+| 3200 | | | | |
+
+---
+
 ## Experiment 5: Index Impact
 
 ### Question Answered

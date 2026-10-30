@@ -1,0 +1,11 @@
+﻿days,events,scenario,strategy,fork_ms,replayed_events,digest_ok,child_entity_rows,child_stock_rows,child_state_kb,read_ms
+100,1629,head,replay,108.7,1628,true,408,7,51.9,6.97
+100,1629,head,snapshot_delta,41.13,325,true,108,7,13.5,6.9
+100,1629,head,cow,15.08,0,true,33,7,3.9,6.36
+100,1629,past,replay,61.65,653,true,183,7,23.1,7.15
+100,1629,past,snapshot_delta,19.14,0,true,33,7,3.9,6.67
+400,5529,head,replay,489.59,5528,true,1308,7,167,6.22
+400,5529,head,snapshot_delta,39.75,325,true,108,7,13.5,6.46
+400,5529,head,cow,15,0,true,33,7,3.9,5.49
+400,5529,past,replay,196.67,2603,true,633,7,80.7,6.44
+400,5529,past,snapshot_delta,18.53,0,true,33,7,3.9,6.94
