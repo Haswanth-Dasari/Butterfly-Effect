@@ -68,7 +68,9 @@ GRANT EXECUTE ON FUNCTION
     why_ids_closure,
     why_ids_path,
     butterfly_score,
-    current_tick
+    current_tick,
+    entity_state_at_lineage,
+    look_back
 TO player_role;
 
 -- Game master role execution rights
@@ -92,7 +94,9 @@ GRANT EXECUTE ON FUNCTION
     serialize_branch_state,
     verify_event_chain,
     verify_causal_structures,
-    event_hash
+    event_hash,
+    entity_state_at_lineage,
+    look_back
 TO game_master_role;
 
 -- Auditor role execution rights
@@ -110,7 +114,9 @@ GRANT EXECUTE ON FUNCTION
     serialize_branch_state,
     verify_event_chain,
     verify_causal_structures,
-    event_hash
+    event_hash,
+    entity_state_at_lineage,
+    look_back
 TO auditor_role;
 
 -- Note: rebuild_projections, rebuild_all_projections, and rebuild_world are owner-only on purpose (no grants).

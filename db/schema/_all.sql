@@ -18,9 +18,12 @@
 \ir ../procedures/09_ask_why.sql
 \ir ../procedures/10_branching.sql
 \ir ../procedures/11_recovery.sql
+\ir ../procedures/12_lookback.sql
+\ir ../procedures/13_live_updates.sql
 \ir ../views/01_scores.sql
 \ir ../views/02_daily_views.sql
 \ir ../views/03_public_views.sql
 \ir ../security/01_roles.sql
 \ir ../security/02_rls.sql
 \ir ../security/03_privileges.sql
+\ir ../security/04_app_roles.sql
