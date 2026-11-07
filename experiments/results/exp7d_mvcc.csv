@@ -1,0 +1,4 @@
+﻿scenario,days,calls,events,generation_ms,ms_per_day,rebuild_projections_ms
+single_small,200,1,2604,927.21,4.64,208.91
+single_large,800,1,10404,10922.65,13.65,1930.89
+chunked_large,800,16,10404,5177.57,6.47,1895.85

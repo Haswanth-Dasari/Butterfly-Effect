@@ -1,0 +1,4 @@
+﻿days,events,entity_rows,closure_rows,rebuild_projections_ms,rebuild_projections_min_ms,rebuild_world_ms,digest_equal
+50,654,183,1100,72.095,69.932,146.426,true
+200,2604,633,4400,225.463,210.993,372.288,true
+800,10404,2433,17600,1888.916,1881.878,2512.938,true

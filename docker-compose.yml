@@ -1,0 +1,16 @@
+# Quick start without installing PostgreSQL locally:
+#   docker compose up -d db            (database only, schema + seed applied on first start)
+#   cd backend && cp .env.example .env && npm install && npm start
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: butterfly
+    ports: ["5432:5432"]
+    volumes:
+      - ./db:/sql:ro
+      - ./docker/initdb.sh:/docker-entrypoint-initdb.d/10-butterfly.sh:ro
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

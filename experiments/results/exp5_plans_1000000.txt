@@ -1,0 +1,519 @@
+﻿================================================================================
+EXPLAIN (ANALYZE) Query Plans for Dataset Size N = 1000000
+================================================================================
+
+################################################################################
+PHASE 1: BEFORE INDEXES
+################################################################################
+
+--------------------------------------------------------------------------------
+Query: Q1 (range) [Scan: Seq, Median Time: 181.86 ms]
+--------------------------------------------------------------------------------
+                                                               QUERY PLAN                                                               
+----------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=22781.34..22781.35 rows=1 width=8) (actual time=177.083..181.750 rows=1.00 loops=1)
+   Buffers: shared hit=1128 read=13361 written=82
+   ->  Gather  (cost=22781.12..22781.33 rows=2 width=8) (actual time=176.904..181.743 rows=3.00 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=1128 read=13361 written=82
+         ->  Partial Aggregate  (cost=21781.12..21781.13 rows=1 width=8) (actual time=130.605..130.605 rows=1.00 loops=3)
+               Buffers: shared hit=1128 read=13361 written=82
+               ->  Parallel Seq Scan on event  (cost=0.00..21780.67 rows=179 width=0) (actual time=81.488..130.581 rows=146.67 loops=3)
+                     Filter: ((tick >= 2499) AND (tick <= 2509) AND (branch_id = 2))
+                     Rows Removed by Filter: 333187
+                     Buffers: shared hit=1128 read=13361 written=82
+ Planning:
+   Buffers: shared hit=81
+ Planning Time: 1.482 ms
+ Execution Time: 181.860 ms
+(16 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q2 (current_tick) [Scan: Seq, Median Time: 161.92 ms]
+--------------------------------------------------------------------------------
+                                                                QUERY PLAN                                                                 
+-------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=20906.17..20906.18 rows=1 width=4) (actual time=136.890..141.258 rows=1.00 loops=1)
+   Buffers: shared hit=2170 read=12319 written=142
+   ->  Gather  (cost=20905.95..20906.16 rows=2 width=4) (actual time=136.689..141.252 rows=3.00 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=2170 read=12319 written=142
+         ->  Partial Aggregate  (cost=19905.95..19905.96 rows=1 width=4) (actual time=107.198..107.199 rows=1.00 loops=3)
+               Buffers: shared hit=2170 read=12319 written=142
+               ->  Parallel Seq Scan on event  (cost=0.00..19697.34 rows=83445 width=4) (actual time=1.443..103.886 rows=66666.67 loops=3)
+                     Filter: (branch_id = 3)
+                     Rows Removed by Filter: 266667
+                     Buffers: shared hit=2170 read=12319 written=142
+ Planning:
+   Buffers: shared hit=86
+ Planning Time: 1.279 ms
+ Execution Time: 141.323 ms
+(16 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q3 (chain_prev) [Scan: Index, Median Time: 0.05 ms]
+--------------------------------------------------------------------------------
+                                                                  QUERY PLAN                                                                  
+----------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.42..0.64 rows=1 width=41) (actual time=0.015..0.015 rows=1.00 loops=1)
+   Buffers: shared hit=4
+   ->  Index Scan Backward using event_pkey on event  (cost=0.42..42972.44 rows=200734 width=41) (actual time=0.013..0.013 rows=1.00 loops=1)
+         Filter: (branch_id = 4)
+         Rows Removed by Filter: 4
+         Index Searches: 1
+         Buffers: shared hit=4
+ Planning:
+   Buffers: shared hit=109
+ Planning Time: 1.397 ms
+ Execution Time: 0.044 ms
+(11 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q4 (ask_why_recursive) [Scan: IndexOnly, Median Time: 0.2 ms]
+--------------------------------------------------------------------------------
+                                                                          QUERY PLAN                                                                          
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ HashAggregate  (cost=859.48..860.49 rows=101 width=12) (actual time=0.102..0.104 rows=3.00 loops=1)
+   Group Key: up.event_id
+   Batches: 1  Memory Usage: 32kB
+   Buffers: shared hit=18
+   CTE up
+     ->  Recursive Union  (cost=0.42..856.95 rows=101 width=12) (actual time=0.071..0.092 rows=3.00 loops=1)
+           Storage: Memory  Maximum Storage: 33kB
+           Buffers: shared hit=18
+           ->  Index Only Scan using event_cause_pkey on event_cause  (cost=0.42..8.44 rows=1 width=12) (actual time=0.070..0.070 rows=1.00 loops=1)
+                 Index Cond: (effect_id = 500005)
+                 Heap Fetches: 1
+                 Index Searches: 1
+                 Buffers: shared hit=7
+           ->  Nested Loop  (cost=0.42..84.75 rows=10 width=12) (actual time=0.006..0.007 rows=0.67 loops=3)
+                 Buffers: shared hit=11
+                 ->  WorkTable Scan on up up_1  (cost=0.00..0.20 rows=10 width=12) (actual time=0.000..0.000 rows=1.00 loops=3)
+                 ->  Index Only Scan using event_cause_pkey on event_cause ec  (cost=0.42..8.44 rows=1 width=16) (actual time=0.004..0.005 rows=0.67 loops=3)
+                       Index Cond: (effect_id = up_1.event_id)
+                       Heap Fetches: 2
+                       Index Searches: 3
+                       Buffers: shared hit=11
+   ->  CTE Scan on up  (cost=0.00..2.02 rows=101 width=12) (actual time=0.072..0.094 rows=3.00 loops=1)
+         Storage: Memory  Maximum Storage: 17kB
+         Buffers: shared hit=18
+ Planning:
+   Buffers: shared hit=91
+ Planning Time: 1.444 ms
+ Execution Time: 0.191 ms
+(28 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q5 (closure) [Scan: Seq, Median Time: 165.86 ms]
+--------------------------------------------------------------------------------
+                                                            QUERY PLAN                                                            
+----------------------------------------------------------------------------------------------------------------------------------
+ Gather  (cost=1000.00..32549.20 rows=2 width=12) (actual time=99.848..131.932 rows=3.00 loops=1)
+   Workers Planned: 2
+   Workers Launched: 2
+   Buffers: shared hit=1522 read=14402 written=182
+   ->  Parallel Seq Scan on causal_closure  (cost=0.00..31549.00 rows=1 width=12) (actual time=93.306..102.466 rows=1.00 loops=3)
+         Filter: ((depth > 0) AND (descendant_id = 500005))
+         Rows Removed by Filter: 833332
+         Buffers: shared hit=1522 read=14402 written=182
+ Planning:
+   Buffers: shared hit=73
+ Planning Time: 1.253 ms
+ Execution Time: 132.023 ms
+(12 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q6 (downward) [Scan: Seq, Median Time: 62.99 ms]
+--------------------------------------------------------------------------------
+                                                         QUERY PLAN                                                         
+----------------------------------------------------------------------------------------------------------------------------
+ Gather  (cost=1000.00..9684.35 rows=1 width=8) (actual time=58.185..81.856 rows=1.00 loops=1)
+   Workers Planned: 2
+   Workers Launched: 2
+   Buffers: shared hit=767 read=4011 written=277
+   ->  Parallel Seq Scan on event_cause  (cost=0.00..8684.25 rows=1 width=8) (actual time=44.004..50.359 rows=0.33 loops=3)
+         Filter: (cause_id = 500002)
+         Rows Removed by Filter: 250000
+         Buffers: shared hit=767 read=4011 written=277
+ Planning:
+   Buffers: shared hit=67
+ Planning Time: 1.278 ms
+ Execution Time: 81.938 ms
+(12 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q7 (path_prefix) [Scan: Seq, Median Time: 66.07 ms]
+--------------------------------------------------------------------------------
+                                                                QUERY PLAN                                                                
+------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=13061.65..13061.66 rows=1 width=8) (actual time=51.685..56.572 rows=1.00 loops=1)
+   Buffers: shared hit=6153 read=700
+   ->  Gather  (cost=13061.44..13061.65 rows=2 width=8) (actual time=51.577..56.566 rows=3.00 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=6153 read=700
+         ->  Partial Aggregate  (cost=12061.44..12061.45 rows=1 width=8) (actual time=25.000..25.000 rows=1.00 loops=3)
+               Buffers: shared hit=6153 read=700
+               ->  Parallel Seq Scan on causal_path  (cost=0.00..12061.33 rows=42 width=0) (actual time=20.812..24.990 rows=1.00 loops=3)
+                     Filter: (path ~~ '500002/%'::text)
+                     Rows Removed by Filter: 333332
+                     Buffers: shared hit=6153 read=700
+ Planning:
+   Buffers: shared hit=57
+ Planning Time: 1.311 ms
+ Execution Time: 56.662 ms
+(16 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q8 (witness_by_actor) [Scan: Seq, Median Time: 172.41 ms]
+--------------------------------------------------------------------------------
+                                                                    QUERY PLAN                                                                    
+--------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=30258.98..30258.99 rows=1 width=8) (actual time=168.595..172.323 rows=1.00 loops=1)
+   Buffers: shared hit=752 read=14113
+   ->  Gather  (cost=30258.77..30258.98 rows=2 width=8) (actual time=144.944..172.311 rows=3.00 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=752 read=14113
+         ->  Partial Aggregate  (cost=29258.77..29258.78 rows=1 width=8) (actual time=75.018..75.018 rows=1.00 loops=3)
+               Buffers: shared hit=752 read=14113
+               ->  Parallel Seq Scan on event_witness  (cost=0.00..29187.92 rows=28340 width=0) (actual time=0.336..74.190 rows=22222.33 loops=3)
+                     Filter: (actor_id = 7)
+                     Rows Removed by Filter: 894444
+                     Buffers: shared hit=752 read=14113
+ Planning:
+   Buffers: shared hit=82
+ Planning Time: 1.283 ms
+ Execution Time: 172.409 ms
+(16 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q9 (player_rls) [Scan: Seq, Median Time: 136.8 ms]
+--------------------------------------------------------------------------------
+BEGIN
+SET
+ set_config 
+------------
+ 7
+(1 row)
+
+                                                                         QUERY PLAN                                                                         
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=8491998.01..8491998.02 rows=1 width=8) (actual time=111.111..111.112 rows=1.00 loops=1)
+   Buffers: shared hit=2995 read=12851
+   ->  Seq Scan on event  (cost=0.00..8491997.48 rows=214 width=0) (actual time=56.529..111.097 rows=37.00 loops=1)
+         Filter: ((tick >= 2499) AND (tick <= 2509) AND (branch_id = 2) AND EXISTS(SubPlan 1))
+         Rows Removed by Filter: 999964
+         Buffers: shared hit=2995 read=12851
+         SubPlan 1
+           ->  Index Only Scan using event_witness_pkey on event_witness w  (cost=0.44..8.46 rows=1 width=0) (actual time=0.001..0.001 rows=0.08 loops=440)
+                 Index Cond: ((event_id = event.event_id) AND (actor_id = (NULLIF(current_setting('app.actor_id'::text, true), ''::text))::integer))
+                 Heap Fetches: 37
+                 Index Searches: 440
+                 Buffers: shared hit=1357
+ Planning:
+   Buffers: shared hit=146
+ Planning Time: 2.269 ms
+ Execution Time: 111.305 ms
+(16 rows)
+
+ROLLBACK
+
+--------------------------------------------------------------------------------
+Query: Q10 (pending_claim) [Scan: Seq, Median Time: 5.81 ms]
+--------------------------------------------------------------------------------
+                                                           QUERY PLAN                                                           
+--------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=2068.87..2068.90 rows=10 width=8) (actual time=5.733..5.734 rows=10.00 loops=1)
+   Buffers: shared hit=1319
+   ->  Sort  (cost=2068.87..2069.21 rows=133 width=8) (actual time=5.731..5.731 rows=10.00 loops=1)
+         Sort Key: due_tick, scheduled_id
+         Sort Method: top-N heapsort  Memory: 25kB
+         Buffers: shared hit=1319
+         ->  Seq Scan on scheduled_effect  (cost=0.00..2066.00 rows=133 width=8) (actual time=0.024..5.669 rows=500.00 loops=1)
+               Filter: ((NOT processed) AND (due_tick <= 2499) AND (branch_id = 2))
+               Rows Removed by Filter: 49500
+               Buffers: shared hit=1316
+ Planning:
+   Buffers: shared hit=81
+ Planning Time: 1.258 ms
+ Execution Time: 5.764 ms
+(14 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q11 (open_row) [Scan: Index, Median Time: 0.29 ms]
+--------------------------------------------------------------------------------
+                                                             QUERY PLAN                                                             
+------------------------------------------------------------------------------------------------------------------------------------
+ Bitmap Heap Scan on entity_state  (cost=38.38..518.90 rows=334 width=69) (actual time=0.203..0.203 rows=1.00 loops=1)
+   Recheck Cond: ((entity_id = 5) AND (branch_id = 1))
+   Filter: upper_inf(valid_ticks)
+   Rows Removed by Filter: 1000
+   Heap Blocks: exact=19
+   Buffers: shared hit=30
+   ->  Bitmap Index Scan on entity_state_pkey  (cost=0.00..38.30 rows=1001 width=0) (actual time=0.070..0.070 rows=1002.00 loops=1)
+         Index Cond: ((entity_id = 5) AND (branch_id = 1))
+         Index Searches: 1
+         Buffers: shared hit=11
+ Planning:
+   Buffers: shared hit=113
+ Planning Time: 1.675 ms
+ Execution Time: 0.301 ms
+(14 rows)
+
+
+################################################################################
+PHASE 2: AFTER INDEXES
+################################################################################
+
+--------------------------------------------------------------------------------
+Query: Q1 (range) [Scan: IndexOnly, Median Time: 0.16 ms]
+--------------------------------------------------------------------------------
+                                                                   QUERY PLAN                                                                   
+------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=19.82..19.84 rows=1 width=8) (actual time=0.112..0.112 rows=1.00 loops=1)
+   Buffers: shared hit=5
+   ->  Index Only Scan using event_branch_tick_idx on event  (cost=0.42..18.68 rows=456 width=0) (actual time=0.062..0.086 rows=440.00 loops=1)
+         Index Cond: ((branch_id = 2) AND (tick >= 2499) AND (tick <= 2509))
+         Heap Fetches: 0
+         Index Searches: 1
+         Buffers: shared hit=5
+ Planning:
+   Buffers: shared hit=120
+ Planning Time: 2.151 ms
+ Execution Time: 0.159 ms
+(11 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q2 (current_tick) [Scan: IndexOnly, Median Time: 0.12 ms]
+--------------------------------------------------------------------------------
+                                                                             QUERY PLAN                                                                             
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Result  (cost=0.45..0.46 rows=1 width=4) (actual time=0.079..0.080 rows=1.00 loops=1)
+   Buffers: shared hit=4
+   InitPlan 1
+     ->  Limit  (cost=0.42..0.45 rows=1 width=4) (actual time=0.071..0.072 rows=1.00 loops=1)
+           Buffers: shared hit=4
+           ->  Index Only Scan Backward using event_branch_tick_idx on event  (cost=0.42..4170.59 rows=197185 width=4) (actual time=0.070..0.070 rows=1.00 loops=1)
+                 Index Cond: (branch_id = 3)
+                 Heap Fetches: 0
+                 Index Searches: 1
+                 Buffers: shared hit=4
+ Planning:
+   Buffers: shared hit=124
+ Planning Time: 2.127 ms
+ Execution Time: 0.122 ms
+(14 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q3 (chain_prev) [Scan: Index, Median Time: 0.1 ms]
+--------------------------------------------------------------------------------
+                                                                  QUERY PLAN                                                                  
+----------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.42..0.64 rows=1 width=41) (actual time=0.062..0.062 rows=1.00 loops=1)
+   Buffers: shared hit=11
+   ->  Index Scan Backward using event_pkey on event  (cost=0.42..42984.05 rows=200686 width=41) (actual time=0.060..0.061 rows=1.00 loops=1)
+         Filter: (branch_id = 4)
+         Rows Removed by Filter: 267
+         Index Searches: 1
+         Buffers: shared hit=11
+ Planning:
+   Buffers: shared hit=145
+ Planning Time: 2.216 ms
+ Execution Time: 0.105 ms
+(11 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q4 (ask_why_recursive) [Scan: IndexOnly, Median Time: 0.2 ms]
+--------------------------------------------------------------------------------
+                                                                          QUERY PLAN                                                                          
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+ HashAggregate  (cost=499.48..500.49 rows=101 width=12) (actual time=0.109..0.111 rows=3.00 loops=1)
+   Group Key: up.event_id
+   Batches: 1  Memory Usage: 32kB
+   Buffers: shared hit=17
+   CTE up
+     ->  Recursive Union  (cost=0.42..496.95 rows=101 width=12) (actual time=0.080..0.099 rows=3.00 loops=1)
+           Storage: Memory  Maximum Storage: 33kB
+           Buffers: shared hit=17
+           ->  Index Only Scan using event_cause_pkey on event_cause  (cost=0.42..8.44 rows=1 width=12) (actual time=0.079..0.080 rows=1.00 loops=1)
+                 Index Cond: (effect_id = 500005)
+                 Heap Fetches: 0
+                 Index Searches: 1
+                 Buffers: shared hit=7
+           ->  Nested Loop  (cost=0.42..48.75 rows=10 width=12) (actual time=0.005..0.006 rows=0.67 loops=3)
+                 Buffers: shared hit=10
+                 ->  WorkTable Scan on up up_1  (cost=0.00..0.20 rows=10 width=12) (actual time=0.000..0.000 rows=1.00 loops=3)
+                 ->  Index Only Scan using event_cause_pkey on event_cause ec  (cost=0.42..4.84 rows=1 width=16) (actual time=0.004..0.004 rows=0.67 loops=3)
+                       Index Cond: (effect_id = up_1.event_id)
+                       Heap Fetches: 0
+                       Index Searches: 3
+                       Buffers: shared hit=10
+   ->  CTE Scan on up  (cost=0.00..2.02 rows=101 width=12) (actual time=0.081..0.101 rows=3.00 loops=1)
+         Storage: Memory  Maximum Storage: 17kB
+         Buffers: shared hit=17
+ Planning:
+   Buffers: shared hit=103
+ Planning Time: 1.702 ms
+ Execution Time: 0.197 ms
+(28 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q5 (closure) [Scan: Index, Median Time: 0.11 ms]
+--------------------------------------------------------------------------------
+                                                                 QUERY PLAN                                                                  
+---------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using causal_closure_desc_idx on causal_closure  (cost=0.43..11.86 rows=2 width=12) (actual time=0.032..0.032 rows=3.00 loops=1)
+   Index Cond: ((descendant_id = 500005) AND (depth > 0))
+   Index Searches: 1
+   Buffers: shared hit=7
+ Planning:
+   Buffers: shared hit=96
+ Planning Time: 1.872 ms
+ Execution Time: 0.109 ms
+(8 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q6 (downward) [Scan: Index, Median Time: 0.11 ms]
+--------------------------------------------------------------------------------
+                                                              QUERY PLAN                                                              
+--------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using event_cause_cause_idx on event_cause  (cost=0.42..8.44 rows=1 width=8) (actual time=0.031..0.032 rows=1.00 loops=1)
+   Index Cond: (cause_id = 500002)
+   Index Searches: 1
+   Buffers: shared hit=7
+ Planning:
+   Buffers: shared hit=79
+ Planning Time: 1.603 ms
+ Execution Time: 0.113 ms
+(8 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q7 (path_prefix) [Scan: IndexOnly, Median Time: 0.12 ms]
+--------------------------------------------------------------------------------
+                                                                     QUERY PLAN                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=8.70..8.71 rows=1 width=8) (actual time=0.118..0.118 rows=1.00 loops=1)
+   Buffers: shared hit=4
+   ->  Index Only Scan using causal_path_prefix_idx on causal_path  (cost=0.42..8.45 rows=100 width=0) (actual time=0.109..0.110 rows=3.00 loops=1)
+         Index Cond: ((path ~>=~ '500002/'::text) AND (path ~<~ '5000020'::text))
+         Filter: (path ~~ '500002/%'::text)
+         Heap Fetches: 0
+         Index Searches: 1
+         Buffers: shared hit=4
+ Planning:
+   Buffers: shared hit=134
+ Planning Time: 1.711 ms
+ Execution Time: 0.165 ms
+(12 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q8 (witness_by_actor) [Scan: IndexOnly, Median Time: 6.55 ms]
+--------------------------------------------------------------------------------
+                                                                           QUERY PLAN                                                                           
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=2306.82..2306.83 rows=1 width=8) (actual time=6.474..6.474 rows=1.00 loops=1)
+   Buffers: shared hit=261
+   ->  Index Only Scan using event_witness_actor_idx on event_witness  (cost=0.43..2145.02 rows=64720 width=0) (actual time=0.068..4.211 rows=66670.00 loops=1)
+         Index Cond: (actor_id = 7)
+         Heap Fetches: 3
+         Index Searches: 1
+         Buffers: shared hit=261
+ Planning:
+   Buffers: shared hit=100
+ Planning Time: 1.761 ms
+ Execution Time: 6.552 ms
+(11 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q9 (player_rls) [Scan: IndexOnly, Median Time: 13.05 ms]
+--------------------------------------------------------------------------------
+BEGIN
+SET
+ set_config 
+------------
+ 7
+(1 row)
+
+                                                                                QUERY PLAN                                                                                
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=5435.43..5435.44 rows=1 width=8) (actual time=12.788..12.789 rows=1.00 loops=1)
+   Buffers: shared hit=298
+   ->  Bitmap Heap Scan on event  (cost=10.18..5434.86 rows=228 width=0) (actual time=12.638..12.780 rows=37.00 loops=1)
+         Recheck Cond: ((branch_id = 2) AND (tick >= 2499) AND (tick <= 2509))
+         Filter: (ANY (event_id = (hashed SubPlan 2).col1))
+         Rows Removed by Filter: 403
+         Heap Blocks: exact=33
+         Buffers: shared hit=298
+         ->  Bitmap Index Scan on event_branch_tick_idx  (cost=0.00..10.12 rows=456 width=0) (actual time=0.026..0.026 rows=440.00 loops=1)
+               Index Cond: ((branch_id = 2) AND (tick >= 2499) AND (tick <= 2509))
+               Index Searches: 1
+               Buffers: shared hit=4
+         SubPlan 2
+           ->  Index Only Scan using event_witness_actor_idx on event_witness w  (cost=0.44..2145.03 rows=64720 width=8) (actual time=0.076..4.958 rows=66670.00 loops=1)
+                 Index Cond: (actor_id = (NULLIF(current_setting('app.actor_id'::text, true), ''::text))::integer)
+                 Heap Fetches: 3
+                 Index Searches: 1
+                 Buffers: shared hit=261
+ Planning:
+   Buffers: shared hit=194
+ Planning Time: 3.430 ms
+ Execution Time: 13.051 ms
+(22 rows)
+
+ROLLBACK
+
+--------------------------------------------------------------------------------
+Query: Q10 (pending_claim) [Scan: IndexOnly, Median Time: 0.1 ms]
+--------------------------------------------------------------------------------
+                                                                       QUERY PLAN                                                                        
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=0.27..0.81 rows=10 width=8) (actual time=0.072..0.074 rows=10.00 loops=1)
+   Buffers: shared hit=3
+   ->  Index Only Scan using scheduled_pending_idx on scheduled_effect  (cost=0.27..6.67 rows=120 width=8) (actual time=0.071..0.072 rows=10.00 loops=1)
+         Index Cond: ((branch_id = 2) AND (due_tick <= 2499))
+         Heap Fetches: 0
+         Index Searches: 1
+         Buffers: shared hit=3
+ Planning:
+   Buffers: shared hit=99
+ Planning Time: 1.769 ms
+ Execution Time: 0.101 ms
+(11 rows)
+
+
+--------------------------------------------------------------------------------
+Query: Q11 (open_row) [Scan: Index, Median Time: 0.09 ms]
+--------------------------------------------------------------------------------
+                                                                 QUERY PLAN                                                                 
+--------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using entity_state_open_idx on entity_state  (cost=0.14..449.45 rows=333 width=69) (actual time=0.015..0.016 rows=1.00 loops=1)
+   Index Cond: ((entity_id = 5) AND (branch_id = 1))
+   Index Searches: 1
+   Buffers: shared hit=2
+ Planning:
+   Buffers: shared hit=128
+ Planning Time: 2.054 ms
+ Execution Time: 0.086 ms
+(8 rows)
+
+

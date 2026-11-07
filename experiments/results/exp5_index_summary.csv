@@ -1,0 +1,4 @@
+﻿events,index_build_seconds,index_size_mb,table_size_mb,engine_write_before_ms,engine_write_after_ms
+10000,0.11,2.59,10.48,428.88,133.82
+100000,0.77,24.5,101.06,2683.11,144.99
+1000000,9.17,245.17,1010.32,146324.35,188.56

@@ -1,0 +1,27 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  database:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_PASSWORD: postgres }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env: { PGPASSWORD: postgres, PGHOST: localhost, PGUSER: postgres, PGDATABASE: butterfly_test }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run every SQL suite on a fresh database
+        run: ./scripts/run_tests.sh
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: cd backend && npm install --no-audit --no-fund
+      - name: Syntax check backend and demo server
+        run: |
+          for f in backend/src/*.js backend/src/routes/*.js backend/dev/mock-server.mjs; do node --check "$f"; done

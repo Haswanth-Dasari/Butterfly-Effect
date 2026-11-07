@@ -1,0 +1,19 @@
+{
+  "name": "butterfly-effect-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Thin API for Butterfly Effect. Every write goes through a SECURITY DEFINER function in the database; this layer authenticates, sets app.actor_id with SET LOCAL, and otherwise gets out of the way.",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "mock": "node dev/mock-server.mjs"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.12.0",
+    "ws": "^8.18.0",
+    "dotenv": "^16.4.5",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

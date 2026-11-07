@@ -1,0 +1,240 @@
+All SQL lives here. Files are numbered to run in order.
+
+## Local database setup
+
+1. Install PostgreSQL 16+ and ensure `psql` is on `PATH`.
+2. Create the database: `psql -U postgres -c "CREATE DATABASE butterfly;"`
+3. Apply extensions: `psql -U postgres -d butterfly -f db/schema/00_extensions.sql`
+4. Copy `.env.example` to `.env` and fill in your password.
+
+## Applying the schema
+
+Run these commands from the repository root:
+
+```sh
+psql -U postgres -d butterfly -f db/schema/_all.sql
+psql -U postgres -d butterfly -f db/tests/01_constraint_tests.sql
+```
+
+For a clean rebuild, run `db/schema/drop_all.sql` first, then `db/schema/_all.sql`.
+
+## Event store and tamper evidence
+
+For a clean rebuild, run `db/schema/drop_all.sql` first, then `db/schema/_all.sql`. Run both test files from the repository root:
+
+```sh
+psql -U postgres -d butterfly -f db/tests/01_constraint_tests.sql
+psql -U postgres -d butterfly -f db/tests/02_event_store_tests.sql
+```
+
+- The immutability trigger rejects updates, deletes, and truncation of events; the table also revokes `UPDATE`, `DELETE`, and `TRUNCATE` from `PUBLIC`.
+- `event_hash` defines the SHA-256 hash formula over the previous hash and canonical event fields.
+- Each branch maintains its own chain; an advisory transaction lock serializes inserts within that branch.
+- `verify_event_chain()` follows stored hash links and reports the first integrity problem it finds for each branch.
+
+## Seed data
+
+Run these commands from the repository root:
+
+```sh
+psql -U postgres -d butterfly -f db/schema/drop_all.sql
+psql -U postgres -d butterfly -f db/schema/_all.sql
+psql -U postgres -d butterfly -f db/seed/_seed_all.sql
+psql -U postgres -d butterfly -f db/tests/01_constraint_tests.sql
+psql -U postgres -d butterfly -f db/tests/02_event_store_tests.sql
+psql -U postgres -d butterfly -f db/tests/03_seed_tests.sql
+```
+
+- Seed is the tick-0 baseline.
+- `entity_state.entity_id = actor_id` for now.
+- Test files use `test_` names.
+
+## Engine: actions and projections
+
+- `apply_action` records validated player decisions and executes world projections in a single atomic transaction.
+- `join_village` registers player actors, records an arrive event, and seeds initial state via triggers.
+- Visibility rules determine witness recording: secret (actor only), private (actor and target), or public (all actors).
+- Players are constrained to 3 actions per day at the branch's current tick.
+- The `event_project` AFTER INSERT trigger updates world stock and versions entity states via `entity_state_at` and `patch_entity_state`.
+- Inventory adjustments preserve commodity conservation across stock and entity state rows.
+
+Run tests and the demo from the repository root (note: tests 01, 02 and 04 burn sequence values, so run 03 first on a freshly seeded DB):
+
+```sh
+psql -U postgres -d butterfly -f db/tests/03_seed_tests.sql
+psql -U postgres -d butterfly -f db/tests/04_engine_tests.sql
+psql -U postgres -d butterfly -f db/demo/01_first_evening.sql
+```
+
+## Rules and cascades
+
+- Rules as JSON: Conditions and effect templates are stored as validated JSON objects in relational text columns.
+- Template references: Variable placeholders (`$actor`, `$tick`, `$branch`, `$event`, and `$payload.<key>`) resolve dynamically from triggering events.
+- The 4 condition keys: `payload_eq`, `payload_gte`, `stock_below`, and `state_lt` evaluate event payloads and world state.
+- Delay vs immediate: Immediate rules (`delay_ticks = 0`) cascade synchronously; delayed rules queue in `scheduled_effect`.
+- Depth limit 5: Cascades terminate after 5 immediate hops via `cascade_max_depth()` to avoid infinite loops.
+- `advance_day`: Advances branch tick, emits `day_start`, and processes due scheduled effects via `FOR UPDATE SKIP LOCKED`.
+- Causal links carry `rule_id`: `event_cause` preserves parent events and rules for recursive "Ask Why" provenance queries.
+- Determinism: Serialized event ordering per branch ensures repeatable simulation outcomes and unbroken hash chains.
+
+Run test suites and demos from the repository root:
+
+```sh
+psql -U postgres -d butterfly -f db/tests/03_seed_tests.sql
+psql -U postgres -d butterfly -f db/tests/04_engine_tests.sql
+psql -U postgres -d butterfly -f db/tests/05_rules_tests.sql
+psql -U postgres -d butterfly -f db/demo/01_first_evening.sql
+psql -U postgres -d butterfly -f db/demo/02_ripple.sql
+```
+
+## Game content
+
+### Player actions
+
+The 10 player actions:
+
+| Action | Description | Notes |
+| --- | --- | --- |
+| `gift` | Transfers an item from actor inventory to target actor's inventory. | Private visibility. Triggers rule 11. |
+| `trade` | Buys goods from a place's stock, paying the target actor (seller) and receiving the goods into actor inventory. | Private visibility. Triggers rule 15 if stock falls low. |
+| `steal` | Takes goods from a place's stock into actor inventory without paying. | Secret visibility. Triggers rule 1 if stock falls low. |
+| `rumor` | Spreads a rumor (`slander`, `praise`, or other) about another actor. | Private visibility. Triggers rules 13 and 14. |
+| `build` | Constructs or upgrades a village structure or workshop. | Public visibility. Recorded-only by design (effects come from rules). |
+| `hire` | Hires another villager for a wage, setting their employer in entity state. | Private visibility. Deducts wage from actor and credits target actor. |
+| `set_price` | Adjusts commodity price at a workplace by fixed amount or percentage. | Public visibility. Triggers rule 2 if price rises >= 20%. |
+| `help_harvest` | Assists with harvesting grain at a farm (up to 10 units), increasing farm grain stock. | Private visibility. Triggers rule 12. |
+| `sabotage` | Destroys goods directly from a place's stock in secret. | Secret visibility. Triggers rule 10 if stock falls low. (Sabotage destroys goods; steal conserves them.) |
+| `feast` | Hosts or attends a community feast in the village. | Public visibility. Recorded-only by design (effects come from rules). |
+
+*Note: `build` and `feast` are recorded-only by design; any gameplay effects arise exclusively through rule triggers.*
+
+### Seed rules (1–15)
+
+| Rule ID | Trigger | Delay | Meaning |
+| --- | --- | --- | --- |
+| 1 | `steal` | 1 | Low bread stock at bakery (< 40) after theft causes a 25% price increase next day. |
+| 2 | `set_price` | 1 | Price increase of >= 20% shuns the culprit and reduces trust by 5 next day. |
+| 3 | `state_change` | 0 | When an entity's trust drops below 50, a public 'thief' rumor is immediately sparked. |
+| 4 | `day_start` | 0 | Hartley Farm brings in the daily harvest (+25 grain). |
+| 5 | `day_start` | 0 | Hartley Farm delivers 20 grain to Tobin's Mill if farm grain stock is at least 20. |
+| 6 | `day_start` | 0 | Tobin's Mill grinds 20 grain into 20 flour if mill grain stock is at least 20. |
+| 7 | `day_start` | 0 | Tobin's Mill delivers 10 flour to Maren's Bakery if mill flour stock is at least 10. |
+| 8 | `day_start` | 0 | Maren's Bakery bakes 10 flour into 20 bread if bakery flour stock is at least 10. |
+| 9 | `day_start` | 0 | The village consumes 15 bread from Maren's Bakery if bakery bread stock is at least 15. |
+| 10 | `sabotage` | 1 | Damaged stock (< 40) causes a 25% price increase next day. |
+| 11 | `gift` | 0 | Receiving a gift leaves the recipient feeling grateful. |
+| 12 | `help_harvest` | 0 | Helping harvest increases the helper's trust by 2. |
+| 13 | `rumor` | 0 | Slander rumors reduce the subject's trust by 3. |
+| 14 | `rumor` | 0 | Praise rumors increase the subject's trust by 3. |
+| 15 | `trade` | 1 | Low stock (< 10) after trade causes a 10% price increase next day. |
+
+### Rule engine conditions
+
+In addition to `payload_eq`, `payload_gte`, `stock_below`, and `state_lt`, the engine supports:
+- `stock_at_least`: Object `{place_id, item_id, qty}` verifying that the stock row for the specified place, item, and branch has `qty >= given qty`. Evaluates to `false` if no stock row exists.
+
+### Running tests and demos
+
+Run test suites and demos from the repository root:
+
+```sh
+psql -U postgres -d butterfly -f db/tests/03_seed_tests.sql
+psql -U postgres -d butterfly -f db/tests/04_engine_tests.sql
+psql -U postgres -d butterfly -f db/tests/05_rules_tests.sql
+psql -U postgres -d butterfly -f db/tests/06_game_tests.sql
+psql -U postgres -d butterfly -f db/tests/07_askwhy_tests.sql
+psql -U postgres -d butterfly -f db/tests/08_branching_tests.sql
+psql -U postgres -d butterfly -f db/demo/01_first_evening.sql
+psql -U postgres -d butterfly -f db/demo/02_ripple.sql
+psql -U postgres -d butterfly -f db/demo/03_a_week.sql
+psql -U postgres -d butterfly -f db/demo/04_ask_why.sql
+psql -U postgres -d butterfly -f db/demo/05_parallel_villages.sql
+```
+
+## Ask Why
+
+- **Closure table + trigger**: `causal_closure` stores all ancestor-descendant pairs and shortest depths, maintained incrementally by the `causal_maintain` trigger on `event_cause`.
+- **Materialized path**: `causal_path` stores slash-delimited causal chains under a first-cause-wins rule for single-parent causal tracing.
+- **Three `why_ids_*` functions**: `why_ids_cte` (recursive query), `why_ids_closure` (direct closure lookup), and `why_ids_path` (materialized path unnesting) provide multiple implementations for causality inspection.
+- **`ask_why` (Chronicle API)**: Returns the full chronological provenance narrative leading to an event, joining causal ancestors with rules and narrative templates.
+- **Butterfly score**: `butterfly_score(event_id)` computes downstream cascade impact as the count of transitive descendants.
+- **Views and materialized views**: `v_action_scores` and `v_player_butterfly` expose real-time metrics; `mv_evening_bell` and `mv_leaderboard` provide high-performance daily summaries refreshed via `refresh_daily_views()`.
+
+Run the Ask Why test suite and demo:
+
+```sh
+psql -U postgres -d butterfly -f db/tests/07_askwhy_tests.sql
+psql -U postgres -d butterfly -f db/demo/04_ask_why.sql
+```
+
+## Branching
+
+- **History inheritance**: Child branches store only their own new events starting with a `world_start` fork marker; ancestral events and causal provenance are inherited through `lineage_events` and `lineage_branches`.
+- **Three forking strategies**: `cow` (copy-on-write duplicate of head state, O(state size), valid only at parent's latest event), `replay` (full projection replay from root baseline snapshot), and `snapshot_delta` (fast hybrid replay from latest usable snapshot).
+- **Baseline and periodic snapshots**: Immutable state baselines taken at tick 0 and key checkpoints; snapshot uniqueness per `(branch_id, tick)` ensures baselines are never overwritten.
+- **Digest and branch_diff**: `branch_state_digest` generates canonical SHA-256 digests over world state; `branch_diff` computes full outer joins over stock and entity states to inspect diverging timelines.
+- **Cross-branch causal links**: Rules and scheduled effects triggered on a parent branch can emit effects into child branches while retaining causal provenance back to the original source event.
+- **The two fixes**: In `advance_day`, re-routing copied pending effects to the child branch before `emit_effect`; in scoring (`butterfly_score`, `v_action_scores`, `mv_evening_bell`), restricting butterfly descendant counts to the ancestor event's branch. Test suite 03 now contains 13 tests with the baseline snapshot test.
+
+Run the Branching test suite and demo:
+
+```sh
+psql -U postgres -d butterfly -f db/tests/08_branching_tests.sql
+psql -U postgres -d butterfly -f db/demo/05_parallel_villages.sql
+```
+
+## Security
+
+- **Roles**: Three non-login group roles (`player_role`, `game_master_role`, `auditor_role`) enforce least-privilege access; roles are cluster-wide and are intentionally kept by `drop_all.sql`.
+- **Write-only through functions**: All write operations are restricted to hardened `SECURITY DEFINER` functions (`apply_action`, `join_village`, `advance_day`, `fork_branch`, `create_snapshot`, `refresh_daily_views`) running with table-owner rights, so no role needs write privileges on tables.
+- **Identity check**: `apply_action` enforces actor identity by validating `p_actor` against `app.actor_id` (raising `'not your character'` on impersonation attempts) while permitting unrestricted operations when unset for staff roles.
+- **The five RLS tables and player visibility**: Row Level Security is enabled on `event`, `event_witness`, `entity_state`, `event_cause`, and `causal_closure`; players may only see witnessed events, their own witness records, their own entity state, and causal provenance/closure pairs of witnessed effects.
+- **Public mood view**: `v_village_mood` is owned by the table owner and deliberately bypasses RLS to expose public mood indicators across actors without leaking private coins, trust, or inventory.
+- **Deny-by-default execute grants**: Public execution on schema functions is revoked from `PUBLIC` by default; explicit `GRANT EXECUTE` permissions whitelist permitted entry points for player, game master, and auditor roles.
+- **The trust boundary**: The backend service authenticates player sessions, adopts the appropriate role, and securely sets `app.actor_id` per request via `SET LOCAL`.
+
+Run the Security test suite and demo:
+
+```sh
+psql -U postgres -d butterfly -f db/tests/09_security_tests.sql
+psql -U postgres -d butterfly -f db/demo/06_peek_and_tamper.sql
+```
+
+## Recovery (application level)
+
+- **Event store as source of truth**: The append-only, tamper-evident `event` log is the primary authoritative record of the world; projection tables are strictly derived views that can be reconstructed on demand.
+- **Rebuilt vs preserved state**: `stock` and `entity_state` are completely rebuilt by replaying lineage events from the root baseline snapshot; `scheduled_effect` is queue state that cannot be derived from events and is deliberately left untouched, relying on database-level recovery.
+- **The four recovery functions**: `branch_projection_digest` computes a SHA-256 digest of stock and open entities (excluding pending effects); `rebuild_projections` resets and replays projection state for a branch; `rebuild_all_projections` rebuilds every branch in branch_id order; and `rebuild_world` executes `rebuild_projections`, `rebuild_causal_structures`, and `refresh_daily_views`.
+- **The digest proof**: Comparing `branch_projection_digest` before and after recovery mathematically proves deterministic reconstruction down to the exact byte.
+- **Owner-only execution**: Recovery functions alter village-wide projection state and are intentionally owner-only with no execute grants to player, game master, or auditor roles.
+- **Running recovery tests and demo**: Run test suite 10 and demo 07 from the repository root:
+  ```sh
+  psql -U postgres -d butterfly -f db/tests/10_recovery_tests.sql
+  psql -U postgres -d butterfly -f db/demo/07_wipe_and_rebuild.sql
+  ```
+
+## Recovery (database level)
+
+- **WAL and crash recovery**: PostgreSQL Write-Ahead Logging (`wal_level = replica`, `fsync = on`, `synchronous_commit = on`) guarantees durability of committed transactions across sudden power cuts or process kills, while in-flight transactions are cleanly rolled back during automatic redo restart.
+- **Base backup plus archive**: Physical streaming base backups (`pg_basebackup`) combined with continuous WAL segment archiving (`archive_mode = on`, `archive_command`) retain an unbroken stream of changes for point-in-time recovery beyond checkpoint boundaries.
+- **Named restore points**: Operators can create transactional restore markers (`pg_create_restore_point`) before risky maintenance or migrations, enabling deterministic roll-forward to the exact instant preceding human error.
+- **What the experiments prove**: Experiment 7b confirms zero data loss, zero partial inflight writes, and preserved cryptographic event hash chains following immediate process crash (`taskkill /F`); Experiment 7c confirms complete restoration of dropped tables and truncated data up to a named restore point on a restored instance.
+- **Full-state protection vs projection rebuild**: While application-level recovery reconstructs derived projections (`stock`, `entity_state`) from the event store, database-level recovery protects the entire cluster—including non-derivable state such as pending `scheduled_effect` queues, schema catalogs, and database configuration.
+
+## Indexes
+
+Secondary and partial indexes defined in `db/schema/08_indexes.sql`:
+
+1. `event_branch_tick_idx ON event (branch_id, tick)`: Range reads on event ticks and fast resolution of `current_tick`.
+2. `event_branch_event_idx ON event (branch_id, event_id)`: Chain-prev hash lookups and branch lineage event reads.
+3. `event_cause_cause_idx ON event_cause (cause_id)`: Downward causal walks from parent causes to dependent effects (the upward walk uses the primary key `(effect_id, cause_id)`).
+4. `causal_closure_desc_idx ON causal_closure (descendant_id, depth)`: High-performance "Ask Why" provenance queries via the transitive closure table.
+5. `causal_path_prefix_idx ON causal_path (path text_pattern_ops)`: Direct downstream descendant lookups using path prefix pattern matching (`LIKE 'id/%'`).
+6. `event_witness_actor_idx ON event_witness (actor_id, event_id)`: Lookup of events witnessed by a specific actor, powering Row Level Security (RLS) policies.
+7. `scheduled_pending_idx ON scheduled_effect (branch_id, due_tick, scheduled_id) WHERE NOT processed`: Partial index for claiming due scheduled effects in `advance_day`.
+8. `entity_state_open_idx ON entity_state (entity_id, branch_id) WHERE upper_inf(valid_ticks)`: Partial index for immediate point lookup of the open (current) state row.
+9. `snapshot_branch_event_idx ON snapshot (branch_id, last_event_id DESC)`: Fast discovery of the best usable snapshot checkpoint for branch forking.
+
+Note: `db/schema/08_indexes_drop.sql` exists solely for the benchmark suite to recreate the unindexed 'before' baseline state; it is never run in normal use.
+
+

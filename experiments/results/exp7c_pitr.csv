@@ -1,0 +1,2 @@
+﻿base_backup_seconds,events_at_restore_point,events_restored,entity_rows_at_restore_point,entity_rows_restored,stock_present,digest_equal,chain_problems,disaster_confirmed,primary_still_damaged,restore_point_reached,archived_wal_files,restore_seconds
+1.85,1304,1304,333,333,true,true,0,true,true,true,4,6.62
