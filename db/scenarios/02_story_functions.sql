@@ -167,6 +167,7 @@ END;
 $$;
 
 -- Strength (0-3) of each link of the case at the end of a given tick.
+-- NOTE: LEAST ignores NULLs (LEAST(3, NULL) = 3), so an empty SUM must be COALESCEd to 0 first.
 CREATE FUNCTION story_link_strength(p_branch INT, p_actor INT, p_upto_tick INT)
 RETURNS TABLE (link_key TEXT, strength INT)
 LANGUAGE sql
@@ -174,7 +175,7 @@ STABLE
 AS $$
     SELECT l.link_key,
            COALESCE((
-               SELECT LEAST(3, SUM(cl.weight))::int
+               SELECT LEAST(3, COALESCE(SUM(cl.weight), 0))::int
                FROM clue_link cl
                WHERE cl.link_key = l.link_key
                  AND cl.clue_key IN (
