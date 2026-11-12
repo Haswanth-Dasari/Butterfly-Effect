@@ -22,6 +22,17 @@ Every database topic in the project documentation (section 17), mapped to the fi
 | 17.16 | Scheduled work, queues, LISTEN/NOTIFY | `db/procedures/07_advance_day.sql`, `db/procedures/13_live_updates.sql`, `backend/src/liveUpdates.js` | `db/tests/13_live_update_tests.sql` | — |
 | 17.17 | Partitioning | `experiments/partitioning/exp8_partitioning.sql` | — | Experiment 8: `experiments/partitioning/run_experiment8.ps1` (writes `experiments/results/exp8_partitioning.csv` when run) |
 
+## Story engine (scenario packs)
+
+| Concept in the story | Implemented in | Proven by (test) |
+|---|---|---|
+| Stories as data (scenario, beats, options, clues, endings) | `db/scenarios/01_story_schema.sql`, `db/scenarios/mystery/slice.json`, `db/scenarios/build_seed.mjs`, `db/seed/05_story_mystery.sql` | `db/tests/14_story_slice_tests.sql` |
+| Story effects as rules in the rules engine (meters, clues, hidden consequences) | `db/procedures/06_rules_engine.sql` (new conditions `state_gte`, `scenario`, `trait`), `db/seed/05_story_mystery.sql` | `db/tests/14_story_slice_tests.sql` |
+| A playthrough is a branch (private world, rewind still works) | `db/scenarios/02_story_functions.sql` (`start_playthrough`) | `db/tests/14_story_slice_tests.sql` |
+| Fog of knowledge in play (witnessed vs hidden events) | `db/procedures/05_apply_action.sql`, `db/scenarios/02_story_functions.sql` | `db/tests/14_story_slice_tests.sql` |
+| Case Board and Compass computed in SQL | `db/scenarios/02_story_functions.sql` (`story_board`, `story_compass`) | `db/tests/14_story_slice_tests.sql` |
+| API and UI | `backend/src/routes/story.js`, `frontend/js/story.js`, `frontend/js/storystart.js`, `frontend/js/almanac.js` | `scripts/ui_smoke_test.py` |
+
 ## Application layer (not a syllabus topic, but part of the system)
 
 | Area | Files |

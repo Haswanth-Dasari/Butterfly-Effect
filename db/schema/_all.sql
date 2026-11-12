@@ -23,7 +23,10 @@
 \ir ../views/01_scores.sql
 \ir ../views/02_daily_views.sql
 \ir ../views/03_public_views.sql
+\ir ../scenarios/01_story_schema.sql
+\ir ../scenarios/02_story_functions.sql
 \ir ../security/01_roles.sql
 \ir ../security/02_rls.sql
 \ir ../security/03_privileges.sql
 \ir ../security/04_app_roles.sql
+\ir ../security/05_story_privileges.sql

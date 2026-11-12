@@ -36,6 +36,9 @@ export function describe(e) {
   const subj = you ? 'You' : (A || 'Someone');
   const v = (you, third) => (you ? you : third); // verb agreement helper
   switch (e.action_type) {
+    case 'story_event': return p.text || 'Something happens in the village.';
+    case 'discover': return `New clue: ${store.clueTitles?.get(p.clue) || 'something you noticed'}.`;
+    case 'story_enter': return 'Someone new arrives in the village.';
     case 'world_start': return p.fork_of ? 'A new thread of the village begins here.' : 'Alderbrook begins.';
     case 'arrive': return `${subj} ${v('arrive', 'arrives')} in Alderbrook${p.coins ? ` with ${p.coins} coins` : ''}.`;
     case 'day_start': return `Day ${p.day ?? e.tick} dawns over Alderbrook.`;
@@ -110,6 +113,9 @@ export const ICONS = {
   help: '<circle cx="12" cy="12" r="9"/><path d="M9.500 9.500a2.500 2.500 0 1 1 3.500 2.300c-.7.400-1 .900-1 1.700M12 17v.2"/>',
   moon: '<path d="M20 14A8 8 0 1 1 10 4a6.500 6.500 0 0 0 10 10z"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
+  book: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 19V5M8 7h7M8 11h7"/>',
+  board: '<rect x="3" y="4" width="18" height="14" rx="1.500"/><path d="M7 9h3M14 9h3M7 13h3M14 13h3M10 18l-1 3M14 18l1 3"/>',
+  flame: '<path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 2 1 1 0-3 1-5 2-7z"/>',
   default: '<circle cx="12" cy="12" r="4"/>',
 };
 export function iconSvg(name, size = 20) {

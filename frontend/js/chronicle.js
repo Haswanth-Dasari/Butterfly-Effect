@@ -46,7 +46,7 @@ export function createChroniclePanel(ctx) {
   }
 
   function drawFeed() {
-    const evs = store.events.slice(0, 40);
+    const evs = store.events.filter((e) => !['story_choice', 'story_start', 'story_enter'].includes(e.action_type)).slice(0, 40);
     feed.replaceChildren(...(evs.length ? evs.map((e) => {
       const meta = ACTION_META[e.action_type];
       return h('button.fev', { class: `${selected === String(e.event_id) ? 'sel' : ''} ${e.is_cascade ? 'cascade' : ''} ${seen.has(e.event_id) ? '' : 'new'}`, style: { '--hue': meta?.hue }, onclick: () => ask(e.event_id), title: 'Ask why' },

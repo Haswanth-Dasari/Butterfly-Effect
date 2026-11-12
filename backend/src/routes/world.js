@@ -18,7 +18,8 @@ function workplaceFor(actor, home, places) {
     case 'baker_helper': return byKind('bakery');
     case 'miller':
     case 'mill_helper': return byKind('mill');
-    case 'innkeeper': return byKind('inn');
+    case 'innkeeper':
+    case 'drover': return byKind('inn');
     case 'well_keeper': return byKind('well');
     case 'farmer': {
       const fam = (home?.family_name || '').toLowerCase();
@@ -86,7 +87,8 @@ router.get('/me', requireAuth, async (req, res) => {
     const tick = (await client.query('SELECT current_tick($1) AS t', [branchId])).rows[0].t;
     const used = await client.query(
       `SELECT count(*)::int AS n FROM event
-        WHERE branch_id = $1 AND actor_id = $2 AND tick = $3 AND action_type = ANY($4::text[])`,
+        WHERE branch_id = $1 AND actor_id = $2 AND tick = $3
+          AND (action_type = ANY($4::text[]) OR (action_type = 'story_choice' AND payload @> '{"cost":1}'::jsonb))`,
       [branchId, actorId, tick, PLAYER_ACTIONS]);
     const n = used.rows[0].n;
     return {

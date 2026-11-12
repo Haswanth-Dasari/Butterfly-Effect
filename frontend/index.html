@@ -19,6 +19,8 @@
       <div>
         <h1>Butterfly<br>Effect</h1>
         <p class="lede">A village that never forgets. Do one small thing today — and watch it come back to you days later. Then ask the village <em>why</em>.</p>
+        <div class="join-card" id="story-shelf" aria-live="polite"></div>
+        <details class="sandbox"><summary>Or explore the village freely (sandbox)</summary>
         <form class="join-card" id="join-form" autocomplete="off">
           <label for="name">Your name, newcomer</label>
           <input id="name" name="name" maxlength="24" placeholder="e.g. Rin" required>
@@ -28,7 +30,7 @@
           </div>
           <div class="err" id="join-err" role="alert"></div>
           <div class="session-note" id="join-note"></div>
-        </form>
+        </form></details>
         <div class="powers">
           <div class="power"><b id="pw1"></b>Point at anything that happened and the village walks you back to the very first cause.</div>
           <div class="power"><b id="pw2"></b>Rewind to any day and take a different path. The old village stays exactly as it was.</div>
@@ -45,6 +47,9 @@
       <span class="chip-stat day serif" id="st-day" title="The current day"></span>
       <button class="chip-stat branch" id="st-branch" title="Which village you are in. Click to open Worlds."></button>
       <span class="grow"></span>
+      <span class="chip-stat hide-s hidden" id="st-susp" title="Suspicion: how strongly the village believes you did it"></span>
+      <span class="chip-stat hide-s hidden" id="st-danger" title="Danger: how closely the killer watches you"></span>
+      <span class="chip-stat hidden" id="st-compass" title="The Compass: how close your understanding is to the truth"></span>
       <span class="chip-stat hide-s" id="st-coins" title="Coins in your purse"></span>
       <span class="chip-stat hide-s" id="st-trust" title="How much the village trusts you"></span>
       <span class="chip-stat hide-s" id="st-mood" title="How you feel"></span>
@@ -52,6 +57,7 @@
       <button class="btn night" id="end-day-top">End day</button>
       <span class="chip-stat" title="Live connection to the village"><i class="live-dot" id="live"></i></span>
       <button class="btn icon ghost" id="btn-sound" aria-label="Toggle sound" title="Sound"></button>
+      <button class="btn icon ghost" id="btn-almanac" aria-label="Open the Almanac (H)" title="The Almanac (H)"></button>
       <button class="btn icon ghost" id="btn-help" aria-label="How to play" title="How to play"></button>
       <button class="btn sm ghost" id="btn-leave" title="Leave and start over">Leave</button>
     </header>

@@ -1,4 +1,16 @@
 -- DEVELOPMENT ONLY. Destroys all data.
+DROP FUNCTION IF EXISTS start_playthrough CASCADE;
+DROP FUNCTION IF EXISTS story_compass CASCADE;
+DROP FUNCTION IF EXISTS story_board CASCADE;
+DROP FUNCTION IF EXISTS story_scene CASCADE;
+DROP FUNCTION IF EXISTS story_choose CASCADE;
+DROP FUNCTION IF EXISTS story_progress CASCADE;
+DROP FUNCTION IF EXISTS story_link_strength CASCADE;
+DROP FUNCTION IF EXISTS story_beat_available CASCADE;
+DROP FUNCTION IF EXISTS story_chose CASCADE;
+DROP FUNCTION IF EXISTS story_actions_used CASCADE;
+DROP FUNCTION IF EXISTS story_actor_claim CASCADE;
+DROP TABLE IF EXISTS playthrough, story_ending, story_option, story_beat, story_day, clue_link, clue, case_link, scenario CASCADE;
 DROP FUNCTION IF EXISTS rebuild_world CASCADE;
 DROP FUNCTION IF EXISTS rebuild_all_projections CASCADE;
 DROP FUNCTION IF EXISTS rebuild_projections CASCADE;

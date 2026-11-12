@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run every SQL suite on a fresh database
-        run: bash ./scripts/run_tests.sh
+        run: ./scripts/run_tests.sh
   app:
     runs-on: ubuntu-latest
     steps:
@@ -22,6 +22,10 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 20 }
       - run: cd backend && npm install --no-audit --no-fund
+      - name: Generated story seed is in sync with slice.json
+        run: |
+          node db/scenarios/build_seed.mjs mystery
+          git diff --exit-code db/seed/05_story_mystery.sql
       - name: Syntax check backend and demo server
         run: |
-          for f in backend/src/*.js backend/src/routes/*.js backend/dev/mock-server.mjs; do node --check "$f"; done
+          for f in backend/src/*.js backend/src/routes/*.js backend/dev/mock-server.mjs db/scenarios/build_seed.mjs; do node --check "$f"; done

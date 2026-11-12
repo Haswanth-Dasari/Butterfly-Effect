@@ -296,6 +296,17 @@ BEGIN
 
             PERFORM adjust_stock(v_place_id, v_item_id, e.branch_id, -v_qty);
 
+        WHEN 'story_enter' THEN
+            -- A story character walks into the village: give them a state row so later changes can target them.
+            v_entity_id := (e.payload->>'entity_id')::int;
+            IF NOT EXISTS (
+                SELECT 1 FROM entity_state
+                WHERE entity_id = v_entity_id AND branch_id = e.branch_id AND upper_inf(valid_ticks)
+            ) THEN
+                INSERT INTO entity_state (entity_id, branch_id, valid_ticks, state)
+                VALUES (v_entity_id, e.branch_id, int4range(e.tick, NULL), COALESCE(e.payload->'state', '{}'::jsonb));
+            END IF;
+
         WHEN 'day_start' THEN
             NULL;
 

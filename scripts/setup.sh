@@ -16,6 +16,7 @@ fi
 if [[ -z "${SKIP:-}" ]]; then
   echo "Applying schema ...";  "${P[@]}" -d "$DB" -f db/schema/_all.sql >/dev/null
   echo "Seeding Alderbrook ..."; "${P[@]}" -d "$DB" -f db/seed/_seed_all.sql >/dev/null
+  echo "Loading the story pack ..."; "${P[@]}" -d "$DB" -f db/seed/_seed_story.sql >/dev/null
   "${P[@]}" -d "$DB" -c "ALTER ROLE butterfly_app PASSWORD '$APPPW'" -c "ALTER ROLE butterfly_gm PASSWORD '$APPPW'"
 fi
 if [[ ! -f backend/.env ]]; then

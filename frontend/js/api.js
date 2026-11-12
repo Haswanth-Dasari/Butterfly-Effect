@@ -50,6 +50,13 @@ export const api = {
   branches: () => req('GET', '/branches'),
   switchBranch: (branchId) => req('POST', '/switch-branch', { branchId }),
   diff: (a, b) => req('GET', `/branch-diff/${a}/${b}`),
+  scenarios: () => req('GET', '/story/scenarios'),
+  storyStart: (body) => req('POST', '/story/start', body),
+  storyScene: () => req('GET', '/story/scene'),
+  storyChoose: (beat, option) => req('POST', '/story/choose', { beat, option }),
+  storyBoard: () => req('GET', '/story/board'),
+  storyCompass: () => req('GET', '/story/compass'),
+  storyGuidance: (guided) => req('POST', '/story/guidance', { guided }),
 };
 
 /** Turn the database's blunt error text into something a villager would say. */
@@ -71,6 +78,9 @@ export function flavor(err) {
     [/nothing happened on or before/i, 'Nothing had happened yet on that day, so there is nothing to rewind to.'],
     [/fork event must belong/i, 'That moment belongs to another village.'],
     [/you have not arrived/i, 'You had not arrived in Alderbrook yet when that village split off.'],
+    [/that moment has passed/i, 'That moment has passed.'],
+    [/you already chose that/i, 'You have already done that.'],
+    [/your story has ended/i, 'Your story has ended.'],
     [/slow down|429/i, 'The village needs a moment — slow down.'],
     [/road to the village/i, m],
   ];

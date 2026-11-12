@@ -28,6 +28,7 @@ try {
     if (-not $skip) {
         Write-Host "Applying schema, procedures, views and security ..."; Run-Psql $Database "db/schema/_all.sql"
         Write-Host "Seeding Alderbrook ...";                              Run-Psql $Database "db/seed/_seed_all.sql"
+        Write-Host "Loading the story pack (Who Burned the Mill?) ...";  Run-Psql $Database "db/seed/_seed_story.sql"
         & psql -X -q -U $User -d $Database -c "ALTER ROLE butterfly_app PASSWORD '$AppPassword'" | Out-Null
         & psql -X -q -U $User -d $Database -c "ALTER ROLE butterfly_gm PASSWORD '$AppPassword'" | Out-Null
     }

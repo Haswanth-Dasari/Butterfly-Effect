@@ -6,6 +6,12 @@ You arrive in **Alderbrook**, a village of about thirty villagers, and do ordina
 
 The game is only the story on top. **PostgreSQL is the engine and the source of truth**: an append-only, hash-chained event store, a causal graph queried with recursive CTEs, rules stored as data, row-level security, branching timelines, time travel, and full recovery from the event log.
 
+## New: story mode, *Who Burned the Mill?*
+
+You are Rowan, a mill helper with a burned past. Three quiet days, then the mill burns and the miller is dead, and everything points at you. Investigate with three actions a day; the village is a real database that remembers every choice. Choose your temperament, and choose **Bold** (no hints) or **Guided** (a Compass that tells you whether you are getting closer, never who). The **Almanac** (press H) explains every rule. This release is the opening chapters (days 1 to 4); see `docs/story/` for the full story bible and `docs/story/02_slice_as_built.md` for how it runs on the engine.
+
+![Story mode](docs/screenshots/s03_day1.png)
+
 ![The village](docs/screenshots/02_village.png)
 
 | Ask Why (Chronicle) | Look Back + Parallel villages |
@@ -68,6 +74,8 @@ An in-memory server that speaks the same API (simplified rules) so you can try o
 Each day you have **three actions**: gift, trade, steal, rumor, build, hire, set price, help harvest, sabotage, feast. Click **End day** and the Evening Bell tells you what changed. Use **Chronicle** to ask why, **Look back** to slide through time, **Worlds** to fork a parallel village and compare it. Play with friends by opening the same server in another browser.
 
 ## Verified status (honest notes)
+
+- **Story mode:** the UI and demo server were played end to end in a headless browser. The new PostgreSQL code for it (`db/scenarios/`, three small edits to core procedures, `db/tests/14_story_slice_tests.sql`) has **not been run yet**. Push and check the GitHub Actions tab, or run `scripts/run_tests.ps1`; if suite 14 fails, the log names the exact step.
 
 - The SQL, experiments and their results were produced and run against PostgreSQL 16 during development; raw outputs are in `experiments/results/`.
 - The front end and the demo server were exercised end to end in a headless browser (join, act, end day, Evening Bell, Ask Why, Look Back, fork, compare, leaderboard, responsive layout). That test environment had no PostgreSQL, so the **new Express routes in `backend/src/routes/world.js` and the modified routes in `queries.js` have been syntax-checked but not run against a live database**. Run `scripts/setup.ps1`, `npm start` and click through once before the demo; `docs/demo_script.md` has the checklist.

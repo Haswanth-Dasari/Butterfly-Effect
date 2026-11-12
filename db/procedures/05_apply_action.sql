@@ -160,17 +160,18 @@ BEGIN
     v_tick := current_tick(p_branch);
 
     -- 5. Player action limit (3 actions per day)
-    IF v_actor_kind = 'player' THEN
+    IF v_actor_kind = 'player'
+       OR EXISTS (SELECT 1 FROM playthrough pt WHERE pt.branch_id = p_branch AND pt.actor_id = p_actor) THEN
         SELECT count(*)
         INTO v_action_count
         FROM event
         WHERE branch_id = p_branch
           AND actor_id = p_actor
           AND tick = v_tick
-          AND action_type IN (
+          AND (action_type IN (
               'gift', 'trade', 'steal', 'rumor', 'build',
               'hire', 'set_price', 'help_harvest', 'sabotage', 'feast'
-          );
+          ) OR (action_type = 'story_choice' AND payload @> '{"cost":1}'::jsonb));
 
         -- 3 actions per day
         IF v_action_count >= 3 THEN

@@ -1,0 +1,1544 @@
+{
+ "scenario": {
+  "key": "mystery",
+  "title": "Who Burned the Mill?",
+  "tagline": "Nobody burns a village. A village burns itself, one whisper at a time.",
+  "genre": "Mystery",
+  "protagonist_id": 11,
+  "slice_end_day": 4,
+  "start_state": {
+   "coins": 6,
+   "mood": "curious",
+   "suspicion": 0,
+   "danger": 0,
+   "smoke": 0,
+   "stealth": 0,
+   "misdirect": 0,
+   "trust_wick": 30,
+   "trust_maren": 30,
+   "trust_tobin": 30,
+   "trust_giles": 30,
+   "trust_ines": 20,
+   "trust_elspeth": 30,
+   "trust_thorn": 0,
+   "trust_lily": 10,
+   "trust_bethan": 40
+  }
+ },
+ "actors": [
+  {
+   "id": 31,
+   "name": "Corbin Brand",
+   "job": "drover",
+   "state": {
+    "mood": "content",
+    "trust": 50,
+    "coins": 25
+   }
+  },
+  {
+   "id": 32,
+   "name": "Sergeant Pike",
+   "job": "reeve_officer",
+   "state": {
+    "mood": "content",
+    "trust": 50,
+    "coins": 15
+   }
+  },
+  {
+   "id": 33,
+   "name": "Corwen",
+   "job": "reeve_deputy",
+   "state": {
+    "mood": "curious",
+    "trust": 50,
+    "coins": 5
+   }
+  },
+  {
+   "id": 34,
+   "name": "Hesper Brook",
+   "job": "healer",
+   "state": {
+    "mood": "content",
+    "trust": 50,
+    "coins": 12
+   }
+  },
+  {
+   "id": 35,
+   "name": "Reeve Halloran Voss",
+   "job": "reeve",
+   "state": {
+    "mood": "content",
+    "trust": 50,
+    "coins": 60
+   }
+  }
+ ],
+ "links": [
+  {
+   "key": "motive",
+   "title": "Motive",
+   "question": "Why would anyone kill Tobin?"
+  },
+  {
+   "key": "means",
+   "title": "Means",
+   "question": "Who had the hand to do it?"
+  },
+  {
+   "key": "meeting",
+   "title": "Meeting",
+   "question": "Who met Tobin that night?"
+  },
+  {
+   "key": "murder",
+   "title": "Murder",
+   "question": "How did Tobin die?"
+  },
+  {
+   "key": "match",
+   "title": "Match",
+   "question": "Who lit the fire?"
+  },
+  {
+   "key": "mask",
+   "title": "Mask",
+   "question": "Who built the frame around you?"
+  },
+  {
+   "key": "master",
+   "title": "Master",
+   "question": "Who is behind all of it?"
+  }
+ ],
+ "clues": [
+  {
+   "key": "C01",
+   "title": "Wick's ink-dark fingertips",
+   "kind": "observation",
+   "day": 1,
+   "journal": "As Old Wick took the cup from you, you noticed his fingertips were stained nearly black, the way they are every day. He makes his own ink from walnut husks.",
+   "links": {
+    "mask": 1
+   }
+  },
+  {
+   "key": "C02",
+   "title": "The packet's seal",
+   "kind": "observation",
+   "day": 1,
+   "journal": "The packet Wick gave you for Ines is sealed with wax pressed from a tiny well-bucket. It is not the seal of any office you know.",
+   "links": {
+    "means": 1
+   }
+  },
+  {
+   "key": "C17",
+   "title": "The drover's grey horse",
+   "kind": "observation",
+   "day": 1,
+   "journal": "The drover lodging at the inn rides a grey horse. Under the saddle blanket you glimpsed a brand: a crowned R. It means nothing to you yet.",
+   "links": {
+    "master": 1
+   }
+  },
+  {
+   "key": "C04",
+   "title": "Voices at the well-house",
+   "kind": "observation",
+   "day": 2,
+   "journal": "After dark you heard Tobin and Old Wick arguing inside the well-house. Tobin said, 'Tomorrow night, after the bell, at the mill. Bring the seal.' Wick said he would.",
+   "links": {
+    "meeting": 1
+   }
+  },
+  {
+   "key": "C25",
+   "title": "Thorn's threat",
+   "kind": "rumour",
+   "day": 3,
+   "journal": "In the square, Garth Thorn shouted that Tobin's grain prices would ruin the valley, and that he would see the mill burn before he paid them. Everyone heard.",
+   "links": {}
+  },
+  {
+   "key": "C05u",
+   "title": "A folded page (unread)",
+   "kind": "document",
+   "day": 3,
+   "journal": "Tobin pressed a folded page into your hand and told you to show no one. You have not read it.",
+   "links": {}
+  },
+  {
+   "key": "C05",
+   "title": "Page 41",
+   "kind": "document",
+   "day": 3,
+   "journal": "Page 41 of Tobin's ledger, a copy of a land survey. In the margin, in Tobin's hand: 'E. has sold us. The survey is false. Midnight, the mill, bring the seal.' Who is E.?",
+   "links": {
+    "motive": 1,
+    "means": 1
+   }
+  },
+  {
+   "key": "C14b",
+   "title": "Two men at the mill's back door",
+   "kind": "observation",
+   "day": 3,
+   "journal": "From the alder hedge you saw two men go in at the mill's back door a little before eleven. One carried a green-glass lantern. You did not see the second man's face.",
+   "links": {
+    "meeting": 2,
+    "master": 1
+   }
+  },
+  {
+   "key": "C07",
+   "title": "Tobin's stopped watch",
+   "kind": "physical",
+   "day": 4,
+   "journal": "On the office floor lay Tobin's watch, glass smashed, stopped at twenty to twelve. The fire did not start until midnight.",
+   "links": {
+    "murder": 1
+   }
+  },
+  {
+   "key": "C09",
+   "title": "The strongbox",
+   "kind": "physical",
+   "day": 4,
+   "journal": "The mill's strongbox was open and empty. The lock had been cut from the outside, and the cut is clean. Before the fire, not by it.",
+   "links": {
+    "motive": 1
+   }
+  },
+  {
+   "key": "C08",
+   "title": "Tobin's wound",
+   "kind": "physical",
+   "day": 4,
+   "journal": "Tobin's head was split above the ear. A fire does not do that. He was dead before the smoke reached him.",
+   "links": {
+    "murder": 1
+   }
+  },
+  {
+   "key": "C10",
+   "title": "Far too much oil",
+   "kind": "physical",
+   "day": 4,
+   "journal": "The cellar stones are slick with oil. A pint can lit the grain shed, and nothing more. This was gallons, poured on purpose.",
+   "links": {
+    "match": 1
+   }
+  },
+  {
+   "key": "C13",
+   "title": "Lily saw Wick pick up a key",
+   "kind": "testimony",
+   "day": 4,
+   "journal": "Lily says that on the day Tobin shouted at you, she saw Old Wick take something shiny off the well hook and put it in his pocket. She thought it was a key.",
+   "links": {
+    "mask": 1
+   }
+  },
+  {
+   "key": "C03a",
+   "title": "The well lantern was dark",
+   "kind": "testimony",
+   "day": 4,
+   "journal": "Lily says the well lantern, which Old Wick lights every night of his life, was dark the night of the fire. (He may have an explanation.)",
+   "links": {
+    "meeting": 1
+   }
+  }
+ ],
+ "days": [
+  {
+   "day": 1,
+   "title": "Day 1 · A grey morning",
+   "intro": "Ten years ago you came to Alderbrook with nothing but your name. The Hollis family took you in. Today their kitchen is quiet, and the debt is louder than the rain. Tobin owes you a wage that never comes full, and the Reeve visits in twelve days. Three things you can do today. Choose carefully: nothing in Alderbrook is ever small."
+  },
+  {
+   "day": 2,
+   "title": "Day 2 · Heat",
+   "intro": "By noon the whole square has heard Tobin's voice. You have never known him to shout. Something has got into him, and into the village."
+  },
+  {
+   "day": 3,
+   "title": "Day 3 · The quiet",
+   "intro": "Tobin does not shout today. That is worse. He moves about the mill like a man counting his steps."
+  },
+  {
+   "day": 4,
+   "title": "Day 4 · Ashes",
+   "intro": "The mill is a black tooth at the end of the lane. Smoke still leans over the valley. Somewhere in the ruin is a man you have worked beside for four years."
+  }
+ ],
+ "day_events": [
+  {
+   "day": 1,
+   "visibility": "hidden",
+   "effects": [
+    {
+     "enter": 31
+    },
+    {
+     "event": {
+      "actor": 1,
+      "visibility": "private",
+      "kind": "wick_plan",
+      "text": "Old Wick watches the Hollis house from the well, and counts the days to the Reeve."
+     }
+    }
+   ]
+  },
+  {
+   "day": 2,
+   "visibility": "public",
+   "text": "In the square, before seven villagers, Tobin Marsh accuses the mill helper of selling flour on the side. Someone had told him so.",
+   "kind": "quarrel",
+   "effects": [
+    {
+     "entity": "player",
+     "add": {
+      "suspicion": 10
+     }
+    },
+    {
+     "event": {
+      "actor": 1,
+      "target": 10,
+      "visibility": "private",
+      "kind": "pocket_key",
+      "text": "At the well, Old Wick lifts a mill key from the hook and slips it into his pocket. Only a child on the wall sees."
+     }
+    }
+   ]
+  },
+  {
+   "day": 3,
+   "visibility": "public",
+   "text": "Garth Thorn shouts across the square that he will see Tobin's mill burn before he pays those prices.",
+   "kind": "thorn_threat",
+   "effects": [
+    {
+     "discover": "C25"
+    }
+   ]
+  },
+  {
+   "day": 4,
+   "visibility": "public",
+   "text": "At midnight the mill bell rings and does not stop. Tobin's Mill burns.",
+   "kind": "fire",
+   "effects": [
+    {
+     "event": {
+      "actor": null,
+      "visibility": "private",
+      "kind": "tobin_dead",
+      "text": "Tobin Marsh lies dead in his own office. He died before the fire."
+     }
+    }
+   ]
+  }
+ ],
+ "beats": [
+  {
+   "key": "d1_well",
+   "day": 1,
+   "phase": "morning",
+   "title": "The well",
+   "body": "Old Wick is at the well, as he is every morning. He taught you your letters when you were eleven and silent as a stone. He lifts the bucket and a tin cup and beckons. 'Sit, lad. Everyone who drinks from this well owes it a story.'",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "share_loaf",
+     "label": "Share your breakfast loaf with him",
+     "result": "He takes the bread with both hands like it is something precious. 'You have a kind face,' he says. 'That is a dangerous thing to wear in a place like this.' He tells you the story of the river that changed its mind about where to run, and how everything in the valley moved to follow it. 'A village is only ever the shape of its water.'",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_wick": 10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "gave_loaf": 1
+       }
+      },
+      {
+       "discover": "C01"
+      }
+     ]
+    },
+    {
+     "key": "listen",
+     "label": "Sit and listen to his story",
+     "result": "He tells it slowly: the river that changed its mind, and the valley that had to follow. 'The Moot meets on the commons,' he adds lightly, 'and always has. It is the one thing in this valley nobody owns.' He hands you the cup. You drink.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_wick": 5
+       }
+      },
+      {
+       "discover": "C01"
+      }
+     ]
+    },
+    {
+     "key": "skip",
+     "label": "Wave and hurry on",
+     "result": "He lifts the cup in salute and lets you go. 'Another day, lad.' You feel his eyes on your back all the way down the lane.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_wick": -2
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d1_packet",
+   "day": 1,
+   "phase": "day",
+   "title": "A small errand",
+   "body": "Wick presses a small sealed packet into your hand. 'Would you take this to Ines at the inn? My knees are not what they were. It is only herbs for her cough.' The wax is the colour of old honey.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "carry",
+     "label": "Carry it to Ines, no questions",
+     "result": "Ines takes the packet without looking at it, as if she has done this before, and tucks it behind the bar. 'Tell him thanks.'",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_wick": 5
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "carried_packet": 1
+       }
+      }
+     ]
+    },
+    {
+     "key": "peek",
+     "label": "Carry it, and look closely at the seal",
+     "result": "On the way you turn it in the light. The seal is a tiny well-bucket pressed into wax. It is not the mark of any office you know. Ines takes it from you without a word, and your neck prickles; she has done this before.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "danger": 5
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "carried_packet": 1
+       }
+      },
+      {
+       "discover": "C02"
+      }
+     ]
+    },
+    {
+     "key": "refuse",
+     "label": "Say you are busy",
+     "result": "'Of course, lad.' He is not offended. Within the hour you see Ines's niece hurry past with it in her apron. It reached her anyway.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_wick": -5
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "refused_packet": 1
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d1_giles",
+   "day": 1,
+   "phase": "day",
+   "title": "Giles asks for a coin",
+   "body": "Your foster-brother Giles, sixteen and furious at everything, catches your sleeve outside the Hollis gate. 'Lend me a coin, Ro. Just one. Ma needs a lamp for the cellar and the chandler won't give credit.' He will not meet your eyes.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "give",
+     "label": "Give him a coin",
+     "result": "He closes his hand around it. 'Thanks. I will not forget this.' He runs off toward the chandler's.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "coins": -1
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_giles": 10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "gave_coin": 1
+       }
+      },
+      {
+       "entity": 13,
+       "set": {
+        "oil_source": "rowan"
+       },
+       "why": "A coin you gave your foster-brother bought the oil."
+      }
+     ]
+    },
+    {
+     "key": "give_two",
+     "label": "Give him two",
+     "result": "'Two?' He stares, then grins in spite of himself. 'You are a good brother.' You do not feel good. You feel watched.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "coins": -2
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_giles": 15
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "gave_coin": 1
+       }
+      },
+      {
+       "entity": 13,
+       "set": {
+        "oil_source": "rowan"
+       },
+       "why": "Coins you gave your foster-brother bought the oil."
+      }
+     ]
+    },
+    {
+     "key": "refuse",
+     "label": "Tell him you cannot spare it",
+     "result": "'Of course you cannot.' His face closes like a door. By evening you see him at the well with Old Wick, and Wick's hand on his shoulder. Whatever he needed, he got.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_giles": -10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "refused_coin": 1
+       }
+      },
+      {
+       "entity": 13,
+       "set": {
+        "oil_source": "wick"
+       },
+       "why": "Wick paid for the oil, because you would not."
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d1_inn",
+   "day": 1,
+   "phase": "day",
+   "title": "The inn",
+   "body": "A drover has taken the corner table at Ines's inn. He is a large, quiet man with good boots, and a grey horse stands outside with a saddle blanket folded over the rail. 'Lodging since dawn,' Ines murmurs. 'Pays in silver.'",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "cup",
+     "label": "Take a cup and pass the time",
+     "result": "The drover nods and says nothing. You hear the horse stamp outside. Ines refills your cup unasked.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_ines": 3
+       }
+      }
+     ]
+    },
+    {
+     "key": "look_close",
+     "label": "Look closely at the horse",
+     "result": "While the drover is turned away you lift the corner of the blanket. Under the saddle, burned into the leather: a crowned R. You let the blanket fall. When you look up, the drover is watching you.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "danger": 5
+       }
+      },
+      {
+       "discover": "C17"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d1_tobin",
+   "day": 1,
+   "phase": "day",
+   "title": "Pay day",
+   "body": "Tobin counts coins into your palm at the mill door and stops one coin short. He will not look at you. 'The mill is running at a loss, Rowan. I am sorry.'",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "accept",
+     "label": "Accept it quietly",
+     "result": "'You are a good worker,' he says, and means it. It does not feel like enough.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_tobin": 5
+       }
+      }
+     ]
+    },
+    {
+     "key": "ask",
+     "label": "Ask what is wrong",
+     "result": "He sighs. 'The Hollis ledger is behind, thirty crowns, and the Reeve comes on the twelfth. I cannot carry it forever. I did not want to tell you.' Thirty crowns. The Hollis house. Giles. Bethan. You, with them.",
+     "effects": [
+      {
+       "entity": "player",
+       "set": {
+        "knows_debt": 1
+       }
+      }
+     ]
+    },
+    {
+     "key": "push",
+     "label": "Push back: you earned it",
+     "result": "His jaw sets. 'Mind yourself.' Two of the other labourers hear. Word travels.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_tobin": -5
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 5
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d2_quarrel",
+   "day": 2,
+   "phase": "day",
+   "title": "In the square",
+   "body": "It happens at noon, in front of seven villagers. Tobin, who has never raised his voice to you, accuses you of selling flour on the side. 'Someone told me. Someone I trust.' The square is silent. Everyone is looking at you.",
+   "cost": false,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "apologise",
+     "label": "Say nothing. Apologise for the misunderstanding",
+     "result": "You keep your voice level. 'I have never taken a grain.' Some people look away. Tobin looks ashamed. It helps, a little.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": -5
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_tobin": 5
+       }
+      }
+     ]
+    },
+    {
+     "key": "defend",
+     "label": "Defend yourself loudly",
+     "result": "You shout back that you have bled for that mill. The crowd murmurs. The words feel like the wrong ones as soon as they leave you.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 5
+       }
+      }
+     ]
+    },
+    {
+     "key": "counter",
+     "label": "Accuse him of shorting your wages",
+     "result": "A gasp goes round the square. Tobin goes grey. A boy at the back whispers 'bad blood' and no one stops him.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 10
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_tobin": -10
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d2_home",
+   "day": 2,
+   "phase": "day",
+   "title": "The Hollis kitchen",
+   "body": "Bethan is coughing again. Giles sits on the stairs with his chin on his knees. Milo is drawing the mill in the ash of the hearth. Nobody asks about the square. Everybody already knows.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "comfort_giles",
+     "label": "Sit with Giles",
+     "result": "'I do not want to lose the house,' he says to the floor. 'Not because of the ledger. Because of what they say about you.' It is the longest he has spoken in a month.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_giles": 10
+       }
+      }
+     ]
+    },
+    {
+     "key": "ask_bethan",
+     "label": "Ask Bethan about the debt",
+     "result": "She tells you all of it, in a voice worn thin. Thirty crowns. A debt to the mill. 'Tobin has been good to us,' she says. 'Do not think badly of him.'",
+     "effects": [
+      {
+       "entity": "player",
+       "set": {
+        "knows_debt": 1
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_bethan": 5
+       }
+      }
+     ]
+    },
+    {
+     "key": "chores",
+     "label": "Do the evening chores",
+     "result": "You split wood until your hands are raw. It helps. For an hour you do not think.",
+     "effects": []
+    }
+   ]
+  },
+  {
+   "key": "d2_maren",
+   "day": 2,
+   "phase": "day",
+   "title": "Maren's kitchen",
+   "body": "Maren feeds you before you can say a word. She is the warmest woman in Alderbrook, and the bakery smells of everything good. 'Tell me,' she says. 'Tell Maren.'",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "confide",
+     "label": "Tell her everything about the quarrel",
+     "result": "She listens, her hand over yours. 'He is under a strain. Leave it with me.' It is the first time all day you feel held. You do not notice her glance at the door.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_maren": 10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "told_maren_quarrel": 1
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "danger": 5
+       }
+      }
+     ]
+    },
+    {
+     "key": "deflect",
+     "label": "Say it is nothing",
+     "result": "'If you say so, love.' She wraps a loaf for you anyway. She does not look convinced.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_maren": 2
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d2_night",
+   "day": 2,
+   "phase": "night",
+   "title": "A restless night",
+   "body": "You cannot sleep. The well-house stands dark at the edge of the lane, and a thin line of light shows under its door. Someone is awake in there.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "watch_wellhouse",
+     "label": "Creep to the well-house and listen",
+     "result": "Two voices. Tobin, low and hard: 'Tomorrow night, after the bell, at the mill. Bring the seal.' And a gentle, tired voice you would know anywhere. 'I will, Tobin. I will.' You back away before the door opens.",
+     "effects": [
+      {
+       "discover": "C04"
+      },
+      {
+       "entity": "player",
+       "add": {
+        "danger": 10
+       },
+       "when": {
+        "state_lt": {
+         "key": "stealth",
+         "value": 1
+        }
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "danger": 5
+       },
+       "when": {
+        "state_gte": {
+         "key": "stealth",
+         "value": 1
+        }
+       }
+      }
+     ]
+    },
+    {
+     "key": "inn",
+     "label": "Walk to the inn for a quiet drink",
+     "result": "Ines is wiping the bar. The drover is gone. His horse is still in the stable. 'He rides out at night,' she says, 'and I do not ask.'",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_ines": 3
+       }
+      }
+     ]
+    },
+    {
+     "key": "sleep",
+     "label": "Go to bed",
+     "result": "You sleep badly and dream of fire. You have always dreamed of fire.",
+     "effects": []
+    }
+   ]
+  },
+  {
+   "key": "d3_page",
+   "day": 3,
+   "phase": "day",
+   "title": "Closing time",
+   "body": "At closing, Tobin takes you aside, over a bowl of soup you did not ask for. 'The commons can't be sold without the seal of the whole Moot,' he says, almost to himself. 'Not the Reeve, not the Crown. Every voice in the valley. That is older than any Reeve.' Then he presses a folded page into your hand. 'Keep this safe. If anything happens to me, show it to no one in Alderbrook.'",
+   "cost": false,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "read_now",
+     "label": "Unfold it and read it",
+     "result": "It is page 41 of the mill ledger, a copy of a land survey. In the margin, in Tobin's hand: 'E. has sold us. The survey is false. Midnight, the mill, bring the seal.' Your mouth goes dry. Who is E.?",
+     "effects": [
+      {
+       "discover": "C05"
+      },
+      {
+       "entity": "player",
+       "set": {
+        "read_page": 1
+       }
+      }
+     ]
+    },
+    {
+     "key": "pocket",
+     "label": "Put it away unread",
+     "result": "You tuck it into your shirt without looking. You do not know why your hands are shaking.",
+     "effects": [
+      {
+       "discover": "C05u"
+      },
+      {
+       "entity": "player",
+       "set": {
+        "read_page": 0
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d3_read_later",
+   "day": 3,
+   "phase": "day",
+   "title": "The page, again",
+   "body": "The folded page is warm against your ribs. You have not looked.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [
+    "d3_page:pocket"
+   ],
+   "forbids": [],
+   "options": [
+    {
+     "key": "read",
+     "label": "Read it now",
+     "result": "Page 41 of the mill ledger, a copy of a land survey. In the margin, in Tobin's hand: 'E. has sold us. The survey is false. Midnight, the mill, bring the seal.' Who is E.?",
+     "effects": [
+      {
+       "discover": "C05"
+      },
+      {
+       "entity": "player",
+       "set": {
+        "read_page": 1
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d3_hide",
+   "day": 3,
+   "phase": "day",
+   "title": "Where to hide it",
+   "body": "You cannot carry it everywhere, and you cannot leave it lying about. Whoever it names will want it, and so, perhaps, will whoever wrote the survey.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [
+    "d3_page"
+   ],
+   "forbids": [],
+   "options": [
+    {
+     "key": "room",
+     "label": "Under the loose board in your room",
+     "result": "A bare board and a thin hope. It is the first place anyone would look.",
+     "effects": [
+      {
+       "entity": "player",
+       "set": {
+        "hide_place": 1
+       }
+      }
+     ]
+    },
+    {
+     "key": "oven",
+     "label": "In Maren's oven flue",
+     "result": "Warm, dry, and in the one house you trust. The flue is cold at night. You pray she does not light it.",
+     "effects": [
+      {
+       "entity": "player",
+       "set": {
+        "hide_place": 2
+       }
+      }
+     ]
+    },
+    {
+     "key": "well",
+     "label": "Down in the stones of the well",
+     "result": "Nobody goes into the well but the keeper. You push the page behind a loose stone with a coil of twine. It feels safe, somehow, and foolish.",
+     "effects": [
+      {
+       "entity": "player",
+       "set": {
+        "hide_place": 3
+       }
+      }
+     ]
+    },
+    {
+     "key": "person",
+     "label": "Keep it on your body",
+     "result": "It crackles against your ribs when you breathe. If anyone searches you, there is nowhere to hide.",
+     "effects": [
+      {
+       "entity": "player",
+       "set": {
+        "hide_place": 4
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d3_tell",
+   "day": 3,
+   "phase": "day",
+   "title": "Someone to tell",
+   "body": "A secret this size is heavy. You could tell someone, and you will have to choose who.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [
+    "d3_page:read_now"
+   ],
+   "forbids": [],
+   "options": [
+    {
+     "key": "elspeth",
+     "label": "Tell Elspeth, Maren's helper and your oldest friend",
+     "result": "Her eyes go round. 'E.?' she says. 'E. for what?' She swears on her mother's grave to say nothing. You believe her.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_elspeth": 10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "told_elspeth": 1
+       }
+      }
+     ]
+    },
+    {
+     "key": "maren",
+     "label": "Tell Maren",
+     "result": "She goes very still. 'Oh, love.' Her hands shake as she pours your tea. 'Say nothing to anybody else.' She holds you a moment too long.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_maren": 5
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "told_maren": 1
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "danger": 10
+       }
+      }
+     ]
+    },
+    {
+     "key": "nobody",
+     "label": "Tell no one",
+     "result": "The silence is heavy and clean. You will carry this alone.",
+     "effects": []
+    }
+   ]
+  },
+  {
+   "key": "d3_night",
+   "day": 3,
+   "phase": "night",
+   "title": "After the bell",
+   "body": "Tobin told you to stay home tonight, and not to come to the mill at dawn. But he has been strange for days, and you have been Tobin's helper for four years. A little before eleven you stand at the Hollis gate, looking at the lane.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "stay_home",
+     "label": "Do as he said. Stay home",
+     "result": "You lie awake until the clock strikes twelve. Then you hear the bell.",
+     "effects": []
+    },
+    {
+     "key": "go_to_mill",
+     "label": "Go to the mill anyway",
+     "result": "You slip through the alder hedge behind the mill. A little before eleven two men come along the path. One carries a lantern with green glass. They go in at the back door and do not light the office. You edge closer to hear. Something hits you from behind and the night goes out.",
+     "effects": [
+      {
+       "discover": "C14b"
+      },
+      {
+       "entity": "player",
+       "add": {
+        "danger": 40
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 20
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "concussed": 1
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d4_fire",
+   "day": 4,
+   "phase": "morning",
+   "title": "The bell",
+   "body": "You wake to the bell and the glow in the window. The mill is burning. You run. You have three moves before the roof comes down, and the smoke is already in your lungs. Every move costs you breath.",
+   "cost": false,
+   "max_picks": 3,
+   "requires": [],
+   "forbids": [
+    "d3_night:go_to_mill"
+   ],
+   "options": [
+    {
+     "key": "office",
+     "label": "Force the back door and go for the office",
+     "result": "Heat like a wall. In the office the floor is littered with burning paper. On the boards lies Tobin's watch, its glass smashed, stopped at twenty to twelve. The strongbox gapes open and empty. The lock has been cut from outside. You stagger back, choking.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "smoke": 2
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 5
+       }
+      },
+      {
+       "discover": "C07"
+      },
+      {
+       "discover": "C09"
+      }
+     ]
+    },
+    {
+     "key": "body",
+     "label": "Drag Tobin's body out",
+     "result": "You find him by the cellar stairs. His head is split above the ear. You get your arms under his and haul. The villagers see you come out of the smoke, covered in soot and blood, carrying a dead man. You will not be able to explain that.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "smoke": 3
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 25
+       }
+      },
+      {
+       "discover": "C08"
+      },
+      {
+       "entity": "player",
+       "set": {
+        "carried_body": 1
+       }
+      }
+     ]
+    },
+    {
+     "key": "grain",
+     "label": "Save what you can from the grain store",
+     "result": "You and Garth Thorn's men beat back the flames from the grain store with wet sacks. Thorn claps you on the shoulder, breathing hard. It is the first time he has looked at you as a person.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "smoke": 1
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_thorn": 10
+       }
+      }
+     ]
+    },
+    {
+     "key": "alarm",
+     "label": "Stay back and raise the alarm",
+     "result": "You ring the chapel bell until your arms burn. You are not in the fire. You are not anywhere you should not be. Whatever you could have found in the mill, you will never know.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": -5
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "raised_alarm": 1
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d4_wake",
+   "day": 4,
+   "phase": "morning",
+   "title": "A ringing head",
+   "body": "You wake in a ditch behind the alder hedge with the sky grey and bitter with smoke. Your head is split and your clothes are wet with dew. The mill is gone. The village is gathering, and no one can say where you were.",
+   "cost": false,
+   "max_picks": 1,
+   "requires": [
+    "d3_night:go_to_mill"
+   ],
+   "forbids": [],
+   "options": [
+    {
+     "key": "go",
+     "label": "Stagger toward the smoke",
+     "result": "By the time you reach the lane, half the village has seen you come out of the hedge, hatless, bloody, and an hour late. 'That is him,' someone says. You hear it.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 15
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d4_wick",
+   "day": 4,
+   "phase": "morning",
+   "title": "Old Wick speaks",
+   "body": "Garth Thorn demands a rope. The crowd roars. Then Old Wick steps forward and raises a hand, and the noise falls. 'Give the boy a fair week,' he says. 'The Reeve comes on the twelfth. If he is guilty, the law will find it.' He looks at you, and for a moment he is only an old man who is sorry.",
+   "cost": false,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "listen",
+     "label": "Thank him with your eyes",
+     "result": "He nods, almost imperceptibly. You feel the crowd settle. It is the first kind thing anyone has done for you all morning.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_wick": 5
+       }
+      }
+     ]
+    },
+    {
+     "key": "watch",
+     "label": "Watch his hands as he speaks",
+     "result": "His fingers are clasped in front of him. They are as black as ever. They are perfectly steady. You do not know why you noticed.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "danger": 5
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d4_ruins",
+   "day": 4,
+   "phase": "day",
+   "title": "The ruins",
+   "body": "Pike's deputies have not come yet, and the ruins are cooling. If there is anything to find in the black stones, it will not be there tomorrow.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "cellar",
+     "label": "Search the cellar",
+     "result": "The stones are slick and the smell is wrong. This is not grain oil. It is lamp oil, gallons of it, soaked into the floor. A pint can lit the grain shed and nothing more.",
+     "effects": [
+      {
+       "discover": "C10"
+      }
+     ]
+    },
+    {
+     "key": "strongbox",
+     "label": "Look at the strongbox",
+     "result": "Open and empty. The lock has been cut from the outside, and the cut is clean. Before the fire, not by it.",
+     "effects": [
+      {
+       "discover": "C09"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d4_lily",
+   "day": 4,
+   "phase": "day",
+   "title": "Lily on the wall",
+   "body": "Ines's niece, Lily, ten years old, is sitting on the well wall with her knees drawn up. She has been there since dawn. Everyone has walked past her. She is watching you.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "gentle",
+     "label": "Sit beside her and ask gently",
+     "result": "She is quiet a long time. Then, very small: 'The well was dark the night of the fire. Old Wick always lights the lantern. And on the day Mr Tobin shouted at you, I saw Old Wick take something shiny off the hook. I thought it was a key.' She does not look at you. 'Nobody asks me.'",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_lily": 15
+       }
+      },
+      {
+       "discover": "C13"
+      },
+      {
+       "discover": "C03a"
+      }
+     ]
+    },
+    {
+     "key": "press",
+     "label": "Press her hard: what did she see?",
+     "result": "She goes white and puts her hands over her ears. 'Go away.' Two women nearby look at you the way you hoped nobody would.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 5
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_lily": -15
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d4_home",
+   "day": 4,
+   "phase": "day",
+   "title": "The Hollis house",
+   "body": "Bethan is white-faced at the table. Milo has not spoken since dawn. Giles did not come home last night, and nobody knows where he is.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "options": [
+    {
+     "key": "reassure",
+     "label": "Sit with Bethan and promise to find him",
+     "result": "She grips your hand. 'He is a good boy. He is only frightened.' You say it back to her. You do not know if it is true.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_bethan": 10
+       }
+      }
+     ]
+    },
+    {
+     "key": "search",
+     "label": "Go looking for Giles at once",
+     "result": "You search the lane, the barn, the chandler's. No sign. A neighbour says she saw a lad running toward Hartley Farm before dawn.",
+     "effects": []
+    }
+   ]
+  }
+ ],
+ "endings": [
+  {
+   "key": "smoke",
+   "title": "The Smoke Takes You",
+   "flag": "dead",
+   "text": "You went back for one more thing. The roof came down. The last thing you see is the bell rope burning above you. In the morning, the village will say that Rowan Hollis died in the fire he set. You will not be there to say otherwise."
+  }
+ ],
+ "rules": [
+  {
+   "trigger": "story_choice",
+   "when": {
+    "payload_eq": {
+     "beat": "d4_fire"
+    },
+    "state_gte": {
+     "key": "smoke",
+     "value": 6
+    }
+   },
+   "effects": [
+    {
+     "entity": "player",
+     "set": {
+      "dead": 1
+     }
+    }
+   ],
+   "why": "The smoke was too thick, and you went back in once too often."
+  }
+ ],
+ "start_rules": [
+  {
+   "when": {
+    "trait": "kind"
+   },
+   "effects": [
+    {
+     "entity": "player",
+     "add": {
+      "trust_wick": 10,
+      "trust_maren": 10,
+      "trust_tobin": 10,
+      "trust_giles": 10,
+      "trust_ines": 10,
+      "trust_elspeth": 10,
+      "trust_bethan": 10
+     }
+    }
+   ]
+  },
+  {
+   "when": {
+    "trait": "sharp"
+   },
+   "effects": [
+    {
+     "entity": "player",
+     "set": {
+      "press_bonus": 1
+     }
+    }
+   ]
+  },
+  {
+   "when": {
+    "trait": "quiet"
+   },
+   "effects": [
+    {
+     "entity": "player",
+     "set": {
+      "stealth": 1
+     }
+    }
+   ]
+  }
+ ]
+}

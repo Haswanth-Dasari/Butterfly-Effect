@@ -8,6 +8,7 @@ import joinRouter from './routes/join.js';
 import actionsRouter from './routes/actions.js';
 import queriesRouter from './routes/queries.js';
 import worldRouter from './routes/world.js';
+import storyRouter from './routes/story.js';
 import { attachLiveUpdates } from './liveUpdates.js';
 import { appPool } from './db.js';
 
@@ -55,6 +56,7 @@ app.use('/api', joinRouter);
 app.use('/api', actionsRouter);
 app.use('/api', queriesRouter);
 app.use('/api', worldRouter);
+app.use('/api', storyRouter);
 app.use('/api', (req, res) => res.status(404).json({ error: 'no such endpoint' }));
 
 // The UI is plain static files (no build step): npm start is the whole app.

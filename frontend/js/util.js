@@ -17,6 +17,7 @@ export function h(tag, attrs, ...kids) {
   }
   if (attrs !== null && attrs !== undefined && attrs !== false && (typeof attrs !== 'object' || attrs instanceof Node || Array.isArray(attrs))) { kids.unshift(attrs); attrs = null; }
   for (const [k, v] of Object.entries(attrs || {})) {
+    if (k.startsWith('aria-') && typeof v === 'boolean') { el.setAttribute(k, String(v)); continue; }
     if (v === null || v === undefined || v === false) continue;
     if (k.startsWith('on') && typeof v === 'function') el.addEventListener(k.slice(2), v);
     else if (k === 'class') el.classList.add(...String(v).split(' ').filter(Boolean));

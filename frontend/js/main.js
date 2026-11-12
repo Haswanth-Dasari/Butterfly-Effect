@@ -11,6 +11,9 @@ import { createTimePanel } from './timeline.js';
 import { createWorldsPanel } from './worlds.js';
 import { createVillagePanel } from './village.js';
 import { startTour } from './tour.js';
+import { createStoryPanel, createBoardPanel } from './story.js';
+import { openAlmanac } from './almanac.js';
+import { buildStoryShelf } from './storystart.js';
 
 const BUTTERFLY = `<g class="bf"><path d="M32 30 C14 8 2 16 8 30 C10 40 22 42 32 34z" fill="#f2b84b" stroke="#7a4a10" stroke-width="1.4"/>
 <path d="M32 34 C20 40 14 54 24 56 C30 57 33 46 32 34z" fill="#ff7a3d" stroke="#7a4a10" stroke-width="1.4"/>
@@ -24,6 +27,8 @@ const TABS = [
   { id: 'worlds', label: 'Worlds', icon: 'worlds' }, { id: 'village', label: 'Village', icon: 'village' },
 ];
 
+const TABS_STORY = [{ id: 'story', label: 'Story', icon: 'book' }, { id: 'board', label: 'Case', icon: 'board' }, ...TABS.filter((t) => t.id !== 'act'), ];
+const inStory = () => !!store.session?.story;
 let map; let panels = {}; let live = null; let poll = null; let current = 'act';
 let seenEvents = new Set(); let lastWs = 0; let hop = 0; let ghostTick = null; let ending = false;
 
@@ -44,9 +49,10 @@ function heroArt() {
 function init() {
   heroArt();
   $('#pw1').replaceChildren(iconSvg('ask', 18), 'Ask Why'); $('#pw2').replaceChildren(iconSvg('worlds', 18), 'Parallel villages'); $('#pw3').replaceChildren(iconSvg('time', 18), 'Look Back');
+  buildStoryShelf(enterGame);
   const saved = session.load();
   if (saved?.token) {
-    const b = $('#resume-btn'); b.classList.remove('hidden'); b.textContent = `Continue as ${saved.name}`;
+    const b = $('#resume-btn'); b.classList.remove('hidden'); b.textContent = saved.story ? 'Continue your story' : `Continue as ${saved.name}`;
     b.onclick = async () => { store.session = saved; try { await enterGame(); } catch (e) { session.clear(); $('#join-err').textContent = flavor(e); b.classList.add('hidden'); } };
     $('#join-note').textContent = 'Your villager is remembered in this browser.';
   }
@@ -64,14 +70,17 @@ function init() {
 
 async function enterGame() {
   $('#join').classList.add('hidden'); $('#game').classList.remove('hidden');
+  current = inStory() ? 'story' : 'act';
   buildChrome();
   await loadWorld();
   bus.emit('branch');
   map.setPhase('morning'); sound.play('morning'); setTimeout(() => map.setPhase(phaseFromActions()), 2600);
   live?.close(); live = connectLive(onLive, (st) => $('#live').classList.toggle('live', st === 'live'));
   clearInterval(poll); poll = setInterval(() => { if (!document.hidden && !ending) refreshAll().catch(() => {}); }, 10000);
-  if (!localStorage.getItem('butterfly.toured')) setTimeout(() => startTour(), 900);
+  if (inStory()) { if (!sessionStorage.getItem(`butterfly.briefed.${store.session.branchId}`)) setTimeout(showBriefing, 1200); }
+  else if (!localStorage.getItem('butterfly.toured')) setTimeout(() => startTour(), 900);
   panels.village.update();
+  panels.story?.update(); panels.board?.update();
 }
 
 function leave() {
@@ -84,7 +93,8 @@ function buildChrome() {
   $('#brand').replaceChildren(s('svg', { viewBox: '0 0 64 64' }, ...svgFromString(BUTTERFLY)), h('span', 'Butterfly Effect'));
   $('#btn-sound').replaceChildren(iconSvg(sound.enabled ? 'sound' : 'mute', 20)); $('#btn-help').replaceChildren(iconSvg('help', 20));
   $('#btn-sound').onclick = () => { const on = sound.toggle(); $('#btn-sound').replaceChildren(iconSvg(on ? 'sound' : 'mute', 20)); toast(on ? 'Sound on' : 'Sound off'); };
-  $('#btn-help').onclick = () => startTour();
+  $('#btn-help').onclick = () => (inStory() ? openAlmanac() : startTour());
+  $('#btn-almanac').replaceChildren(iconSvg('book', 20)); $('#btn-almanac').onclick = () => openAlmanac();
   $('#btn-leave').onclick = () => { if (confirm('Leave Alderbrook? Your villager stays in the village, but this browser will forget you.')) leave(); };
   $('#end-day-top').onclick = () => endDay();
   $('#st-branch').onclick = () => selectTab('worlds');
@@ -99,11 +109,13 @@ function buildChrome() {
 
   const ctx = {
     map, afterAction, endDay, pickOnMap: (p) => { map.setPick(p); }, switchBranch, openFork, setGhost,
-    toast, refresh: refreshAll, forkDay: null,
+    toast, refresh: refreshAll, forkDay: null, leave, selectTab, onStory,
   };
   panels = { act: createActionsPanel(ctx), why: createChroniclePanel(ctx), time: createTimePanel(ctx), worlds: createWorldsPanel(ctx), village: createVillagePanel(ctx) };
-  $('#tabs').replaceChildren(...TABS.map((t) => h('button.tab', { role: 'tab', 'data-tab': t.id, 'aria-selected': t.id === current, onclick: () => selectTab(t.id) }, iconSvg(t.icon, 20), t.label)));
-  $('#panels').replaceChildren(...TABS.map((t) => h('section.panel', { id: `p-${t.id}`, class: t.id === current ? 'active' : '', role: 'tabpanel' }, panels[t.id].el)));
+  if (inStory()) { panels.story = createStoryPanel(ctx); panels.board = createBoardPanel(ctx); }
+  const TABSET = inStory() ? TABS_STORY : TABS;
+  $('#tabs').replaceChildren(...TABSET.map((t) => h('button.tab', { role: 'tab', 'data-tab': t.id, 'aria-selected': t.id === current, onclick: () => selectTab(t.id) }, iconSvg(t.icon, 20), t.label)));
+  $('#panels').replaceChildren(...TABSET.map((t) => h('section.panel', { id: `p-${t.id}`, class: t.id === current ? 'active' : '', role: 'tabpanel' }, panels[t.id].el)));
   $('#legend').replaceChildren(...['content', 'happy', 'curious', 'sad', 'angry', 'shunned'].map((m) => h('span', h('i', { style: { background: moodInfo(m).color } }), m)));
 }
 
@@ -122,13 +134,16 @@ function updateTop() {
   $('#st-day').replaceChildren(iconSvg(map?.phase === 'night' ? 'moon' : 'sun', 16), ` Day ${store.tick}`);
   const b = store.branches.find((x) => x.branch_id === store.session.branchId);
   const main = !b || !b.parent_id;
-  $('#st-branch').className = `chip-stat branch ${main ? '' : 'alt'}`; $('#st-branch').replaceChildren(iconSvg('worlds', 15), main ? 'Main village' : b.name);
+  $('#st-branch').className = `chip-stat branch ${main ? '' : 'alt'}`; $('#st-branch').replaceChildren(iconSvg('worlds', 15), inStory() ? 'Who Burned the Mill?' : main ? 'Main village' : b.name);
   $('#st-coins').replaceChildren(iconSvg('coin', 16), money(me.state?.coins ?? 0)); $('#st-trust').replaceChildren(iconSvg('heart', 16), `${me.state?.trust ?? '–'}`);
   $('#st-mood').replaceChildren(moodPill(me.state?.mood));
   const left = me.actionsRemainingToday ?? 3;
   $('#pips').replaceChildren(...[0, 1, 2].map((i) => h('i.pip', { class: i < left ? 'full' : '' })));
   $('#pips').title = `${left} of 3 actions left today`;
   $('#end-day-top').textContent = left > 0 ? 'End day' : 'End day ›';
+  for (const id of ['#st-susp', '#st-danger']) $(id).classList.toggle('hidden', !inStory());
+  for (const id of ['#st-coins', '#st-mood']) $(id).classList.toggle('hidden', inStory());
+  $('#st-trust').classList.toggle('hidden', inStory());
   $('#phase-badge').replaceChildren(iconSvg(map.phase === 'night' ? 'moon' : 'sun', 18), `Day ${store.tick} · ${ { morning: 'morning', day: 'daytime', evening: 'evening', night: 'night' }[map.phase] }`);
 }
 
@@ -197,7 +212,8 @@ function news(text, cascade, eventId, tick) {
 
 async function onLive(d) {
   const id = String(d.event_id); if (seenEvents.has(id)) return; seenEvents.add(id);
-  if (['day_start'].includes(d.action_type)) { refreshSoon(); return; }
+  if (['day_start', 'story_choice', 'story_start', 'story_enter'].includes(d.action_type)) { refreshSoon(); return; }
+  if (inStory() && d.action_type === 'discover') await panels.board?.update();
   let e; try { e = await api.event(id); } catch { refreshSoon(); return; }
   const now = Date.now(); hop = now - lastWs > 1800 ? 0 : Math.min(hop + 1, 5); lastWs = now;
   const cascade = !(e.action_type in ACTION_META) || !e.actor_id;
@@ -241,7 +257,8 @@ async function endDay() {
 
 async function buildStory(before, newTick) {
   const paras = []; const fresh = store.events.filter((e) => !before.events.has(e.event_id)).sort((a, b) => Number(a.event_id) - Number(b.event_id));
-  const cascades = fresh.filter((e) => e.is_cascade);
+  for (const e of fresh.filter((x) => x.action_type === 'story_event')) paras.push(describe(e));
+  const cascades = inStory() ? [] : fresh.filter((e) => e.is_cascade);
   // delayed consequences: effects whose root is days old (and ideally yours)
   const delayed = [];
   for (const e of cascades.slice(-3)) {
@@ -260,7 +277,7 @@ async function buildStory(before, newTick) {
     if (bits.length) paras.push(`<em>${now.place.replace(/^(\w+)'s /, '$1’s ')}</em> ${now.item}: ${bits.join(', ')}.`); }
   const moodChanged = store.actors.filter((a) => before.moods.has(a.actor_id) && before.moods.get(a.actor_id) !== a.mood);
   if (moodChanged.length) paras.push(`${moodChanged.slice(0, 3).map((a) => `<em>${a.name}</em> now feels ${a.mood}`).join('; ')}${moodChanged.length > 3 ? `, and ${moodChanged.length - 3} more shifted too` : ''}.`);
-  const own = fresh.filter((e) => !e.is_cascade && e.actor_id && e.actor_id !== store.me.actorId && e.action_type in ACTION_META);
+  const own = inStory() ? [] : fresh.filter((e) => !e.is_cascade && e.actor_id && e.actor_id !== store.me.actorId && e.action_type in ACTION_META);
   for (const e of own.slice(0, 3)) paras.push(describe(e));
   if (!paras.length) paras.push('A quiet night. Nothing you can see has changed. Somewhere, a small chain may still be waiting to arrive.');
   let stats = null; try { const bell = await api.bell(); const row = bell.find((r) => r.tick === newTick) || bell[bell.length - 1]; stats = { ...row, top_score: Math.max(0, ...bell.map((r) => r.top_score)) }; } catch { /* ignore */ }
@@ -280,7 +297,29 @@ function showBell(story, tick) {
     st ? h('div.stat3', h('div', h('b', st.events_total), h('span', 'things happened')), h('div', h('b', st.cascade_events), h('span', 'were ripples')), h('div', h('b', st.top_score), h('span', 'biggest ripple so far'))) : null,
     h('div.modal-actions', story.topCascade ? h('button.btn', { onclick: () => { close(); selectTab('why'); panels.why.ask(story.topCascade.event_id); } }, iconSvg('ask', 16), 'Ask why') : null,
       h('button.btn.primary', { onclick: () => close() }, `Begin day ${tick}`)),
-  ], { onClose: () => { map.setPhase('day'); sound.play('morning'); updateTop(); selectTab('act'); panels.village.update(); } });
+  ], { onClose: () => { map.setPhase('day'); sound.play('morning'); updateTop(); selectTab(inStory() ? 'story' : 'act'); panels.village.update(); } });
+}
+
+// ---------- story mode ----------
+function onStory(scene, compass) {
+  if (!scene) return;
+  $('#st-susp').replaceChildren(iconSvg('flame', 15), `Suspicion ${Math.round(scene.meters.suspicion)}`);
+  $('#st-danger').replaceChildren(iconSvg('help', 15), `Danger ${Math.round(scene.meters.danger)}`);
+  $('#st-susp').classList.toggle('alert', scene.meters.suspicion >= 70); $('#st-danger').classList.toggle('alert', scene.meters.danger >= 45);
+  const c = $('#st-compass'); c.classList.toggle('hidden', !(scene.guided && compass?.guided));
+  if (scene.guided && compass?.guided) c.replaceChildren(iconSvg('ask', 15), `Compass: ${compass.needle}`);
+  if (scene.ending) map.setPhase('night');
+}
+
+function showBriefing() {
+  sessionStorage.setItem(`butterfly.briefed.${store.session.branchId}`, '1');
+  const close = modal([
+    h('h2', 'Who Burned the Mill?'), h('div.sub', 'Your case, in one minute'),
+    h('p', { style: { fontFamily: 'var(--serif)', fontSize: '17px' } }, 'You are Rowan Hollis, mill helper, foster child of a poor family in the village of Alderbrook. In three days, the mill will burn, and the miller will be found dead. Everything will point at you.'),
+    h('p', 'Until then, the days are quiet. Each day you get three actions. Small things you do now will matter later, and you will not know which. Pay attention to what you see and who you talk to.'),
+    h('p', 'There are twelve days until the Reeve arrives to judge. This chapter covers the first four.'),
+    h('div.modal-actions', h('button.btn', { onclick: () => { close(); openAlmanac(); } }, iconSvg('book', 16), 'Read the Almanac first'), h('button.btn.primary', { onclick: () => close() }, 'Begin day 1')),
+  ]);
 }
 
 // ---------- worlds ----------

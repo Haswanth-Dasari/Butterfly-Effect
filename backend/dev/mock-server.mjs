@@ -170,6 +170,7 @@ const DAILY = [
 function advanceDay(b) {
   b.tick += 1;
   const day = addEvent(b, null, 'day_start', { day: b.tick }, []);
+  const sp = plays.get(b.branch_id); if (sp) storyDay(b, sp, b.tick);
   for (const [rule, eff, cond, text] of DAILY) {
     RULE_TEXT[rule] = text;
     if (cond(b)) { const ev = emit(b, day, rule, JSON.parse(JSON.stringify(eff)), b.tick); cascade(b, ev, 1); }
@@ -180,7 +181,8 @@ function advanceDay(b) {
   return b.tick;
 }
 function actionsUsed(b, actor) {
-  return [...events.values()].filter((e) => e.branch_id === b.branch_id && e.actor_id === actor && e.tick === b.tick && ACTIONS.includes(e.action_type)).length;
+  const sp = plays.get(b.branch_id);
+  return [...events.values()].filter((e) => e.branch_id === b.branch_id && e.actor_id === actor && e.tick === b.tick && ACTIONS.includes(e.action_type)).length + (sp && actor === PROT ? sp.choices.filter((c) => c.tick === b.tick && c.cost).length : 0);
 }
 function applyAction(b, actor, action, payload) {
   if (!ACTIONS.includes(action)) throw new Error(`not a player action: ${action}`);
@@ -206,6 +208,87 @@ function ancestors(id) {                              // [{id, depth}]
 }
 const descendants = (id) => { let n = 0; const seen = new Set(); const q = [id];
   while (q.length) { const cur = q.shift(); for (const e of events.values()) if (e.causes.some((c) => c.cause === cur) && !seen.has(e.event_id)) { seen.add(e.event_id); n++; q.push(e.event_id); } } return n; };
+
+// ---------- STORY MODE (mirrors db/scenarios + db/seed/05_story_*.sql; content comes from the same slice.json) ----------
+const SLICE = JSON.parse(fs.readFileSync(path.join(root, 'db/scenarios/mystery/slice.json'), 'utf8'));
+const PROT = SLICE.scenario.protagonist_id;
+for (const a of SLICE.actors) actors.set(a.id, { actor_id: a.id, name: a.name, kind: 'villager', job: a.job, home_id: null });
+const plays = new Map();   // branchId -> {trait, guided, pronouns, found: Map(clue->tick), choices: []}
+const witnessSet = (b, vis, actor, target) => (vis === 'public' ? allActorIds(b) : [actor, target].filter(Boolean));
+function runOps(b, p, ops) {
+  for (const op of ops || []) {
+    const st = b.ent[PROT];
+    if (op.when) {
+      const w = op.when;
+      if (w.state_lt && !(st[w.state_lt.key] !== undefined && st[w.state_lt.key] < w.state_lt.value)) continue;
+      if (w.state_gte && !(st[w.state_gte.key] !== undefined && st[w.state_gte.key] >= w.state_gte.value)) continue;
+    }
+    if (op.discover) { if (!p.found.has(op.discover)) p.found.set(op.discover, b.tick); addEvent(b, PROT, 'discover', { clue: op.discover }, [PROT]); }
+    else if (op.enter) { const a = SLICE.actors.find((x) => x.id === op.enter); if (!b.ent[a.id]) b.ent[a.id] = clone(a.state); }
+    else if (op.event) { const e = op.event; addEvent(b, e.actor ?? null, 'story_event', { kind: e.kind, text: e.text, ...(e.target ? { target_actor: e.target } : {}) }, witnessSet(b, e.visibility, e.actor, e.target)); }
+    else { const t = b.ent[op.entity === 'player' ? PROT : op.entity]; if (t) { Object.assign(t, op.set || {}); for (const [k, v] of Object.entries(op.add || {})) t[k] = (t[k] ?? 0) + v; } }
+  }
+}
+function storyDay(b, p, day) {
+  for (const de of SLICE.day_events.filter((x) => x.day === day)) {
+    if (de.text) addEvent(b, null, 'story_event', { kind: de.kind, text: de.text }, de.visibility === 'public' ? allActorIds(b) : []);
+    runOps(b, p, de.effects);
+  }
+}
+const chose = (p, spec) => { const [bk, ok] = spec.split(':'); return p.choices.some((c) => c.beat === bk && (!ok || c.option === ok)); };
+function beatAvailable(b, p, beat) {
+  if (beat.day !== b.tick) return false;
+  const picks = p.choices.filter((c) => c.beat === beat.key).length;
+  if (picks >= beat.max_picks) return false;
+  if (!beat.options.some((o) => !chose(p, `${beat.key}:${o.key}`))) return false;
+  return beat.requires.every((r) => chose(p, r)) && !beat.forbids.some((r) => chose(p, r));
+}
+const paidUsed = (b, p) => p.choices.filter((c) => c.tick === b.tick && c.cost).length;
+function linkStrength(p, upto) {
+  return SLICE.links.map((l) => ({ ...l, strength: Math.min(3, SLICE.clues.filter((c) => c.links[l.key] && p.found.has(c.key) && p.found.get(c.key) <= upto).reduce((n, c) => n + c.links[l.key], 0)) }));
+}
+const progress = (p, upto) => linkStrength(p, upto).reduce((n, l) => n + l.strength, 0);
+function startStory(trait, guided, pronouns) {
+  const b = newBranch(`story: ${SLICE.scenario.title} #${plays.size + 1}`, 1, null, freshState(), 0);
+  const p = { trait, guided: !!guided, pronouns, found: new Map(), choices: [] }; plays.set(b.branch_id, p);
+  addEvent(b, null, 'world_start', { note: 'story begins' }, []);
+  Object.assign(b.ent[PROT], SLICE.scenario.start_state);
+  for (const r of SLICE.start_rules) if (r.when.trait === trait) runOps(b, p, r.effects);
+  advanceDay(b);
+  return b;
+}
+function storyScene(b, p) {
+  const st = b.ent[PROT]; const sc = SLICE.scenario; const day = SLICE.days.find((d) => d.day === b.tick) || {};
+  const beats = SLICE.beats.filter((x) => beatAvailable(b, p, x)).map((x) => ({ beat_key: x.key, title: x.title, body: x.body, phase: x.phase, costs_action: x.cost,
+    picks_left: x.max_picks - p.choices.filter((c) => c.beat === x.key).length, options: x.options.filter((o) => !chose(p, `${x.key}:${o.key}`)).map((o) => ({ key: o.key, label: o.label })) }));
+  const done = p.choices.map((c) => { const bt = SLICE.beats.find((x) => x.key === c.beat); const o = bt.options.find((y) => y.key === c.option); return { tick: c.tick, beat_key: c.beat, title: bt.title, option_key: c.option, label: o.label, result: o.result, costs_action: bt.cost }; });
+  const ending = SLICE.endings.find((e) => (st[e.flag] ?? 0) >= 1);
+  return { scenario: sc.key, title: sc.title, tagline: sc.tagline, day: b.tick, day_title: day.title, intro: day.intro, actions_left: Math.max(0, 3 - paidUsed(b, p) - [...events.values()].filter((e) => e.branch_id === b.branch_id && e.actor_id === PROT && e.tick === b.tick && ACTIONS.includes(e.action_type)).length),
+    meters: { suspicion: st.suspicion ?? 0, danger: st.danger ?? 0, smoke: st.smoke ?? 0, coins: st.coins ?? 0 },
+    trust: Object.fromEntries(Object.entries(st).filter(([k]) => k.startsWith('trust_')).map(([k, v]) => [k.slice(6), v])),
+    beats, done, ending: ending ? { key: ending.key, title: ending.title, text: ending.text } : null, slice_over: b.tick > sc.slice_end_day, guided: p.guided, trait: p.trait, pronouns: p.pronouns };
+}
+function storyChoose(b, p, beatKey, optKey) {
+  const st = b.ent[PROT]; if ((st.dead ?? 0) >= 1) throw new Error('your story has ended');
+  const beat = SLICE.beats.find((x) => x.key === beatKey); if (!beat) throw new Error('unknown scene');
+  if (!beatAvailable(b, p, beat)) throw new Error('that moment has passed');
+  const opt = beat.options.find((o) => o.key === optKey); if (!opt) throw new Error('unknown choice');
+  if (chose(p, `${beatKey}:${optKey}`)) throw new Error('you already chose that');
+  if (beat.cost && paidUsed(b, p) + [...events.values()].filter((e) => e.branch_id === b.branch_id && e.actor_id === PROT && e.tick === b.tick && ACTIONS.includes(e.action_type)).length >= 3) throw new Error('no actions left today');
+  p.choices.push({ beat: beatKey, option: optKey, tick: b.tick, cost: beat.cost ? 1 : 0 });
+  runOps(b, p, opt.effects);
+  for (const r of SLICE.rules) { const w = r.when; if (w.payload_eq.beat === beatKey && (st[w.state_gte.key] ?? 0) >= w.state_gte.value) runOps(b, p, r.effects); }
+  return { event_id: nextEvent, beat: beatKey, option: optKey, result: opt.result };
+}
+function storyCompass(b, p) {
+  if (!p.guided) return { guided: false };
+  const mis = b.ent[PROT].misdirect ?? 0; const score = Math.max(0, progress(p, b.tick) - mis); const prev = Math.max(0, progress(p, b.tick - 1) - mis);
+  const now = linkStrength(p, b.tick); const before = linkStrength(p, b.tick - 1);
+  const gained = now.filter((l, i) => l.strength > before[i].strength).map((l) => l.title).join(', ');
+  return { guided: true, score, prev_score: prev, max: 21, needle: score < 4 ? 'Lost' : score < 9 ? 'Cold' : score < 13 ? 'Cool' : score < 17 ? 'Warm' : 'Hot', trend: score - prev,
+    reason: gained ? `Warmer. You have learned something about ${gained}.` : score < prev ? 'Colder. Something you did has moved you away from the truth.' : 'No change since yesterday.' };
+}
+
 // ---------- tokens ----------
 const sign = (o) => { const b = Buffer.from(JSON.stringify(o)).toString('base64url'); return `mock.${b}.${crypto.createHmac('sha256', SECRET).update(b).digest('base64url')}`; };
 const verify = (t) => { const [m, b, s] = (t || '').split('.'); if (m !== 'mock' || s !== crypto.createHmac('sha256', SECRET).update(b).digest('base64url')) return null; return JSON.parse(Buffer.from(b, 'base64url')); };
@@ -234,6 +317,14 @@ const server = http.createServer(async (req, res) => {
   const route = `${req.method} ${p}`;
   try {
     if (route === 'GET /api/health') return send(res, 200, { ok: true, db: 'mock' });
+    if (route === 'GET /api/story/scenarios') return send(res, 200, [{ key: SLICE.scenario.key, title: SLICE.scenario.title, genre: SLICE.scenario.genre, tagline: SLICE.scenario.tagline, locked: false, slice_end_day: SLICE.scenario.slice_end_day },
+      { key: 'drama', title: 'The Newcomer\u2019s Inheritance', genre: 'Drama', tagline: 'A failing farm, a secret debt, and three families who each want something.', locked: true },
+      { key: 'survival', title: 'The Long Winter', genre: 'Survival', tagline: 'The harvest failed. The granary will not last until spring. Someone has to decide who eats.', locked: true }]);
+    if (route === 'POST /api/story/start') {
+      if (!['kind', 'sharp', 'quiet'].includes(body.trait)) return send(res, 400, { error: 'scenario and trait (kind|sharp|quiet) are required' });
+      const sb = startStory(body.trait, body.guided, ['she', 'he', 'they'].includes(body.pronouns) ? body.pronouns : 'they');
+      return send(res, 200, { token: sign({ actorId: PROT, branchId: sb.branch_id }), actorId: PROT, branchId: sb.branch_id });
+    }
     if (route === 'POST /api/join') {
       const name = (body.name || '').trim(); if (!name) return send(res, 400, { error: 'name is required' });
       const b = branches.get(Number.isInteger(body.branchId) ? body.branchId : 1); if (!b) return send(res, 400, { error: 'unknown branch' });
@@ -246,6 +337,16 @@ const server = http.createServer(async (req, res) => {
     if (!claim) return send(res, 401, { error: 'invalid or expired token' });
     const b = branches.get(claim.branchId); const me = claim.actorId;
     const visible = (e) => e.witnesses.has(me);
+    const sp = plays.get(claim.branchId);
+    if (route === 'GET /api/story/scene') return sp ? send(res, 200, storyScene(b, sp)) : send(res, 404, { error: 'no story in progress' });
+    if (route === 'POST /api/story/choose') return send(res, 200, storyChoose(b, sp, body.beat, body.option));
+    if (route === 'GET /api/story/board') {
+      const found = [...sp.found].map(([k, t]) => ({ c: SLICE.clues.find((x) => x.key === k), t })).sort((x, y) => x.t - y.t);
+      return send(res, 200, { links: linkStrength(sp, b.tick).map((l) => ({ key: l.key, title: l.title, question: l.question, strength: l.strength })), progress: progress(sp, b.tick),
+        clues: found.map(({ c, t }) => ({ key: c.key, title: c.title, kind: c.kind, journal: c.journal, tick: t, links: Object.entries(c.links).map(([link, weight]) => ({ link, weight })) })) });
+    }
+    if (route === 'GET /api/story/compass') return send(res, 200, storyCompass(b, sp));
+    if (route === 'POST /api/story/guidance') { sp.guided = !!body.guided; return send(res, 200, { guided: sp.guided }); }
     if (route === 'GET /api/places') return send(res, 200, places.map((pl) => ({ ...pl, stock: Object.entries(b.stock).filter(([k]) => +k.split(':')[0] === pl.place_id).map(([k, v]) => ({ place_id: pl.place_id, item_id: +k.split(':')[1], item_name: items.find((i) => i.item_id === +k.split(':')[1]).name, qty: v.qty, price: v.price })) })));
     if (route === 'GET /api/actors') {
       const market = places.find((x) => x.kind === 'market');

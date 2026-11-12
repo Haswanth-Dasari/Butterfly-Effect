@@ -175,6 +175,46 @@ BEGIN
                 RETURN FALSE;
             END IF;
 
+        ELSIF v_cond_key = 'state_gte' THEN
+            v_entity_id := (v_cond_val->>'entity_id')::int;
+            v_state_key := v_cond_val->>'key';
+            v_target_val := (v_cond_val->>'value')::numeric;
+
+            SELECT state INTO v_state
+            FROM entity_state
+            WHERE entity_id = v_entity_id
+              AND branch_id = e.branch_id
+              AND upper_inf(valid_ticks);
+
+            IF NOT FOUND THEN
+                RETURN FALSE;
+            END IF;
+
+            IF (v_state ->> v_state_key) IS NULL THEN
+                RETURN FALSE;
+            END IF;
+
+            IF NOT ((v_state ->> v_state_key)::numeric >= v_target_val) THEN
+                RETURN FALSE;
+            END IF;
+
+        ELSIF v_cond_key = 'scenario' THEN
+            -- Story rules only fire on branches that are a playthrough of that scenario.
+            IF NOT EXISTS (
+                SELECT 1 FROM playthrough p
+                WHERE p.branch_id = e.branch_id AND p.scenario_key = (v_cond_val #>> '{}')
+            ) THEN
+                RETURN FALSE;
+            END IF;
+
+        ELSIF v_cond_key = 'trait' THEN
+            IF NOT EXISTS (
+                SELECT 1 FROM playthrough p
+                WHERE p.branch_id = e.branch_id AND p.trait = (v_cond_val #>> '{}')
+            ) THEN
+                RETURN FALSE;
+            END IF;
+
         ELSE
             RAISE EXCEPTION 'unknown condition key %', v_cond_key;
         END IF;
