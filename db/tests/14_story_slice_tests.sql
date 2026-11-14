@@ -52,7 +52,13 @@ BEGIN
     IF jsonb_array_length(v_scene->'beats') <> 5 OR (v_scene->>'actions_left')::int <> 3 THEN
         RAISE EXCEPTION 'day 1 should offer 5 scenes and 3 actions: %', v_scene->'beats';
     END IF;
-    RAISE NOTICE 'PASS 4 day-1 scene offers 5 beats, 3 actions';
+    IF (v_scene->>'deadline_day')::int <> 12 OR COALESCE(v_scene->>'goal', '') = '' OR COALESCE(v_scene->>'cold_open', '') = '' THEN
+        RAISE EXCEPTION 'scene should carry the goal, the deadline (12) and the cold open: %', v_scene;
+    END IF;
+    IF EXISTS (SELECT 1 FROM jsonb_array_elements(v_scene->'beats') b WHERE b->>'focus' IS NULL) THEN
+        RAISE EXCEPTION 'every scene should say where the map looks';
+    END IF;
+    RAISE NOTICE 'PASS 4 day-1 scene offers 5 beats, 3 actions, the goal and the countdown';
 
     -- ===== 5. A choice runs rules: meters, clues, and hidden consequences =====
     v_ev := story_choose(v_branch, 11, 'd1_well', 'share_loaf');
@@ -73,7 +79,10 @@ BEGIN
     RAISE NOTICE 'PASS 5 a choice updates meters, finds a clue, and is causally linked';
 
     -- ===== 6. The villain plans for your cruelty: refuse Giles and Wick pays for the oil =====
-    PERFORM story_choose(v_branch, 11, 'd1_giles', 'refuse');
+    v_ev := story_choose(v_branch, 11, 'd1_giles', 'refuse');
+    IF (v_ev->>'react_actor')::int <> 13 OR COALESCE(v_ev->>'react_line', '') = '' THEN
+        RAISE EXCEPTION 'Giles should visibly react to being refused: %', v_ev;
+    END IF;
     SELECT state INTO v_state FROM entity_state WHERE entity_id = 13 AND branch_id = v_branch AND upper_inf(valid_ticks);
     IF v_state->>'oil_source' <> 'wick' THEN RAISE EXCEPTION 'Giles should have got the oil from Wick: %', v_state; END IF;
     RAISE NOTICE 'PASS 6 the story adapts to refusal (Wick pays for the oil)';
@@ -117,7 +126,10 @@ BEGIN
                    WHERE e.branch_id = v_branch AND e.payload->>'kind' = 'pocket_key' AND w.actor_id = 10) THEN
         RAISE EXCEPTION 'Lily should have witnessed Wick pocketing the key';
     END IF;
-    RAISE NOTICE 'PASS 9 public vs private witnesses (Lily saw the key taken, you did not)';
+    IF COALESCE(story_scene(v_branch, 11)->'outros'->>'1', '') = '' THEN
+        RAISE EXCEPTION 'day 1 should have ended on a hook (outro)';
+    END IF;
+    RAISE NOTICE 'PASS 9 public vs private witnesses (Lily saw the key taken, you did not); day 1 ended on a hook';
 
     -- ===== 10. Free scenes do not cost an action; trait changes consequences =====
     PERFORM story_choose(v_branch, 11, 'd2_quarrel', 'apologise');

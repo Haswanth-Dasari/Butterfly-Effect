@@ -429,3 +429,22 @@ details.clue { font-size: 13.5px; } details.clue summary { color: var(--ink); } 
 .alm-link { text-align: left; padding: 8px 10px; border-radius: 9px; border: 0; background: none; color: var(--muted); font-size: 14px; } .alm-link:hover { color: var(--ink); background: rgba(255, 255, 255, .05); } .alm-link[aria-current="true"] { color: var(--gold2); background: rgba(242, 184, 75, .1); }
 .alm-body h2 { font-size: 24px; margin: 0 0 8px; } .alm-body p { font: 16px/1.65 var(--serif); color: var(--ink2); }
 @media (max-width: 640px) { .alm-cols { grid-template-columns: 1fr; } .alm-nav { grid-auto-flow: column; overflow-x: auto; } }
+
+/* ---------- polish: cold open, goal bar, hooks, bubbles ---------- */
+#coldopen { position: fixed; inset: 0; z-index: 90; background: #04060b; display: grid; place-items: center; padding: 28px; transition: opacity .7s; }
+#coldopen.out { opacity: 0; pointer-events: none; }
+.coldopen { max-width: 640px; text-align: center; display: grid; gap: 14px; }
+.coldopen p { margin: 0; font: italic 24px/1.45 var(--serif); color: var(--ink2); opacity: 0; transform: translateY(8px); transition: opacity 1.3s, transform 1.3s; }
+.coldopen p.in { opacity: 1; transform: none; }
+.coldopen p.cold-last { color: var(--gold2); font-size: 28px; text-shadow: 0 0 30px rgba(242, 184, 75, .35); }
+.cold-title { margin-top: 26px; font: 600 12px var(--sans); letter-spacing: .3em; text-transform: uppercase; color: var(--muted); opacity: 0; transition: opacity 1.2s; } .cold-title.in { opacity: 1; }
+.coldskip { position: absolute; right: 18px; bottom: 18px; }
+.goalbar { display: grid; gap: 4px; margin: 0 0 14px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line2); background: linear-gradient(135deg, rgba(242, 184, 75, .1), rgba(255, 255, 255, .02)); }
+.goalbar.urgent { border-color: var(--danger); background: linear-gradient(135deg, rgba(255, 106, 93, .16), rgba(255, 255, 255, .02)); }
+.goal-clock { display: flex; align-items: center; gap: 8px; color: var(--gold2); font-size: 13px; } .goal-clock b { font: 700 20px var(--serif); } .goal-clock span { color: var(--ink2); }
+.goalbar.urgent .goal-clock { color: #ffb3aa; } .goal-text { font: 600 15px var(--serif); color: var(--ink); } .goal-case { font-size: 12px; color: var(--muted); }
+.bell-story p.hook { margin-top: 14px; padding: 12px 14px; border-left: 3px solid var(--gold); background: rgba(242, 184, 75, .08); border-radius: 0 12px 12px 0; font-style: italic; color: var(--gold2); }
+.bubble { pointer-events: none; animation: bubbleIn .35s cubic-bezier(.2, 1.4, .4, 1) both; transform-box: fill-box; }
+@keyframes bubbleIn { from { opacity: 0; } to { opacity: 1; } }
+.bubble-bg { fill: #fff8e6; stroke: #2a1f10; stroke-width: 1.2; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .4)); }
+.bubble-t { font: 600 10.5px var(--serif); fill: #241a10; }

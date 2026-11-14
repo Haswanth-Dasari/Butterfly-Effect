@@ -32,8 +32,8 @@ emit(S.actors.map((a) => `(${a.id}, ${q(a.name)}, 'villager', ${q(a.job)}, NULL)
 emit(`SELECT setval(pg_get_serial_sequence('actor', 'actor_id'), (SELECT max(actor_id) FROM actor));\n`);
 
 const sc = S.scenario;
-emit(`INSERT INTO scenario (scenario_key, title, tagline, genre, protagonist_id, slice_end_day) VALUES
-(${q(sc.key)}, ${q(sc.title)}, ${q(sc.tagline)}, ${q(sc.genre)}, ${sc.protagonist_id}, ${sc.slice_end_day});\n`);
+emit(`INSERT INTO scenario (scenario_key, title, tagline, genre, protagonist_id, slice_end_day, cold_open, goal, deadline_day) VALUES
+(${q(sc.key)}, ${q(sc.title)}, ${q(sc.tagline)}, ${q(sc.genre)}, ${sc.protagonist_id}, ${sc.slice_end_day}, ${q(sc.cold_open || '')}, ${q(sc.goal || '')}, ${sc.deadline_day || 12});\n`);
 
 emit(`INSERT INTO case_link (link_key, scenario_key, title, question, ord) VALUES`);
 emit(S.links.map((l, i) => `(${q(l.key)}, ${q(sc.key)}, ${q(l.title)}, ${q(l.question)}, ${i + 1})`).join(',\n') + ';\n');
@@ -43,14 +43,14 @@ emit(S.clues.map((c) => `(${q(c.key)}, ${q(sc.key)}, ${q(c.title)}, ${q(c.kind)}
 const cl = S.clues.flatMap((c) => Object.entries(c.links).map(([l, w]) => `(${q(c.key)}, ${q(l)}, ${w})`));
 if (cl.length) emit(`INSERT INTO clue_link (clue_key, link_key, weight) VALUES\n${cl.join(',\n')};\n`);
 
-emit(`INSERT INTO story_day (scenario_key, day, title, intro) VALUES`);
-emit(S.days.map((d) => `(${q(sc.key)}, ${d.day}, ${q(d.title)}, ${q(d.intro)})`).join(',\n') + ';\n');
+emit(`INSERT INTO story_day (scenario_key, day, title, intro, outro) VALUES`);
+emit(S.days.map((d) => `(${q(sc.key)}, ${d.day}, ${q(d.title)}, ${q(d.intro)}, ${q(d.outro || '')})`).join(',\n') + ';\n');
 
-emit(`INSERT INTO story_beat (beat_key, scenario_key, day, phase, ord, title, body, costs_action, max_picks, requires_beats, forbids_beats) VALUES`);
-emit(S.beats.map((b, i) => `(${q(b.key)}, ${q(sc.key)}, ${b.day}, ${q(b.phase)}, ${i}, ${q(b.title)}, ${q(b.body)}, ${b.cost ? 'TRUE' : 'FALSE'}, ${b.max_picks}, ${arr(b.requires)}, ${arr(b.forbids)})`).join(',\n') + ';\n');
+emit(`INSERT INTO story_beat (beat_key, scenario_key, day, phase, ord, title, body, costs_action, max_picks, requires_beats, forbids_beats, focus) VALUES`);
+emit(S.beats.map((b, i) => `(${q(b.key)}, ${q(sc.key)}, ${b.day}, ${q(b.phase)}, ${i}, ${q(b.title)}, ${q(b.body)}, ${b.cost ? 'TRUE' : 'FALSE'}, ${b.max_picks}, ${arr(b.requires)}, ${arr(b.forbids)}, ${q(b.focus || null)})`).join(',\n') + ';\n');
 
-emit(`INSERT INTO story_option (beat_key, option_key, label, result_text, ord) VALUES`);
-emit(S.beats.flatMap((b) => b.options.map((o, i) => `(${q(b.key)}, ${q(o.key)}, ${q(o.label)}, ${q(o.result)}, ${i})`)).join(',\n') + ';\n');
+emit(`INSERT INTO story_option (beat_key, option_key, label, result_text, ord, react_actor, react_line) VALUES`);
+emit(S.beats.flatMap((b) => b.options.map((o, i) => `(${q(b.key)}, ${q(o.key)}, ${q(o.label)}, ${q(o.result)}, ${i}, ${o.react_actor ?? 'NULL'}, ${q(o.react_line || null)})`)).join(',\n') + ';\n');
 
 if (S.endings?.length) {
   emit(`INSERT INTO story_ending (scenario_key, ending_key, title, text, flag) VALUES`);

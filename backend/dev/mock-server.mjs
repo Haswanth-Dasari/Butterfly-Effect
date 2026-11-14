@@ -259,11 +259,12 @@ function startStory(trait, guided, pronouns) {
 }
 function storyScene(b, p) {
   const st = b.ent[PROT]; const sc = SLICE.scenario; const day = SLICE.days.find((d) => d.day === b.tick) || {};
-  const beats = SLICE.beats.filter((x) => beatAvailable(b, p, x)).map((x) => ({ beat_key: x.key, title: x.title, body: x.body, phase: x.phase, costs_action: x.cost,
+  const beats = SLICE.beats.filter((x) => beatAvailable(b, p, x)).map((x) => ({ beat_key: x.key, title: x.title, body: x.body, phase: x.phase, costs_action: x.cost, focus: x.focus ?? null,
     picks_left: x.max_picks - p.choices.filter((c) => c.beat === x.key).length, options: x.options.filter((o) => !chose(p, `${x.key}:${o.key}`)).map((o) => ({ key: o.key, label: o.label })) }));
   const done = p.choices.map((c) => { const bt = SLICE.beats.find((x) => x.key === c.beat); const o = bt.options.find((y) => y.key === c.option); return { tick: c.tick, beat_key: c.beat, title: bt.title, option_key: c.option, label: o.label, result: o.result, costs_action: bt.cost }; });
   const ending = SLICE.endings.find((e) => (st[e.flag] ?? 0) >= 1);
-  return { scenario: sc.key, title: sc.title, tagline: sc.tagline, day: b.tick, day_title: day.title, intro: day.intro, actions_left: Math.max(0, 3 - paidUsed(b, p) - [...events.values()].filter((e) => e.branch_id === b.branch_id && e.actor_id === PROT && e.tick === b.tick && ACTIONS.includes(e.action_type)).length),
+  return { scenario: sc.key, title: sc.title, tagline: sc.tagline, day: b.tick, day_title: day.title, intro: day.intro, goal: sc.goal, deadline_day: sc.deadline_day, cold_open: sc.cold_open,
+    outros: Object.fromEntries(SLICE.days.filter((d) => d.day < b.tick && d.outro).map((d) => [String(d.day), d.outro])), actions_left: Math.max(0, 3 - paidUsed(b, p) - [...events.values()].filter((e) => e.branch_id === b.branch_id && e.actor_id === PROT && e.tick === b.tick && ACTIONS.includes(e.action_type)).length),
     meters: { suspicion: st.suspicion ?? 0, danger: st.danger ?? 0, smoke: st.smoke ?? 0, coins: st.coins ?? 0 },
     trust: Object.fromEntries(Object.entries(st).filter(([k]) => k.startsWith('trust_')).map(([k, v]) => [k.slice(6), v])),
     beats, done, ending: ending ? { key: ending.key, title: ending.title, text: ending.text } : null, slice_over: b.tick > sc.slice_end_day, guided: p.guided, trait: p.trait, pronouns: p.pronouns };
@@ -278,7 +279,7 @@ function storyChoose(b, p, beatKey, optKey) {
   p.choices.push({ beat: beatKey, option: optKey, tick: b.tick, cost: beat.cost ? 1 : 0 });
   runOps(b, p, opt.effects);
   for (const r of SLICE.rules) { const w = r.when; if (w.payload_eq.beat === beatKey && (st[w.state_gte.key] ?? 0) >= w.state_gte.value) runOps(b, p, r.effects); }
-  return { event_id: nextEvent, beat: beatKey, option: optKey, result: opt.result };
+  return { event_id: nextEvent, beat: beatKey, option: optKey, result: opt.result, react_actor: opt.react_actor ?? null, react_line: opt.react_line ?? null };
 }
 function storyCompass(b, p) {
   if (!p.guided) return { guided: false };

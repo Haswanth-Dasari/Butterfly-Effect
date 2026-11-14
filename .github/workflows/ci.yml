@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run every SQL suite on a fresh database
-        run: bash ./scripts/run_tests.sh
+        run: ./scripts/run_tests.sh
   app:
     runs-on: ubuntu-latest
     steps:

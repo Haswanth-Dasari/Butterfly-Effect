@@ -19,14 +19,21 @@ function compassSvg(c) {
   return svg;
 }
 
+const placeFor = (focus) => (focus ? store.places.find((p) => p.kind === focus || p.name.toLowerCase().includes(String(focus).toLowerCase()))?.place_id : null);
+
 export function createStoryPanel(ctx) {
-  const root = h('div'); let scene = null; let compass = null; let last = null; let busy = false;
+  const root = h('div'); let scene = null; let compass = null; let last = null; let busy = false; let board = null; let unfocusT = 0; let lockUntil = 0;
+  // After a choice the camera stays on that scene's place for a moment, even though the cards re-render under the pointer.
+  const look = (focus, force) => { if (!force && Date.now() < lockUntil) return; clearTimeout(unfocusT); const id = placeFor(focus); if (id) ctx.map.focusPlace(id); };
+  const unlook = (ms = 400) => { clearTimeout(unfocusT); unfocusT = setTimeout(() => ctx.map.unfocus(), Math.max(ms, lockUntil - Date.now())); };
 
   async function pick(beat, option) {
     if (busy) return; busy = true;
     try {
       const r = await api.storyChoose(beat, option);
+      const focus = scene.beats.find((b) => b.beat_key === beat)?.focus;
       last = { title: scene.beats.find((b) => b.beat_key === beat)?.title, text: r.result };
+      lockUntil = Date.now() + 3800; look(focus, true); if (r.react_line) setTimeout(() => ctx.map.say(r.react_actor, r.react_line), 800); unlook(3800);
       sound.play('tab');
       await ctx.refresh(); await update();
       root.scrollTo({ top: 0, behavior: 'smooth' });
@@ -35,7 +42,7 @@ export function createStoryPanel(ctx) {
 
   function sceneCard(b) {
     const locked = b.costs_action && scene.actions_left <= 0;
-    return h('div.scene', { class: b.costs_action ? '' : 'free', dataset: { phase: b.phase } },
+    return h('div.scene', { class: b.costs_action ? '' : 'free', dataset: { phase: b.phase }, onpointerenter: () => look(b.focus), onpointerleave: () => unlook(), onfocusin: () => look(b.focus), onfocusout: () => unlook() },
       h('div.scene-tag', b.costs_action ? `${cap(b.phase)} · uses 1 action` : 'Free · happens to you', b.picks_left > 1 ? ` · ${b.picks_left} moves left` : ''),
       h('h3', b.title), h('p.scene-body', b.body),
       h('div.opts', b.options.map((o) => h('button.opt', { disabled: locked, title: locked ? 'No actions left today. End the day.' : '', onclick: () => pick(b.beat_key, o.key) }, o.label))));
@@ -48,6 +55,9 @@ export function createStoryPanel(ctx) {
       kids.push(h('div.ending', h('div.ending-k', 'The end'), h('h2', sc.ending.title), h('p', sc.ending.text),
         h('div.modal-actions', h('button.btn.primary', { onclick: () => { ctx.leave(); } }, 'Begin a new story'))));
     }
+    const left = Math.max(0, (sc.deadline_day || 12) - sc.day); const withEv = board ? board.links.filter((l) => l.strength > 0).length : 0;
+    kids.push(h('div.goalbar', { class: left <= 3 ? 'urgent' : '' }, h('div.goal-clock', iconSvg('time', 18), h('b', `${left} day${left === 1 ? '' : 's'}`), h('span', 'until the Reeve arrives')),
+      h('div.goal-text', sc.goal || ''), board ? h('div.goal-case', `Case: ${withEv} of ${board.links.length} questions have evidence`) : null));
     kids.push(h('div.day-head', h('div.day-k', sc.title), h('h2', sc.day_title || `Day ${sc.day}`), h('p.intro', sc.intro || '')));
     kids.push(h('div.meters', bar('Suspicion', m.suspicion, 100, m.suspicion >= 70 ? 'bad' : m.suspicion >= 40 ? 'warn' : 'ok', 'How strongly the village believes you did it. 70 = arrest, 100 = the mob.'),
       bar('Danger', m.danger, 60, m.danger >= 45 ? 'bad' : m.danger >= 25 ? 'warn' : 'ok', 'How closely the killer is watching you. 60 = an "accident".'),
@@ -79,7 +89,7 @@ export function createStoryPanel(ctx) {
   }
 
   async function update() {
-    try { scene = await api.storyScene(); compass = scene.guided ? await api.storyCompass() : null; render(); ctx.onStory?.(scene, compass); }
+    try { scene = await api.storyScene(); try { board = await api.storyBoard(); } catch { /* optional */ } compass = scene.guided ? await api.storyCompass() : null; render(); ctx.onStory?.(scene, compass); }
     catch (err) { root.replaceChildren(h('div.cold', flavor(err))); }
   }
   bus.on('branch', () => { last = null; });

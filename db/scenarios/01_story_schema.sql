@@ -8,7 +8,10 @@ CREATE TABLE scenario (
     tagline        TEXT NOT NULL DEFAULT '',
     genre          TEXT NOT NULL DEFAULT '',
     protagonist_id INT  NOT NULL REFERENCES actor,
-    slice_end_day  INT  NOT NULL CHECK (slice_end_day >= 1)
+    slice_end_day  INT  NOT NULL CHECK (slice_end_day >= 1),
+    cold_open      TEXT NOT NULL DEFAULT '',   -- flash-forward shown before day 1 (lines separated by newlines)
+    goal           TEXT NOT NULL DEFAULT '',   -- the one-line objective, always on screen
+    deadline_day   INT  NOT NULL DEFAULT 12 CHECK (deadline_day >= 1)
 );
 
 -- The seven questions of a case ("the Chain of Seven").
@@ -42,6 +45,7 @@ CREATE TABLE story_day (
     day          INT  NOT NULL CHECK (day >= 1),
     title        TEXT NOT NULL,
     intro        TEXT NOT NULL,
+    outro        TEXT NOT NULL DEFAULT '',   -- the hook that ends the day (shown by the Evening Bell)
     PRIMARY KEY (scenario_key, day)
 );
 
@@ -58,7 +62,8 @@ CREATE TABLE story_beat (
     costs_action   BOOLEAN NOT NULL DEFAULT TRUE,
     max_picks      INT  NOT NULL DEFAULT 1 CHECK (max_picks >= 1),
     requires_beats TEXT[] NOT NULL DEFAULT '{}',
-    forbids_beats  TEXT[] NOT NULL DEFAULT '{}'
+    forbids_beats  TEXT[] NOT NULL DEFAULT '{}',
+    focus          TEXT                         -- where the map looks while this scene is on screen
 );
 
 CREATE TABLE story_option (
@@ -67,6 +72,8 @@ CREATE TABLE story_option (
     label       TEXT NOT NULL,
     result_text TEXT NOT NULL,
     ord         INT  NOT NULL DEFAULT 0,
+    react_actor INT,                          -- who reacts on the map...
+    react_line  TEXT,                         -- ...and what they say
     PRIMARY KEY (beat_key, option_key)
 );
 

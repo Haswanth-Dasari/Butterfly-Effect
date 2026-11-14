@@ -8,7 +8,7 @@ The game is only the story on top. **PostgreSQL is the engine and the source of 
 
 ## New: story mode, *Who Burned the Mill?*
 
-You are Rowan, a mill helper with a burned past. Three quiet days, then the mill burns and the miller is dead, and everything points at you. Investigate with three actions a day; the village is a real database that remembers every choice. Choose your temperament, and choose **Bold** (no hints) or **Guided** (a Compass that tells you whether you are getting closer, never who). The **Almanac** (press H) explains every rule. This release is the opening chapters (days 1 to 4); see `docs/story/` for the full story bible and `docs/story/02_slice_as_built.md` for how it runs on the engine.
+You are Rowan, a mill helper with a burned past. Three quiet days, then the mill burns and the miller is dead, and everything points at you. Investigate with three actions a day; the village is a real database that remembers every choice. Choose your temperament, and choose **Bold** (no hints) or **Guided** (a Compass that tells you whether you are getting closer, never who). The **Almanac** (press H) explains every rule. This release is the opening chapters (days 1 to 4), with a cold open, a first-day coach, a countdown to the Reeve's arrival, an end-of-day hook and on-map reactions; see `docs/story/` for the full story bible and `docs/story/02_slice_as_built.md` for how it runs on the engine.
 
 ![Story mode](docs/screenshots/s03_day1.png)
 

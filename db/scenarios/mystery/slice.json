@@ -23,7 +23,10 @@
    "trust_thorn": 0,
    "trust_lily": 10,
    "trust_bethan": 40
-  }
+  },
+  "cold_open": "Day 12. Dusk. The commons is full.\nA rope hangs from the old oak.\nThe people who raised you are not looking at you.\nThey are going to hang you for something you did not do.\nYou know who did it. You can prove none of it.\nTwelve days earlier, it was an ordinary grey morning.",
+  "goal": "Prove who burned the mill before the Reeve arrives.",
+  "deadline_day": 12
  },
  "actors": [
   {
@@ -258,22 +261,26 @@
   {
    "day": 1,
    "title": "Day 1 · A grey morning",
-   "intro": "Ten years ago you came to Alderbrook with nothing but your name. The Hollis family took you in. Today their kitchen is quiet, and the debt is louder than the rain. Tobin owes you a wage that never comes full, and the Reeve visits in twelve days. Three things you can do today. Choose carefully: nothing in Alderbrook is ever small."
+   "intro": "Ten years ago you came to Alderbrook with nothing but your name. The Hollis family took you in. Today their kitchen is quiet, and the debt is louder than the rain. Tobin owes you a wage that never comes full, and the Reeve visits in twelve days. Three things you can do today. Choose carefully: nothing in Alderbrook is ever small.",
+   "outro": "Night settles on Alderbrook. Out at the inn the drover's grey horse is saddled and gone, and Ines says only that he rides at night and she does not ask. You lie awake wondering who a stranger rides to, in a village this small."
   },
   {
    "day": 2,
    "title": "Day 2 · Heat",
-   "intro": "By noon the whole square has heard Tobin's voice. You have never known him to shout. Something has got into him, and into the village."
+   "intro": "By noon the whole square has heard Tobin's voice. You have never known him to shout. Something has got into him, and into the village.",
+   "outro": "Long after the village sleeps, Tobin's lamp is still burning at the mill. He is not shouting any more. Tomorrow he will be worse: quiet. You cannot shake the feeling that he is saying goodbye to something."
   },
   {
    "day": 3,
    "title": "Day 3 · The quiet",
-   "intro": "Tobin does not shout today. That is worse. He moves about the mill like a man counting his steps."
+   "intro": "Tobin does not shout today. That is worse. He moves about the mill like a man counting his steps.",
+   "outro": "A little after midnight the mill bell starts to ring, and it does not stop. Your window has turned orange. By the time you are on the stairs you already know which building is burning."
   },
   {
    "day": 4,
    "title": "Day 4 · Ashes",
-   "intro": "The mill is a black tooth at the end of the lane. Smoke still leans over the valley. Somewhere in the ruin is a man you have worked beside for four years."
+   "intro": "The mill is a black tooth at the end of the lane. Smoke still leans over the valley. Somewhere in the ruin is a man you have worked beside for four years.",
+   "outro": "By dusk the ruins are cold. Pike's colours are on the north road, one day out. And Giles has still not come home."
   }
  ],
  "day_events": [
@@ -377,7 +384,9 @@
       {
        "discover": "C01"
       }
-     ]
+     ],
+     "react_actor": 1,
+     "react_line": "You have a kind face, lad."
     },
     {
      "key": "listen",
@@ -393,7 +402,9 @@
       {
        "discover": "C01"
       }
-     ]
+     ],
+     "react_actor": 1,
+     "react_line": "Sit. Everyone owes the well a story."
     },
     {
      "key": "skip",
@@ -406,9 +417,12 @@
         "trust_wick": -2
        }
       }
-     ]
+     ],
+     "react_actor": 1,
+     "react_line": "Another day, lad."
     }
-   ]
+   ],
+   "focus": "well"
   },
   {
    "key": "d1_packet",
@@ -438,7 +452,9 @@
         "carried_packet": 1
        }
       }
-     ]
+     ],
+     "react_actor": 8,
+     "react_line": "Tell him thanks."
     },
     {
      "key": "peek",
@@ -460,7 +476,9 @@
       {
        "discover": "C02"
       }
-     ]
+     ],
+     "react_actor": 8,
+     "react_line": "You did not need to look."
     },
     {
      "key": "refuse",
@@ -479,9 +497,12 @@
         "refused_packet": 1
        }
       }
-     ]
+     ],
+     "react_actor": 1,
+     "react_line": "Of course, lad."
     }
-   ]
+   ],
+   "focus": "inn"
   },
   {
    "key": "d1_giles",
@@ -524,7 +545,9 @@
        },
        "why": "A coin you gave your foster-brother bought the oil."
       }
-     ]
+     ],
+     "react_actor": 13,
+     "react_line": "Thanks. I will not forget this."
     },
     {
      "key": "give_two",
@@ -556,7 +579,9 @@
        },
        "why": "Coins you gave your foster-brother bought the oil."
       }
-     ]
+     ],
+     "react_actor": 13,
+     "react_line": "Two? You are a good brother."
     },
     {
      "key": "refuse",
@@ -582,9 +607,12 @@
        },
        "why": "Wick paid for the oil, because you would not."
       }
-     ]
+     ],
+     "react_actor": 13,
+     "react_line": "Of course you cannot."
     }
-   ]
+   ],
+   "focus": "Hollis"
   },
   {
    "key": "d1_inn",
@@ -626,7 +654,8 @@
       }
      ]
     }
-   ]
+   ],
+   "focus": "inn"
   },
   {
    "key": "d1_tobin",
@@ -650,7 +679,9 @@
         "trust_tobin": 5
        }
       }
-     ]
+     ],
+     "react_actor": 5,
+     "react_line": "You are a good worker."
     },
     {
      "key": "ask",
@@ -663,7 +694,9 @@
         "knows_debt": 1
        }
       }
-     ]
+     ],
+     "react_actor": 5,
+     "react_line": "I did not want to tell you."
     },
     {
      "key": "push",
@@ -682,9 +715,12 @@
         "suspicion": 5
        }
       }
-     ]
+     ],
+     "react_actor": 5,
+     "react_line": "Mind yourself."
     }
-   ]
+   ],
+   "focus": "mill"
   },
   {
    "key": "d2_quarrel",
@@ -714,7 +750,9 @@
         "trust_tobin": 5
        }
       }
-     ]
+     ],
+     "react_actor": 5,
+     "react_line": "...I should not have shouted."
     },
     {
      "key": "defend",
@@ -727,7 +765,9 @@
         "suspicion": 5
        }
       }
-     ]
+     ],
+     "react_actor": 5,
+     "react_line": "Someone told me. Someone I trust."
     },
     {
      "key": "counter",
@@ -746,9 +786,12 @@
         "trust_tobin": -10
        }
       }
-     ]
+     ],
+     "react_actor": 5,
+     "react_line": "..."
     }
-   ]
+   ],
+   "focus": "market"
   },
   {
    "key": "d2_home",
@@ -772,7 +815,9 @@
         "trust_giles": 10
        }
       }
-     ]
+     ],
+     "react_actor": 13,
+     "react_line": "I do not want to lose the house."
     },
     {
      "key": "ask_bethan",
@@ -799,7 +844,8 @@
      "result": "You split wood until your hands are raw. It helps. For an hour you do not think.",
      "effects": []
     }
-   ]
+   ],
+   "focus": "Hollis"
   },
   {
    "key": "d2_maren",
@@ -835,7 +881,9 @@
         "danger": 5
        }
       }
-     ]
+     ],
+     "react_actor": 2,
+     "react_line": "Leave it with me, love."
     },
     {
      "key": "deflect",
@@ -848,9 +896,12 @@
         "trust_maren": 2
        }
       }
-     ]
+     ],
+     "react_actor": 2,
+     "react_line": "If you say so, love."
     }
-   ]
+   ],
+   "focus": "bakery"
   },
   {
    "key": "d2_night",
@@ -916,7 +967,8 @@
      "result": "You sleep badly and dream of fire. You have always dreamed of fire.",
      "effects": []
     }
-   ]
+   ],
+   "focus": "well"
   },
   {
    "key": "d3_page",
@@ -961,7 +1013,8 @@
       }
      ]
     }
-   ]
+   ],
+   "focus": "mill"
   },
   {
    "key": "d3_read_later",
@@ -992,7 +1045,8 @@
       }
      ]
     }
-   ]
+   ],
+   "focus": "Hollis"
   },
   {
    "key": "d3_hide",
@@ -1059,7 +1113,8 @@
       }
      ]
     }
-   ]
+   ],
+   "focus": "Hollis"
   },
   {
    "key": "d3_tell",
@@ -1091,7 +1146,9 @@
         "told_elspeth": 1
        }
       }
-     ]
+     ],
+     "react_actor": 3,
+     "react_line": "E.? E. for what?"
     },
     {
      "key": "maren",
@@ -1116,7 +1173,9 @@
         "danger": 10
        }
       }
-     ]
+     ],
+     "react_actor": 2,
+     "react_line": "Say nothing to anybody else."
     },
     {
      "key": "nobody",
@@ -1124,7 +1183,8 @@
      "result": "The silence is heavy and clean. You will carry this alone.",
      "effects": []
     }
-   ]
+   ],
+   "focus": "bakery"
   },
   {
    "key": "d3_night",
@@ -1171,7 +1231,8 @@
       }
      ]
     }
-   ]
+   ],
+   "focus": "mill"
   },
   {
    "key": "d4_fire",
@@ -1277,7 +1338,8 @@
       }
      ]
     }
-   ]
+   ],
+   "focus": "mill"
   },
   {
    "key": "d4_wake",
@@ -1305,7 +1367,8 @@
       }
      ]
     }
-   ]
+   ],
+   "focus": "mill"
   },
   {
    "key": "d4_wick",
@@ -1329,7 +1392,9 @@
         "trust_wick": 5
        }
       }
-     ]
+     ],
+     "react_actor": 1,
+     "react_line": "Give the boy a fair week."
     },
     {
      "key": "watch",
@@ -1344,7 +1409,8 @@
       }
      ]
     }
-   ]
+   ],
+   "focus": "well"
   },
   {
    "key": "d4_ruins",
@@ -1377,7 +1443,8 @@
       }
      ]
     }
-   ]
+   ],
+   "focus": "mill"
   },
   {
    "key": "d4_lily",
@@ -1407,7 +1474,9 @@
       {
        "discover": "C03a"
       }
-     ]
+     ],
+     "react_actor": 10,
+     "react_line": "Nobody asks me."
     },
     {
      "key": "press",
@@ -1426,9 +1495,12 @@
         "trust_lily": -15
        }
       }
-     ]
+     ],
+     "react_actor": 10,
+     "react_line": "Go away."
     }
-   ]
+   ],
+   "focus": "well"
   },
   {
    "key": "d4_home",
@@ -1452,7 +1524,9 @@
         "trust_bethan": 10
        }
       }
-     ]
+     ],
+     "react_actor": 12,
+     "react_line": "He is only frightened."
     },
     {
      "key": "search",
@@ -1460,7 +1534,8 @@
      "result": "You search the lane, the barn, the chandler's. No sign. A neighbour says she saw a lad running toward Hartley Farm before dawn.",
      "effects": []
     }
-   ]
+   ],
+   "focus": "Hollis"
   }
  ],
  "endings": [

@@ -10,7 +10,7 @@ with sync_playwright() as p:
     pg.on('console', lambda m: errs.append(m.type+': '+m.text) if m.type in('error','warning') else None)
     pg.on('pageerror', lambda e: errs.append('PAGEERR '+str(e)))
     pg.goto(URL + '/'); pg.evaluate("localStorage.setItem('butterfly.toured','1')")
-    pg.fill('#name','Rin'); pg.click('#join-btn'); pg.wait_for_timeout(3500)
+    pg.click('summary'); pg.fill('#name','Rin'); pg.click('#join-btn'); pg.wait_for_timeout(3500)
     pg.screenshot(path='/tmp/butterfly_ui_1_map.png')
     # steal
     pg.click('.act-card:has-text("Steal")'); pg.wait_for_timeout(300)

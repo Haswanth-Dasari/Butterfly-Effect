@@ -162,7 +162,8 @@ BEGIN
     PERFORM add_witnesses(v_ev.event_id, 'private');
     PERFORM process_event_rules(v_ev, 0);
 
-    RETURN jsonb_build_object('event_id', v_ev.event_id, 'beat', p_beat, 'option', p_option, 'result', o.result_text);
+    RETURN jsonb_build_object('event_id', v_ev.event_id, 'beat', p_beat, 'option', p_option, 'result', o.result_text,
+                              'react_actor', o.react_actor, 'react_line', o.react_line);
 END;
 $$;
 
@@ -324,7 +325,7 @@ BEGIN
 
     SELECT COALESCE(jsonb_agg(jsonb_build_object(
                'beat_key', b.beat_key, 'title', b.title, 'body', b.body, 'phase', b.phase,
-               'costs_action', b.costs_action,
+               'costs_action', b.costs_action, 'focus', b.focus,
                'picks_left', b.max_picks - (SELECT count(*) FROM event e
                                             WHERE e.branch_id = p_branch AND e.actor_id = p_actor
                                               AND e.action_type = 'story_choice' AND e.payload ->> 'beat' = b.beat_key),
@@ -358,6 +359,9 @@ BEGIN
     RETURN jsonb_build_object(
         'scenario', sc.scenario_key, 'title', sc.title, 'tagline', sc.tagline,
         'day', v_tick, 'day_title', d.title, 'intro', d.intro,
+        'goal', sc.goal, 'deadline_day', sc.deadline_day, 'cold_open', sc.cold_open,
+        'outros', COALESCE((SELECT jsonb_object_agg(sd.day::text, sd.outro) FROM story_day sd
+                            WHERE sd.scenario_key = sc.scenario_key AND sd.day < v_tick AND sd.outro <> ''), '{}'::jsonb),
         'actions_left', GREATEST(0, 3 - story_actions_used(p_branch, p_actor, v_tick)),
         'meters', jsonb_build_object(
             'suspicion', COALESCE(v_state -> 'suspicion', '0'::jsonb),

@@ -362,6 +362,42 @@ export function createMap(svg, hooks = {}) {
     els.forEach((e) => e.classList.add('focus')); setTimeout(() => els.forEach((e) => e.classList.remove('focus')), ms);
   }
 
+  // ---------- camera and speech ----------
+  let vb = { x: 0, y: 0, w: W, h: H }; let raf = 0;
+  const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  function moveCamera(t, ms = 750) {
+    cancelAnimationFrame(raf);
+    if (reduce) { vb = { ...t }; svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`); return; }
+    const from = { ...vb }; const t0 = performance.now();
+    const step = (now) => {
+      const k = Math.min(1, (now - t0) / ms); const e = 1 - Math.pow(1 - k, 3);
+      vb = { x: from.x + (t.x - from.x) * e, y: from.y + (t.y - from.y) * e, w: from.w + (t.w - from.w) * e, h: from.h + (t.h - from.h) * e };
+      svg.setAttribute('viewBox', `${vb.x.toFixed(1)} ${vb.y.toFixed(1)} ${vb.w.toFixed(1)} ${vb.h.toFixed(1)}`);
+      if (k < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  }
+  /** Glide the camera in on a place while a scene set there is on screen. */
+  function focusPlace(id) {
+    const c = centres.get(Number(id)); if (!c) return;
+    const w = 520; const h2 = (w * H) / W;
+    moveCamera({ x: clamp(c.x - w / 2, 0, W - w), y: clamp(c.y - h2 / 2 - 10, 0, H - h2), w, h: h2 });
+    pulsePlace(id, '#ffd98a');
+  }
+  const unfocus = () => moveCamera({ x: 0, y: 0, w: W, h: H });
+  /** A short speech bubble above a villager. */
+  function say(actorId, text) {
+    const n = markerNodes.get(Number(actorId)); if (!n?.pos || !text) return;
+    const words = text.split(' '); const lines = []; let cur = '';
+    for (const wd of words) { if ((cur + ' ' + wd).trim().length > 24) { lines.push(cur); cur = wd; } else cur = (cur + ' ' + wd).trim(); }
+    if (cur) lines.push(cur);
+    const wpx = Math.max(...lines.map((l) => l.length)) * 5.6 + 16; const hpx = lines.length * 13 + 10;
+    const g = s('g', { class: 'bubble', transform: `translate(${n.pos.x} ${n.pos.y - 26})` },
+      s('path', { d: `M${-wpx / 2} ${-hpx} h${wpx} a6 6 0 0 1 6 6 v${hpx - 12} a6 6 0 0 1 -6 6 h${-wpx / 2 + 8} l-5 7 l-1 -7 h${-wpx / 2 + 1} a6 6 0 0 1 -6 -6 v${-(hpx - 12)} a6 6 0 0 1 6 -6 z`, class: 'bubble-bg' }),
+      ...lines.map((l, i) => s('text', { x: 0, y: -hpx + 15 + i * 13, 'text-anchor': 'middle', class: 'bubble-t' }, l)));
+    gFx.append(g); setTimeout(() => g.remove(), 5600);
+  }
+
   // ---------- public api ----------
   function setWorld(world) {
     places = world.places; actors = world.actors;
@@ -384,5 +420,5 @@ export function createMap(svg, hooks = {}) {
   function setView(v) { view = v; svg.classList.toggle('ghost', !!v); renderChips(false); renderMoods(); }
   const markerRect = (id) => markerNodes.get(Number(id))?.g.getBoundingClientRect() || null;
   const placeRect = (id) => placeNodes.get(Number(id))?.g.getBoundingClientRect() || null;
-  return { setWorld, setPhase, setView, ripple, pulsePlace, focus, setPick, floatText, markerRect, placeRect, get phase() { return phase; }, get picking() { return pick; } };
+  return { setWorld, setPhase, setView, ripple, pulsePlace, focus, setPick, focusPlace, unfocus, say, floatText, markerRect, placeRect, get phase() { return phase; }, get picking() { return pick; } };
 }

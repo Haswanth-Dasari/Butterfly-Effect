@@ -22,6 +22,16 @@ The slice covers **Days 1–4**: the three quiet days, the fire, and the first d
 - **Three engine changes** (all tiny, all additive): `project_event` handles `story_enter`; `rule_matches` understands `state_gte`, `scenario` and `trait`; `apply_action` counts paid story choices against the three-actions-a-day budget.
 - **Case Board and Compass are SQL**: `story_board()` and `story_compass()` compute link strength (0–3, `LEAST(3, SUM(weight))`) from the clues the player discovered.
 
+## Opening polish (v1.2)
+
+Playtest feedback: the opening was fine but not gripping, and the rules were not clear without the Almanac. Changes, all data-driven:
+
+- **Cold open:** a flash-forward to the Moot (rope, oak, "they are going to hang you") before day 1, so quiet choices carry dread. Stored in `scenario.cold_open`.
+- **Always-visible goal and clock:** "Prove who burned the mill. The Reeve arrives in N days", plus a top-bar countdown and "Case: X of 7 questions have evidence". Stored in `scenario.goal` and `scenario.deadline_day`.
+- **First-day coach:** a five-step spotlight (scenes, three actions, meters, end the day, the Almanac). The Almanac stays optional.
+- **End-of-day hooks:** each day ends on a question (`story_day.outro`), shown by the Evening Bell.
+- **Visible reactions:** the map camera glides to where a scene happens (`story_beat.focus`) and the affected villager speaks in a bubble (`story_option.react_actor`, `react_line`).
+
 ## What is playable
 
 20 scenes, 50 choices, 14 clues, 5 new characters, one death ending (the fire), the Case Board, the optional Compass, the Almanac, an Evening Bell that narrates what changed, and a "To be continued" card after day 4.
