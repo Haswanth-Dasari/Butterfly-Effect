@@ -28,6 +28,7 @@ Every database topic in the project documentation (section 17), mapped to the fi
 |---|---|---|
 | Stories as data (scenario, beats, options, clues, endings) | `db/scenarios/01_story_schema.sql`, `db/scenarios/mystery/slice.json`, `db/scenarios/build_seed.mjs`, `db/seed/05_story_mystery.sql` | `db/tests/14_story_slice_tests.sql` |
 | Story effects as rules in the rules engine (meters, clues, hidden consequences) | `db/procedures/06_rules_engine.sql` (new conditions `state_gte`, `scenario`, `trait`), `db/seed/05_story_mystery.sql` | `db/tests/14_story_slice_tests.sql` |
+| The villain's agenda as data plus one SQL decision function and a trigger | `db/scenarios/02_story_functions.sql` (`wick_pick_target`, `story_on_day_start`), `db/scenarios/01_story_schema.sql` (`story_witness`, `story_night`) | `db/tests/15_story_nights_tests.sql` |
 | A playthrough is a branch (private world, rewind still works) | `db/scenarios/02_story_functions.sql` (`start_playthrough`) | `db/tests/14_story_slice_tests.sql` |
 | Fog of knowledge in play (witnessed vs hidden events) | `db/procedures/05_apply_action.sql`, `db/scenarios/02_story_functions.sql` | `db/tests/14_story_slice_tests.sql` |
 | Case Board and Compass computed in SQL | `db/scenarios/02_story_functions.sql` (`story_board`, `story_compass`) | `db/tests/14_story_slice_tests.sql` |

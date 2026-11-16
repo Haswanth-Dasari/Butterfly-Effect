@@ -5,7 +5,7 @@
   "tagline": "Nobody burns a village. A village burns itself, one whisper at a time.",
   "genre": "Mystery",
   "protagonist_id": 11,
-  "slice_end_day": 4,
+  "slice_end_day": 8,
   "start_state": {
    "coins": 6,
    "mood": "curious",
@@ -22,7 +22,9 @@
    "trust_elspeth": 30,
    "trust_thorn": 0,
    "trust_lily": 10,
-   "trust_bethan": 40
+   "trust_bethan": 40,
+   "trust_pike": 10,
+   "trust_corwen": 10
   },
   "cold_open": "Day 12. Dusk. The commons is full.\nA rope hangs from the old oak.\nThe people who raised you are not looking at you.\nThey are going to hang you for something you did not do.\nYou know who did it. You can prove none of it.\nTwelve days earlier, it was an ordinary grey morning.",
   "goal": "Prove who burned the mill before the Reeve arrives.",
@@ -255,6 +257,96 @@
    "links": {
     "meeting": 1
    }
+  },
+  {
+   "key": "C12",
+   "title": "Your key in the ashes",
+   "kind": "physical",
+   "day": 5,
+   "journal": "Sergeant Pike held up a mill key found in the ashes of the office. It is yours. You lost it on the day Tobin shouted at you, and you have no idea how it got there.",
+   "links": {}
+  },
+  {
+   "key": "C06",
+   "title": "Tobin's tally book",
+   "kind": "document",
+   "day": 5,
+   "journal": "Tobin's tally book, kept behind the bar at the inn. Every entry for the well-keeper is marked 'E.'. Elspeth, when she appears, is written 'Els.' So the 'E.' on page 41 is not Elspeth.",
+   "links": {
+    "means": 1
+   }
+  },
+  {
+   "key": "C03b",
+   "title": "The chandler's ledger",
+   "kind": "document",
+   "day": 6,
+   "journal": "The chandler's book shows Old Wick bought a full can of lamp oil on the afternoon of the fire. A man with a full can does not sit in the dark.",
+   "links": {
+    "meeting": 1
+   }
+  },
+  {
+   "key": "C11",
+   "title": "Giles's can",
+   "kind": "testimony",
+   "day": 6,
+   "journal": "Giles lit the grain shed with a pint of oil, and nothing more. He says the mill office was dark, and Tobin already cold when he looked in the window.",
+   "links": {
+    "match": 1
+   }
+  },
+  {
+   "key": "C20",
+   "title": "The dry old voice",
+   "kind": "testimony",
+   "day": 6,
+   "journal": "Giles says someone told him the debt ledger was in the mill. A dry old voice, behind a shutter. It smelled of walnut.",
+   "links": {
+    "match": 1,
+    "master": 1
+   }
+  },
+  {
+   "key": "C26",
+   "title": "The window was broken from inside",
+   "kind": "physical",
+   "day": 6,
+   "journal": "The glass of the well-house window lies outside, on the grass. Whoever threw the stone was standing inside.",
+   "links": {
+    "mask": 1
+   }
+  },
+  {
+   "key": "C21a",
+   "title": "Ines carries Wick's packets",
+   "kind": "testimony",
+   "day": 7,
+   "journal": "Ines admits she has carried Old Wick's sealed packets to the drover for years, and never asked what was in them.",
+   "links": {
+    "master": 1
+   }
+  },
+  {
+   "key": "C15",
+   "title": "Walnut ink",
+   "kind": "physical",
+   "day": 8,
+   "journal": "The note beside the body is written in dark walnut ink. Only two people in Alderbrook make or use it: Old Wick, and Maren, who labels her flour sacks with it.",
+   "links": {
+    "mask": 1
+   }
+  },
+  {
+   "key": "C16",
+   "title": "The scene was arranged",
+   "kind": "physical",
+   "day": 8,
+   "journal": "Something is wrong with the scene. A door barred from outside, wrists bruised, boots dry. It does not fit what the note says.",
+   "links": {
+    "mask": 1,
+    "murder": 1
+   }
   }
  ],
  "days": [
@@ -281,6 +373,30 @@
    "title": "Day 4 · Ashes",
    "intro": "The mill is a black tooth at the end of the lane. Smoke still leans over the valley. Somewhere in the ruin is a man you have worked beside for four years.",
    "outro": "By dusk the ruins are cold. Pike's colours are on the north road, one day out. And Giles has still not come home."
+  },
+  {
+   "day": 5,
+   "title": "Day 5 · The Sergeant",
+   "intro": "Sergeant Pike has ridden in under the Reeve's colours. The inquiry is no longer the village's; it is the law's. There are seven days left.",
+   "outro": "Pike's lamp burns late at the inn. Corwen is posted under your window. Somewhere in this village a man is making a list of who knows too much. You have the feeling you are on it."
+  },
+  {
+   "day": 6,
+   "title": "Day 6 · The boy in the hayloft",
+   "intro": "Giles has been missing for two days. Someone saw a lad running toward Hartley Farm. The village wants a culprit, and it is getting impatient.",
+   "outro": "The mob has gone home, but half the lanterns in Alderbrook are still lit. Whatever is coming, it is coming soon, and you have the sense of a clock you cannot see."
+  },
+  {
+   "day": 7,
+   "title": "Day 7 · The good friend",
+   "intro": "Old Wick has not left your side since the fire. He is the only person in Alderbrook who has not stopped being kind to you. Something is wrong in the village today: the dogs will not settle, and a door on the lane stands open that has never stood open. Somebody is going to need watching tonight, and you can only be in so many places.",
+   "outro": "You did what you could. Whether it was enough, you will learn in the morning."
+  },
+  {
+   "day": 8,
+   "title": "Day 8 · The Confession",
+   "intro": "The village wakes to news. Something happened in the night, and by breakfast everyone has already decided what it means.",
+   "outro": "By dusk Alderbrook has made up its mind about what happened. You are not sure that you agree with it, and you have the feeling you are the only one."
   }
  ],
  "day_events": [
@@ -347,6 +463,57 @@
       "visibility": "private",
       "kind": "tobin_dead",
       "text": "Tobin Marsh lies dead in his own office. He died before the fire."
+     }
+    }
+   ]
+  },
+  {
+   "day": 5,
+   "visibility": "public",
+   "kind": "pike_arrives",
+   "text": "Sergeant Pike rides in at dawn under the Reeve's colours, with a nervous young deputy called Corwen. He sets up a table in the inn and holds up a mill key found in the ashes. 'Whose is this?' It is yours.",
+   "effects": [
+    {
+     "enter": 32
+    },
+    {
+     "enter": 33
+    },
+    {
+     "entity": "player",
+     "add": {
+      "suspicion": 15
+     }
+    },
+    {
+     "discover": "C12"
+    }
+   ]
+  },
+  {
+   "day": 6,
+   "visibility": "public",
+   "kind": "wick_attacked",
+   "text": "Overnight a stone smashed the well-house window. Old Wick appears at the well at noon with a bandage round his head and a brave smile. 'Somebody wants me quiet,' he says. 'I cannot think why.'",
+   "effects": []
+  },
+  {
+   "day": 6,
+   "visibility": "public",
+   "kind": "mob",
+   "text": "Garth Thorn's men gather outside Ines's inn and demand she answer for Tobin's debts. The lantern over the door shakes in the wind.",
+   "effects": []
+  },
+  {
+   "day": 7,
+   "visibility": "hidden",
+   "effects": [
+    {
+     "event": {
+      "actor": 1,
+      "visibility": "private",
+      "kind": "wick_plan",
+      "text": "Old Wick sits very still at the well and counts who in Alderbrook knows too much."
      }
     }
    ]
@@ -1536,6 +1703,1183 @@
     }
    ],
    "focus": "Hollis"
+  },
+  {
+   "key": "d5_pike",
+   "day": 5,
+   "phase": "morning",
+   "title": "The Sergeant",
+   "body": "Pike takes over the inquiry in a low, level voice. You are not to leave the village. Corwen will be at your shoulder. 'I am not here to hang anyone,' he says. 'I am here to find out who did it. Those are different jobs, and the village has never noticed.'",
+   "cost": false,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "focus": "inn",
+   "options": [
+    {
+     "key": "cooperate",
+     "label": "Tell him you will help in any way you can",
+     "result": "'Good,' he says. 'Do not make me regret it.' You have the odd feeling he means it.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_pike": 10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "cooperated_pike": 1
+       }
+      }
+     ],
+     "react_actor": 32,
+     "react_line": "Good. Do not make me regret it."
+    },
+    {
+     "key": "resist",
+     "label": "Say you have nothing to add",
+     "result": "'Then I will be watching,' he says, without heat.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_pike": -10
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 5
+       }
+      }
+     ],
+     "react_actor": 32,
+     "react_line": "Then I will be watching."
+    }
+   ]
+  },
+  {
+   "key": "d5_page",
+   "day": 5,
+   "phase": "day",
+   "title": "What Tobin gave you",
+   "body": "Pike asks quietly, over the rim of a cup: 'Tobin gave somebody something before he died. A page. The miller's boy saw it. Do you know anything about that?' Corwen's pencil stops moving.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [
+    "d3_page"
+   ],
+   "forbids": [],
+   "focus": "inn",
+   "options": [
+    {
+     "key": "show",
+     "label": "Show him page 41",
+     "result": "Pike reads the margin twice. 'E.,' he says. 'Elspeth Dunn, the baker's girl.' By noon Corwen has led Elspeth out of the bakery, white-faced. Maren is screaming. You did that. 'Thank you,' Pike says. 'That is the first honest thing anyone has done in this village.'",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_pike": 15
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": -10
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_elspeth": -30
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_maren": -15
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "elspeth_arrested": 1
+       }
+      }
+     ],
+     "react_actor": 32,
+     "react_line": "Thank you. That is the first honest thing in this village."
+    },
+    {
+     "key": "stall",
+     "label": "Say you will bring it tomorrow",
+     "result": "He studies you for a long moment. 'Tomorrow,' he agrees, in a voice that says it is a debt.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_pike": -3
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "stalled_pike": 1
+       }
+      }
+     ],
+     "react_actor": 32,
+     "react_line": "Tomorrow, then."
+    },
+    {
+     "key": "deny",
+     "label": "Say you know nothing about any page",
+     "result": "'I see.' Pike nods slowly, the way a man nods when he has been lied to before.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 10
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_pike": -10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "denied_page": 1
+       }
+      }
+     ],
+     "react_actor": 32,
+     "react_line": "I see."
+    }
+   ]
+  },
+  {
+   "key": "d5_stable",
+   "day": 5,
+   "phase": "day",
+   "title": "The drover",
+   "body": "The drover sits at the window table, watching Pike. His grey horse stands in the yard. Neither of them is talking.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "focus": "inn",
+   "options": [
+    {
+     "key": "look",
+     "label": "Slip out and look at the horse's tack again",
+     "result": "The crowned R is under the saddle blanket, exactly as you remembered. Behind you, the drover's chair scrapes.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "danger": 5
+       }
+      },
+      {
+       "discover": "C17"
+      }
+     ]
+    },
+    {
+     "key": "ask",
+     "label": "Ask him where he rides at night",
+     "result": "He smiles with his mouth only. 'Business,' he says. His eyes do not smile at all.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "danger": 10
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d5_book",
+   "day": 5,
+   "phase": "day",
+   "title": "Tobin's tally book",
+   "body": "Tobin took his supper at the inn every night, and kept his tally book on a hook behind the bar, because he trusted Ines more than his own desk. It is the one set of Tobin's papers that did not burn.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "focus": "inn",
+   "options": [
+    {
+     "key": "ask",
+     "label": "Ask Ines if you may look at it",
+     "result": "Ines passes it over without a word. The entries are in Tobin's blocky hand. Every line for the well-keeper is marked 'E.'. Elspeth, where she appears, is written 'Els.' So the 'E.' on page 41 is not Elspeth.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_ines": 5
+       }
+      },
+      {
+       "discover": "C06"
+      }
+     ],
+     "react_actor": 8,
+     "react_line": "Be quick about it."
+    },
+    {
+     "key": "rummage",
+     "label": "Take it off the hook while her back is turned",
+     "result": "You find the same thing: 'E.' for the well-keeper, 'Els.' for the baker's girl. But Ines has seen you. 'Put that back,' she says, very softly.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 5
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_ines": -10
+       }
+      },
+      {
+       "discover": "C06"
+      }
+     ],
+     "react_actor": 8,
+     "react_line": "Put that back."
+    }
+   ]
+  },
+  {
+   "key": "d6_window",
+   "day": 6,
+   "phase": "morning",
+   "title": "The broken window",
+   "body": "Old Wick holds court at the well with his bandage and his brave smile. A small crowd has gathered to cluck over him. The well-house window is a hole full of sky.",
+   "cost": false,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "focus": "well",
+   "options": [
+    {
+     "key": "fuss",
+     "label": "Fuss over him with the others",
+     "result": "'You were always the kind one,' he says, and pats your hand. He smells faintly of walnut.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_wick": 10
+       }
+      }
+     ],
+     "react_actor": 1,
+     "react_line": "Somebody wants me quiet, lad."
+    },
+    {
+     "key": "inspect",
+     "label": "Look at the broken window",
+     "result": "The glass lies on the grass outside. Not inside, where a stone thrown from the lane would have scattered it. Whoever threw it was standing in the well-house. When you look up, Wick is watching you with a perfectly pleasant face.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "danger": 10
+       }
+      },
+      {
+       "discover": "C26"
+      }
+     ],
+     "react_actor": 1,
+     "react_line": "Not much to see, lad."
+    }
+   ]
+  },
+  {
+   "key": "d6_giles",
+   "day": 6,
+   "phase": "day",
+   "title": "The hayloft at Hartley Farm",
+   "body": "He is in the hayloft, curled against the boards with his knees drawn up, sixteen and filthy and shaking. 'Do not tell them,' he says. 'Ro, do not tell them. I lit it. I killed Tobin.'",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "focus": "Hartley",
+   "options": [
+    {
+     "key": "gentle",
+     "label": "Sit down beside him and let him talk",
+     "result": "It comes out in a rush. He lit the grain shed with a pint of oil, nothing more. 'The mill was dark,' he says. 'I looked in the window. Tobin was on the floor. He was cold, Ro. He was already cold.' Someone told him the debt ledger was in the mill, he says. 'A dry old voice, behind a shutter. It smelled of walnut.' He looks up at you, grey with misery. 'I did not kill him. Did I?'",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_giles": 15
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "found_giles": 1
+       }
+      },
+      {
+       "discover": "C11"
+      },
+      {
+       "discover": "C20"
+      }
+     ],
+     "react_actor": 13,
+     "react_line": "I did not kill him. Did I?"
+    },
+    {
+     "key": "hard",
+     "label": "Grab him and demand the truth",
+     "result": "He goes rigid, then limp. 'I lit the shed,' he whispers. 'That is all I will say.' He does not look at you again.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_giles": -10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "found_giles": 1
+       }
+      },
+      {
+       "discover": "C11"
+      }
+     ],
+     "react_actor": 13,
+     "react_line": "That is all I will say."
+    },
+    {
+     "key": "pike",
+     "label": "Take him straight to Pike",
+     "result": "He does not fight you. He just looks at you, as you walk him down the lane, as if you had hit him. Pike takes him into custody without a word. A boy in a cell is safe from some things.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_giles": -20
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_pike": 10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "found_giles": 1,
+        "giles_custody": 1,
+        "protect_13": 7
+       }
+      },
+      {
+       "discover": "C11"
+      }
+     ],
+     "react_actor": 13,
+     "react_line": "I trusted you."
+    }
+   ]
+  },
+  {
+   "key": "d6_ines",
+   "day": 6,
+   "phase": "day",
+   "title": "The mob at the inn",
+   "body": "Garth Thorn's men stand in the road outside Ines's door with their sleeves rolled up and their faces set. 'She owed that debt,' someone shouts. Ines stands in the doorway with her chin up and her hands shaking.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "focus": "inn",
+   "options": [
+    {
+     "key": "stand",
+     "label": "Stand beside Ines at the door",
+     "result": "The mob is not sure what to do with two of you. After a long, bad minute they drift off, muttering. 'I will remember this,' Ines says, not quite looking at you. Thorn watches you go with an expression you cannot read.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 10
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_ines": 20
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_thorn": -5
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "ines_defended": 1
+       }
+      }
+     ],
+     "react_actor": 8,
+     "react_line": "I will remember this."
+    },
+    {
+     "key": "stay",
+     "label": "Keep out of it",
+     "result": "You watch from the corner. They do not touch her, in the end. But Ines saw you watching, and she will not forget it.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_ines": -10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "ines_abandoned": 1
+       }
+      }
+     ],
+     "react_actor": 8,
+     "react_line": "I saw you."
+    }
+   ]
+  },
+  {
+   "key": "d6_chandler",
+   "day": 6,
+   "phase": "day",
+   "title": "The chandler's book",
+   "body": "The chandler keeps his day-book on a nail by the door and prides himself that every can of oil he sells is written down. He is not a man who minds being asked.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "focus": "market",
+   "options": [
+    {
+     "key": "ledger",
+     "label": "Ask to see the day of the fire",
+     "result": "'Lamp oil, the day before the bell,' he reads. 'One full can: Old Wick.' He frowns. 'Odd. He said the well lantern had run dry.' A man with a full can of oil does not sit in the dark.",
+     "effects": [
+      {
+       "discover": "C03b"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d7_wick",
+   "day": 7,
+   "phase": "morning",
+   "title": "The good friend",
+   "body": "Old Wick comes to the Hollis gate himself, his bandage a little grey, and sits on the step as he did when you were eleven. 'I am only an old man worried for you,' he says. 'Have you found anything?'",
+   "cost": false,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "focus": "well",
+   "options": [
+    {
+     "key": "all",
+     "label": "Tell him everything you have found",
+     "result": "He listens like a man at a fireside, nodding, murmuring. 'You are cleverer than I ever was,' he says warmly. 'Be careful, lad.' You feel a deep relief. It does not last.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "danger": 25
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_wick": 10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "told_wick_all": 1
+       }
+      }
+     ],
+     "react_actor": 1,
+     "react_line": "You can always tell me, lad."
+    },
+    {
+     "key": "some",
+     "label": "Tell him a little",
+     "result": "'Good,' he says. 'Slowly. Do not go too fast.' He pats your knee and gets up with a small grunt.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "danger": 10
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_wick": 3
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "told_wick_some": 1
+       }
+      }
+     ],
+     "react_actor": 1,
+     "react_line": "Slowly, lad."
+    },
+    {
+     "key": "nothing",
+     "label": "Tell him nothing yet",
+     "result": "'Of course,' he says, after a pause that is a fraction too long. 'Of course.' You feel something between you shift, and cannot say what.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_wick": -5
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 3
+       }
+      }
+     ],
+     "react_actor": 1,
+     "react_line": "Of course."
+    },
+    {
+     "key": "ask",
+     "label": "Ask him where he was the night of the fire",
+     "result": "'At the well, lad, in the dark. The oil had run out.' His smile does not move. 'You are not suspecting an old man, are you?'",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "danger": 20
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "asked_wick": 1
+       }
+      }
+     ],
+     "react_actor": 1,
+     "react_line": "You are not suspecting an old man, are you?"
+    }
+   ]
+  },
+  {
+   "key": "d7_protect_ines",
+   "day": 7,
+   "phase": "day",
+   "title": "Watch over Ines",
+   "body": "The village is uneasy. Ines is alone at the inn, and half the village thinks she owes them something.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "focus": "inn",
+   "options": [
+    {
+     "key": "watch",
+     "label": "Sit up in the inn tonight",
+     "result": "You take the chair by the cellar door and a poker, and you do not close your eyes. Ines pretends not to be grateful.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_ines": 10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "protect_8": 7
+       }
+      }
+     ],
+     "react_actor": 8,
+     "react_line": "You do not have to do this."
+    }
+   ]
+  },
+  {
+   "key": "d7_protect_giles",
+   "day": 7,
+   "phase": "day",
+   "title": "Watch over Giles",
+   "body": "Giles will not be able to hide in that hayloft forever, and he is exactly the sort of person a frightened village would like to be rid of.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [
+    "d6_giles"
+   ],
+   "forbids": [
+    "d6_giles:pike"
+   ],
+   "focus": "Hartley",
+   "options": [
+    {
+     "key": "watch",
+     "label": "Sleep in the hayloft beside him",
+     "result": "You lie awake in the dark listening to Giles breathe. Every sound outside is a footstep. None of them is.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_giles": 10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "protect_13": 7
+       }
+      }
+     ],
+     "react_actor": 13,
+     "react_line": "Thanks, Ro."
+    }
+   ]
+  },
+  {
+   "key": "d7_protect_maren",
+   "day": 7,
+   "phase": "day",
+   "title": "Watch over Maren",
+   "body": "Maren has been grey-faced since Elspeth was taken. She will not eat. She will not talk. Anyone could walk into that bakery.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "focus": "bakery",
+   "options": [
+    {
+     "key": "watch",
+     "label": "Keep her company in the bakery tonight",
+     "result": "She lets you stay, wordless. You sit by the cold ovens and watch the door.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_maren": 10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "protect_2": 7
+       }
+      }
+     ],
+     "react_actor": 2,
+     "react_line": "You are a good lad, Ro."
+    }
+   ]
+  },
+  {
+   "key": "d7_maren",
+   "day": 7,
+   "phase": "day",
+   "title": "Maren's silence",
+   "body": "Maren will not meet your eye. She is hiding something, you are sure of it, and she is the person in the village you least want to hurt.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "focus": "bakery",
+   "options": [
+    {
+     "key": "press",
+     "label": "Press her about the night of the fire",
+     "result": "She flinches as if you had struck her. 'Leave it, Ro. Please, leave it.' Her hands are shaking. She knows something, and it is eating her.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_maren": -10
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "pressed_maren": 1
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "danger": 10
+       }
+      }
+     ],
+     "react_actor": 2,
+     "react_line": "Leave it, Ro. Please."
+    },
+    {
+     "key": "gentle",
+     "label": "Sit with her, and say nothing",
+     "result": "She cries a little. You pass her the tea she has forgotten to drink. 'You are a good lad,' she whispers.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_maren": 10
+       }
+      }
+     ],
+     "react_actor": 2,
+     "react_line": "You are a good lad."
+    }
+   ]
+  },
+  {
+   "key": "d7_ines",
+   "day": 7,
+   "phase": "day",
+   "title": "What Ines knows",
+   "body": "Ines has been looking at you all week like a woman deciding whether to say something. There is a locked box under her bar, and she keeps glancing at it.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [],
+   "focus": "inn",
+   "options": [
+    {
+     "key": "packets",
+     "label": "Ask her about the packets she took from Wick",
+     "result": "She goes pale, then, slowly, nods. 'Every month for four years. A little sealed packet from Wick to the drover. I never asked.' She grips the bar. 'You think I am a part of it.'",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_ines": 5
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "talked_ines": 1
+       }
+      },
+      {
+       "discover": "C21a"
+      }
+     ],
+     "react_actor": 8,
+     "react_line": "You think I am a part of it."
+    },
+    {
+     "key": "reassure",
+     "label": "Tell her you do not blame her",
+     "result": "She lets out a breath she seems to have been holding for a week. 'You are the first person who has not,' she says.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_ines": 10
+       }
+      }
+     ],
+     "react_actor": 8,
+     "react_line": "You are the first person who has not."
+    }
+   ]
+  },
+  {
+   "key": "d8_scene_ines",
+   "day": 8,
+   "phase": "morning",
+   "title": "At Ines's cellar",
+   "body": "The village stands round in grave silence. A note lies beside the body, written in a dark ink. Everyone has already decided what it means. You have a few minutes before they cover it.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [
+    "_night7:ines"
+   ],
+   "forbids": [],
+   "focus": "inn",
+   "options": [
+    {
+     "key": "note",
+     "label": "Read the note closely",
+     "result": "The ink is dark and slightly brown, with the grain of walnut. You have seen that ink on exactly two things in your life: Old Wick's fingers, and the labels on Maren's flour sacks.",
+     "effects": [
+      {
+       "discover": "C15"
+      }
+     ]
+    },
+    {
+     "key": "scene",
+     "label": "Look at how the scene was left",
+     "result": "The door was barred from the outside. The wrists are bruised. The boots are dry, though the ground is wet. Whatever the note says, this was not what it looks like.",
+     "effects": [
+      {
+       "discover": "C16"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d8_scene_giles",
+   "day": 8,
+   "phase": "morning",
+   "title": "At the millrace",
+   "body": "The village stands round in grave silence. A note lies beside the body, written in a dark ink. Everyone has already decided what it means. You have a few minutes before they cover it.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [
+    "_night7:giles"
+   ],
+   "forbids": [],
+   "focus": "mill",
+   "options": [
+    {
+     "key": "note",
+     "label": "Read the note closely",
+     "result": "The ink is dark and slightly brown, with the grain of walnut. You have seen that ink on exactly two things in your life: Old Wick's fingers, and the labels on Maren's flour sacks.",
+     "effects": [
+      {
+       "discover": "C15"
+      }
+     ]
+    },
+    {
+     "key": "scene",
+     "label": "Look at how the scene was left",
+     "result": "The door was barred from the outside. The wrists are bruised. The boots are dry, though the ground is wet. Whatever the note says, this was not what it looks like.",
+     "effects": [
+      {
+       "discover": "C16"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d8_scene_maren",
+   "day": 8,
+   "phase": "morning",
+   "title": "At the bakery cellar",
+   "body": "The village stands round in grave silence. A note lies beside the body, written in a dark ink. Everyone has already decided what it means. You have a few minutes before they cover it.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [
+    "_night7:maren"
+   ],
+   "forbids": [],
+   "focus": "bakery",
+   "options": [
+    {
+     "key": "note",
+     "label": "Read the note closely",
+     "result": "The ink is dark and slightly brown, with the grain of walnut. You have seen that ink on exactly two things in your life: Old Wick's fingers, and the labels on Maren's flour sacks.",
+     "effects": [
+      {
+       "discover": "C15"
+      }
+     ]
+    },
+    {
+     "key": "scene",
+     "label": "Look at how the scene was left",
+     "result": "The door was barred from the outside. The wrists are bruised. The boots are dry, though the ground is wet. Whatever the note says, this was not what it looks like.",
+     "effects": [
+      {
+       "discover": "C16"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "key": "d8_letter",
+   "day": 8,
+   "phase": "morning",
+   "title": "A sworn statement",
+   "body": "Corwen is at the Hollis gate before it is light, with Pike behind him. Someone has sworn on oath that they saw you buying lamp oil at the chandler's the day before the fire. The statement is written in a clerkly hand, and signed with a cross.",
+   "cost": false,
+   "max_picks": 1,
+   "requires": [
+    "_night7:you"
+   ],
+   "forbids": [],
+   "focus": "Hollis",
+   "options": [
+    {
+     "key": "calm",
+     "label": "Stay calm and ask to see the witness",
+     "result": "'The witness has left the village,' Pike says. He sounds tired. He is not entirely convinced either.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_pike": 5
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": -5
+       }
+      }
+     ],
+     "react_actor": 32,
+     "react_line": "The witness has left the village."
+    },
+    {
+     "key": "angry",
+     "label": "Shout that it is a lie",
+     "result": "'It may be,' Pike says. 'You are not helping me find out.'",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 10
+       }
+      }
+     ],
+     "react_actor": 32,
+     "react_line": "You are not helping me find out."
+    }
+   ]
+  },
+  {
+   "key": "d8_purse",
+   "day": 8,
+   "phase": "night",
+   "title": "The purse",
+   "body": "Old Wick comes to you in the dusk, and for once he does not sit down. He holds out a small, heavy leather purse. 'It is over, lad,' he says gently. 'The village is ready to forget. Go north. Start again. You deserve it.'",
+   "cost": false,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [
+    "_night7:you"
+   ],
+   "focus": "well",
+   "options": [
+    {
+     "key": "take",
+     "label": "Take the purse and leave Alderbrook",
+     "result": "He closes your fingers round it himself. 'Good lad,' he says. By morning you are on the north road, and the village is behind you, and it is only much later, in another valley, that you wonder why an old man had so much silver. A year on, the canal opens.",
+     "effects": [
+      {
+       "entity": "player",
+       "set": {
+        "left_village": 1
+       }
+      }
+     ],
+     "react_actor": 1,
+     "react_line": "Go north, lad."
+    },
+    {
+     "key": "refuse",
+     "label": "Refuse the purse",
+     "result": "'Of course,' he says, after a moment. 'You are your father's son.' It is the first time he has ever mentioned your father, and you do not know why your blood goes cold.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_wick": -10
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "danger": 15
+       }
+      }
+     ],
+     "react_actor": 1,
+     "react_line": "You are your father's son."
+    },
+    {
+     "key": "stall",
+     "label": "Say you will think about it",
+     "result": "'Do,' he says kindly. 'Not too long.' He tucks the purse away, and walks off slowly, and you realise your hands are shaking.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "danger": 5
+       }
+      }
+     ],
+     "react_actor": 1,
+     "react_line": "Not too long."
+    }
+   ]
+  },
+  {
+   "key": "d8_pike_closes",
+   "day": 8,
+   "phase": "day",
+   "title": "Pike closes the inquiry",
+   "body": "Pike calls the village to the square. 'The matter appears to be settled,' he announces. 'I will report it to the Reeve.' People are nodding, smiling, relieved. Nobody wants to be the one to say it is not over.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [
+    "_night7:you"
+   ],
+   "focus": "inn",
+   "options": [
+    {
+     "key": "accept",
+     "label": "Let it stand",
+     "result": "You say nothing. The relief in the square is almost physical. Pike gives you a long, level look, and writes something in his book.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_pike": 5
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "pike_closed": 1
+       }
+      }
+     ],
+     "react_actor": 32,
+     "react_line": "Good."
+    },
+    {
+     "key": "object",
+     "label": "Stand up and say it was staged",
+     "result": "The square goes silent. You feel every eye turn on you. 'Sit down, Rowan,' someone mutters. Pike does not move. 'Go on,' he says quietly.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "danger": 15
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "suspicion": 10
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_pike": -5
+       }
+      },
+      {
+       "entity": "player",
+       "set": {
+        "objected_pike": 1
+       }
+      }
+     ],
+     "react_actor": 32,
+     "react_line": "Go on."
+    }
+   ]
+  },
+  {
+   "key": "d8_ink",
+   "day": 8,
+   "phase": "day",
+   "title": "Maren's labels",
+   "body": "Maren's flour sacks are lined up by the oven, each one labelled in a small, careful hand. The ink is dark and slightly brown.",
+   "cost": true,
+   "max_picks": 1,
+   "requires": [],
+   "forbids": [
+    "_night7:you"
+   ],
+   "focus": "bakery",
+   "options": [
+    {
+     "key": "labels",
+     "label": "Look closely at the labels",
+     "result": "The same ink. The same grain of walnut. Maren, who fed you for ten years. A cold feeling begins in your stomach, and does not go away.",
+     "effects": [
+      {
+       "entity": "player",
+       "set": {
+        "saw_maren_ink": 1
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "trust_maren": -5
+       }
+      }
+     ],
+     "react_actor": 2,
+     "react_line": "What are you looking at, love?"
+    },
+    {
+     "key": "ask",
+     "label": "Ask Maren straight out about the ink",
+     "result": "She goes the colour of flour. 'I did not write that note,' she says, very low. 'Ro, I swear on my life.' She is telling the truth, and she is terrified.",
+     "effects": [
+      {
+       "entity": "player",
+       "add": {
+        "trust_maren": -10
+       }
+      },
+      {
+       "entity": "player",
+       "add": {
+        "danger": 5
+       }
+      }
+     ],
+     "react_actor": 2,
+     "react_line": "I did not write that note."
+    }
+   ]
   }
  ],
  "endings": [
@@ -1544,6 +2888,12 @@
    "title": "The Smoke Takes You",
    "flag": "dead",
    "text": "You went back for one more thing. The roof came down. The last thing you see is the bell rope burning above you. In the morning, the village will say that Rowan Hollis died in the fire he set. You will not be there to say otherwise."
+  },
+  {
+   "key": "convenient_peace",
+   "title": "Convenient Peace",
+   "flag": "left_village",
+   "text": "You took the purse and walked north. The village was ready to forget, and so were you, for a while. A year later a canal opened through the valley of Alderbrook, and a man in a good coat came to read the Moot a notice. By then you were three villages away, and nobody ever asked you again who burned the mill. Somewhere in the back of your mind, you knew."
   }
  ],
  "rules": [
@@ -1614,6 +2964,190 @@
      }
     }
    ]
+  }
+ ],
+ "witnesses": [
+  {
+   "actor": 8,
+   "label": "Ines",
+   "base": 2,
+   "factors": {
+    "talked_ines": 3,
+    "told_wick_all": 2,
+    "ines_defended": 1
+   }
+  },
+  {
+   "actor": 13,
+   "label": "Giles",
+   "base": 0,
+   "factors": {
+    "found_giles": 4,
+    "told_wick_all": 2,
+    "told_wick_some": 1
+   }
+  },
+  {
+   "actor": 2,
+   "label": "Maren",
+   "base": 0,
+   "factors": {
+    "pressed_maren": 5,
+    "saw_maren_ink": 0
+   }
+  }
+ ],
+ "nights": [
+  {
+   "after_day": 7,
+   "outcomes": {
+    "8": [
+     {
+      "entity": 8,
+      "set": {
+       "dead": 1,
+       "mood": "dead"
+      }
+     },
+     {
+      "event": {
+       "actor": null,
+       "visibility": "public",
+       "kind": "confession",
+       "text": "At dawn Ines Taverner is found hanged in her own cellar. Beside her lies a note in dark ink: 'I set the fire for the debt. Forgive me.' By breakfast the whole village is saying it is over."
+      }
+     },
+     {
+      "entity": "player",
+      "set": {
+       "suspicion": 10
+      }
+     },
+     {
+      "synthetic": {
+       "beat": "_night7",
+       "option": "ines",
+       "cost": 0
+      }
+     },
+     {
+      "synthetic": {
+       "beat": "_grief",
+       "option": "ines",
+       "cost": 1
+      },
+      "when": {
+       "state_gte": {
+        "key": "trust_ines",
+        "value": 40
+       }
+      }
+     }
+    ],
+    "13": [
+     {
+      "entity": 13,
+      "set": {
+       "dead": 1,
+       "mood": "dead"
+      }
+     },
+     {
+      "event": {
+       "actor": null,
+       "visibility": "public",
+       "kind": "confession",
+       "text": "At dawn Giles Hollis is found drowned in the millrace. A note in his coat, in dark ink: 'I lit the shed. I killed him. I cannot live with it.' Bethan has not stopped screaming. By breakfast the whole village is saying it is over."
+      }
+     },
+     {
+      "entity": "player",
+      "set": {
+       "suspicion": 10
+      }
+     },
+     {
+      "entity": "player",
+      "add": {
+       "trust_bethan": -40
+      }
+     },
+     {
+      "synthetic": {
+       "beat": "_night7",
+       "option": "giles",
+       "cost": 0
+      }
+     },
+     {
+      "synthetic": {
+       "beat": "_grief",
+       "option": "giles",
+       "cost": 1
+      }
+     }
+    ],
+    "2": [
+     {
+      "entity": 2,
+      "set": {
+       "dead": 1,
+       "mood": "dead"
+      }
+     },
+     {
+      "event": {
+       "actor": null,
+       "visibility": "public",
+       "kind": "confession",
+       "text": "At dawn Maren Dunn is found at the foot of her own cellar stairs. A note in her apron, in dark ink: 'I cannot go on. It was all me.' Elspeth, newly released, cannot speak. By breakfast the whole village is saying it is over."
+      }
+     },
+     {
+      "entity": "player",
+      "set": {
+       "suspicion": 10
+      }
+     },
+     {
+      "synthetic": {
+       "beat": "_night7",
+       "option": "maren",
+       "cost": 0
+      }
+     },
+     {
+      "synthetic": {
+       "beat": "_grief",
+       "option": "maren",
+       "cost": 1
+      }
+     }
+    ],
+    "0": [
+     {
+      "event": {
+       "actor": null,
+       "visibility": "public",
+       "kind": "letter",
+       "text": "At first light Corwen is at the Hollis gate with a sworn statement: someone saw you buying lamp oil the day before the fire. Nobody will say who."
+      }
+     },
+     {
+      "entity": "player",
+      "add": {
+       "suspicion": 25
+      }
+     },
+     {
+      "synthetic": {
+       "beat": "_night7",
+       "option": "you",
+       "cost": 0
+      }
+     }
+    ]
+   }
   }
  ]
 }

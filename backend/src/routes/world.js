@@ -55,7 +55,7 @@ router.get('/actors', requireAuth, async (req, res) => {
     const market = places.find((p) => p.kind === 'market');
     return actors
       // a villager only exists in a village once it has a mood row there
-      .filter((a) => moodOf.has(a.actor_id))
+      .filter((a) => moodOf.has(a.actor_id) && moodOf.get(a.actor_id) !== 'dead')
       .map((a) => {
         const home = homes.find((h) => h.home_id === a.home_id) || null;
         const homePlace = home ? places.find((p) => p.place_id === home.place_id) : market;

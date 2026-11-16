@@ -223,17 +223,31 @@ function runOps(b, p, ops) {
       if (w.state_lt && !(st[w.state_lt.key] !== undefined && st[w.state_lt.key] < w.state_lt.value)) continue;
       if (w.state_gte && !(st[w.state_gte.key] !== undefined && st[w.state_gte.key] >= w.state_gte.value)) continue;
     }
-    if (op.discover) { if (!p.found.has(op.discover)) p.found.set(op.discover, b.tick); addEvent(b, PROT, 'discover', { clue: op.discover }, [PROT]); }
+    if (op.synthetic) { p.choices.push({ beat: op.synthetic.beat, option: op.synthetic.option, tick: b.tick, cost: op.synthetic.cost }); }
+    else if (op.discover) { if (!p.found.has(op.discover)) p.found.set(op.discover, b.tick); addEvent(b, PROT, 'discover', { clue: op.discover }, [PROT]); }
     else if (op.enter) { const a = SLICE.actors.find((x) => x.id === op.enter); if (!b.ent[a.id]) b.ent[a.id] = clone(a.state); }
     else if (op.event) { const e = op.event; addEvent(b, e.actor ?? null, 'story_event', { kind: e.kind, text: e.text, ...(e.target ? { target_actor: e.target } : {}) }, witnessSet(b, e.visibility, e.actor, e.target)); }
     else { const t = b.ent[op.entity === 'player' ? PROT : op.entity]; if (t) { Object.assign(t, op.set || {}); for (const [k, v] of Object.entries(op.add || {})) t[k] = (t[k] ?? 0) + v; } }
   }
+}
+function storyNight(b, p, n) {
+  const st = b.ent[PROT]; let best = null;
+  for (const w of SLICE.witnesses) {
+    const ws = b.ent[w.actor]; if (!ws || (ws.dead ?? 0) >= 1) continue;
+    if ((st[`protect_${w.actor}`] ?? -1) === n.after_day) continue;
+    const threat = w.base + Object.entries(w.factors || {}).reduce((t, [f, v]) => t + ((st[f] ?? 0) >= 1 ? v : 0), 0);
+    if (threat >= 1 && (!best || threat > best.threat || (threat === best.threat && w.actor < best.actor))) best = { actor: w.actor, threat };
+  }
+  const victim = best ? best.actor : 0;
+  addEvent(b, null, 'story_event', { kind: 'wick_night', night: n.after_day, victim, text: 'Wick chooses who is too dangerous to leave alone.' }, []);
+  runOps(b, p, n.outcomes[String(victim)] || []);
 }
 function storyDay(b, p, day) {
   for (const de of SLICE.day_events.filter((x) => x.day === day)) {
     if (de.text) addEvent(b, null, 'story_event', { kind: de.kind, text: de.text }, de.visibility === 'public' ? allActorIds(b) : []);
     runOps(b, p, de.effects);
   }
+  for (const n of SLICE.nights || []) if (n.after_day === day - 1) storyNight(b, p, n);
 }
 const chose = (p, spec) => { const [bk, ok] = spec.split(':'); return p.choices.some((c) => c.beat === bk && (!ok || c.option === ok)); };
 function beatAvailable(b, p, beat) {
@@ -261,7 +275,7 @@ function storyScene(b, p) {
   const st = b.ent[PROT]; const sc = SLICE.scenario; const day = SLICE.days.find((d) => d.day === b.tick) || {};
   const beats = SLICE.beats.filter((x) => beatAvailable(b, p, x)).map((x) => ({ beat_key: x.key, title: x.title, body: x.body, phase: x.phase, costs_action: x.cost, focus: x.focus ?? null,
     picks_left: x.max_picks - p.choices.filter((c) => c.beat === x.key).length, options: x.options.filter((o) => !chose(p, `${x.key}:${o.key}`)).map((o) => ({ key: o.key, label: o.label })) }));
-  const done = p.choices.map((c) => { const bt = SLICE.beats.find((x) => x.key === c.beat); const o = bt.options.find((y) => y.key === c.option); return { tick: c.tick, beat_key: c.beat, title: bt.title, option_key: c.option, label: o.label, result: o.result, costs_action: bt.cost }; });
+  const done = p.choices.filter((c) => SLICE.beats.some((x) => x.key === c.beat)).map((c) => { const bt = SLICE.beats.find((x) => x.key === c.beat); const o = bt.options.find((y) => y.key === c.option); return { tick: c.tick, beat_key: c.beat, title: bt.title, option_key: c.option, label: o.label, result: o.result, costs_action: bt.cost }; });
   const ending = SLICE.endings.find((e) => (st[e.flag] ?? 0) >= 1);
   return { scenario: sc.key, title: sc.title, tagline: sc.tagline, day: b.tick, day_title: day.title, intro: day.intro, goal: sc.goal, deadline_day: sc.deadline_day, cold_open: sc.cold_open,
     outros: Object.fromEntries(SLICE.days.filter((d) => d.day < b.tick && d.outro).map((d) => [String(d.day), d.outro])), actions_left: Math.max(0, 3 - paidUsed(b, p) - [...events.values()].filter((e) => e.branch_id === b.branch_id && e.actor_id === PROT && e.tick === b.tick && ACTIONS.includes(e.action_type)).length),
@@ -270,7 +284,7 @@ function storyScene(b, p) {
     beats, done, ending: ending ? { key: ending.key, title: ending.title, text: ending.text } : null, slice_over: b.tick > sc.slice_end_day, guided: p.guided, trait: p.trait, pronouns: p.pronouns };
 }
 function storyChoose(b, p, beatKey, optKey) {
-  const st = b.ent[PROT]; if ((st.dead ?? 0) >= 1) throw new Error('your story has ended');
+  const st = b.ent[PROT]; if (SLICE.endings.some((e) => (st[e.flag] ?? 0) >= 1)) throw new Error('your story has ended');
   const beat = SLICE.beats.find((x) => x.key === beatKey); if (!beat) throw new Error('unknown scene');
   if (!beatAvailable(b, p, beat)) throw new Error('that moment has passed');
   const opt = beat.options.find((o) => o.key === optKey); if (!opt) throw new Error('unknown choice');
@@ -357,7 +371,8 @@ const server = http.createServer(async (req, res) => {
         const work = { baker: byKind('bakery'), baker_helper: byKind('bakery'), miller: byKind('mill'), mill_helper: byKind('mill'), innkeeper: byKind('inn'), well_keeper: byKind('well'), labourer: market,
           farmer: places.find((x) => x.kind === 'farm' && home && x.name.toLowerCase().startsWith(home.family_name.toLowerCase())) }[a.job] || null;
         const at = work || hp;
-        return { actor_id: id, name: a.name, kind: a.kind, job: a.job, home_id: a.home_id, family: home?.family_name || null, home_place_id: hp.place_id, work_place_id: work?.place_id ?? null, place_id: at.place_id, x: at.x, y: at.y, home_x: hp.x, home_y: hp.y, mood: b.ent[id].mood }; }));
+        if (b.ent[id].mood === 'dead') return null;
+        return { actor_id: id, name: a.name, kind: a.kind, job: a.job, home_id: a.home_id, family: home?.family_name || null, home_place_id: hp.place_id, work_place_id: work?.place_id ?? null, place_id: at.place_id, x: at.x, y: at.y, home_x: hp.x, home_y: hp.y, mood: b.ent[id].mood }; }).filter(Boolean));
     }
     if (route === 'GET /api/me') { const s = b.ent[me]; const n = actionsUsed(b, me);
       return send(res, 200, { actorId: me, branchId: b.branch_id, name: actors.get(me).name, tick: b.tick, state: { coins: Math.round(s.coins * 100) / 100, mood: s.mood, trust: s.trust, inv: s.inv }, actionsUsedToday: n, actionsRemainingToday: Math.max(0, 3 - n) }); }

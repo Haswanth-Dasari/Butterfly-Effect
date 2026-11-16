@@ -113,7 +113,6 @@ DECLARE
     o story_option;
     v_tick INT;
     v_ev event;
-    v_dead NUMERIC;
 BEGIN
     PERFORM story_actor_claim(p_actor);
 
@@ -122,10 +121,14 @@ BEGIN
         RAISE EXCEPTION 'no story in progress';
     END IF;
 
-    SELECT COALESCE((state ->> 'dead')::numeric, 0) INTO v_dead
-    FROM entity_state
-    WHERE entity_id = p_actor AND branch_id = p_branch AND upper_inf(valid_ticks);
-    IF COALESCE(v_dead, 0) >= 1 THEN
+    -- the story is over once the protagonist's state carries any ending flag (death, leaving, ...)
+    IF EXISTS (
+        SELECT 1
+        FROM story_ending se
+        JOIN entity_state es ON es.entity_id = p_actor AND es.branch_id = p_branch AND upper_inf(es.valid_ticks)
+        WHERE se.scenario_key = pt.scenario_key
+          AND COALESCE((es.state ->> se.flag)::numeric, 0) >= 1
+    ) THEN
         RAISE EXCEPTION 'your story has ended';
     END IF;
 
@@ -422,3 +425,87 @@ BEGIN
     RETURN jsonb_build_object('branch_id', v_branch, 'actor_id', sc.protagonist_id);
 END;
 $$;
+
+
+-- Whom does the villain act on tonight? Highest threat among witnesses who are alive and NOT protected.
+-- threat = base_threat + sum(weight of each factor flag the player has set). Protection is a state key
+-- 'protect_<actor_id>' holding the number of the day it covers. NULL = nobody worth the risk (he turns on you).
+CREATE FUNCTION wick_pick_target(p_branch INT, p_player INT, p_night INT)
+RETURNS INT
+LANGUAGE plpgsql
+STABLE
+AS $$
+DECLARE
+    v_scenario TEXT;
+    v_state JSONB;
+    v_target INT;
+BEGIN
+    SELECT scenario_key INTO v_scenario FROM playthrough WHERE branch_id = p_branch;
+    SELECT state INTO v_state
+    FROM entity_state
+    WHERE entity_id = p_player AND branch_id = p_branch AND upper_inf(valid_ticks);
+    v_state := COALESCE(v_state, '{}'::jsonb);
+
+    SELECT t.actor_id INTO v_target
+    FROM (
+        SELECT w.actor_id,
+               w.base_threat + COALESCE((
+                   SELECT SUM(f.weight)
+                   FROM story_witness_factor f
+                   WHERE f.scenario_key = w.scenario_key AND f.actor_id = w.actor_id
+                     AND COALESCE((v_state ->> f.flag)::numeric, 0) >= 1
+               ), 0) AS threat
+        FROM story_witness w
+        WHERE w.scenario_key = v_scenario
+          AND COALESCE((SELECT (es.state ->> 'dead')::numeric
+                        FROM entity_state es
+                        WHERE es.entity_id = w.actor_id AND es.branch_id = p_branch AND upper_inf(es.valid_ticks)), 0) < 1
+          AND COALESCE((v_state ->> ('protect_' || w.actor_id))::numeric, -1) <> p_night
+    ) t
+    WHERE t.threat >= 1
+    ORDER BY t.threat DESC, t.actor_id
+    LIMIT 1;
+
+    RETURN v_target;
+END;
+$$;
+
+-- When a new day begins in a playthrough, the night before may have been one of the villain's nights.
+-- He decides (wick_pick_target) and a hidden event records it; what that DOES is rules (data).
+CREATE FUNCTION story_on_day_start()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    pt playthrough;
+    v_victim INT;
+    v_ev event;
+BEGIN
+    SELECT * INTO pt FROM playthrough WHERE branch_id = NEW.branch_id;
+    IF NOT FOUND THEN
+        RETURN NEW;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM story_night n WHERE n.scenario_key = pt.scenario_key AND n.after_day = NEW.tick - 1) THEN
+        v_victim := wick_pick_target(NEW.branch_id, pt.actor_id, NEW.tick - 1);
+
+        INSERT INTO event (branch_id, tick, actor_id, action_type, payload)
+        VALUES (NEW.branch_id, NEW.tick, NULL, 'story_event',
+                jsonb_build_object('kind', 'wick_night', 'night', NEW.tick - 1, 'victim', COALESCE(v_victim, 0),
+                                   'text', 'Wick chooses who is too dangerous to leave alone.'))
+        RETURNING * INTO v_ev;
+
+        PERFORM add_witnesses(v_ev.event_id, 'private');
+        INSERT INTO event_cause (effect_id, cause_id) VALUES (v_ev.event_id, NEW.event_id);
+        PERFORM process_event_rules(v_ev, 0);
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+CREATE TRIGGER story_day_start
+AFTER INSERT ON event
+FOR EACH ROW
+WHEN (NEW.action_type = 'day_start')
+EXECUTE FUNCTION story_on_day_start();

@@ -72,8 +72,8 @@ export function createStoryPanel(ctx) {
     }
     if (last) kids.push(h('div.result', h('div.result-k', last.title), h('p', last.text)));
     if (sc.slice_over) {
-      kids.push(h('div.tbc', h('div.tbc-k', 'End of the opening chapters'), h('h3', 'To be continued'),
-        h('p', 'Day 5 is when Sergeant Pike rides in and the investigation tightens. This is where the opening ends. Everything you did is recorded, and will matter.'),
+      kids.push(h('div.tbc', h('div.tbc-k', 'End of this chapter'), h('h3', 'To be continued'),
+        h('p', 'Day 9 is when the case turns: a baker\u2019s confession, an ambush at the millrace, and a descent into the dark. This is where the story stops for now. Everything you did is recorded, and will matter.'),
         h('div.modal-actions', h('button.btn', { onclick: () => ctx.selectTab('board') }, 'Review your case'))));
     } else if (!sc.ending) {
       kids.push(h('div.actions-left', `${sc.actions_left} of 3 actions left today`));

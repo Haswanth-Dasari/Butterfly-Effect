@@ -53,8 +53,9 @@ function init() {
   buildStoryShelf(enterGame);
   const saved = session.load();
   if (saved?.token) {
-    const b = $('#resume-btn'); b.classList.remove('hidden'); b.textContent = saved.story ? 'Continue your story' : `Continue as ${saved.name}`;
-    b.onclick = async () => { store.session = saved; try { await enterGame(); } catch (e) { session.clear(); $('#join-err').textContent = flavor(e); b.classList.add('hidden'); } };
+    const b = h('button.btn.primary.resume', { id: 'resume-btn', type: 'button' }, saved.story ? 'Continue your story' : `Continue as ${saved.name}`);
+    b.onclick = async () => { store.session = saved; try { await enterGame(); } catch (e) { session.clear(); $('#join-err').textContent = flavor(e); b.remove(); } };
+    $('#resume-host').replaceChildren(h('div.resume-card', b, h('span', 'Your game is remembered in this browser. Or begin a new story below.')));
     $('#join-note').textContent = 'Your villager is remembered in this browser.';
   }
   $('#join-form').addEventListener('submit', async (e) => {

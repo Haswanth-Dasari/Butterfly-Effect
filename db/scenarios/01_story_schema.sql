@@ -87,6 +87,30 @@ CREATE TABLE story_ending (
     PRIMARY KEY (scenario_key, ending_key)
 );
 
+-- The villain's nightly agenda is data. Each witness has a base threat to him, plus extra threat for things
+-- the PLAYER has done (state flags). Each night in story_night he acts on the most threatening witness who
+-- is not protected (see wick_pick_target).
+CREATE TABLE story_witness (
+    scenario_key TEXT NOT NULL REFERENCES scenario,
+    actor_id     INT  NOT NULL REFERENCES actor,
+    label        TEXT NOT NULL,
+    base_threat  INT  NOT NULL CHECK (base_threat >= 0),
+    PRIMARY KEY (scenario_key, actor_id)
+);
+CREATE TABLE story_witness_factor (
+    scenario_key TEXT NOT NULL,
+    actor_id     INT  NOT NULL,
+    flag         TEXT NOT NULL,                       -- a key in the player's state; counts when >= 1
+    weight       INT  NOT NULL CHECK (weight > 0),
+    PRIMARY KEY (scenario_key, actor_id, flag),
+    FOREIGN KEY (scenario_key, actor_id) REFERENCES story_witness
+);
+CREATE TABLE story_night (
+    scenario_key TEXT NOT NULL REFERENCES scenario,
+    after_day    INT  NOT NULL CHECK (after_day >= 1),   -- he acts in the night that follows this day
+    PRIMARY KEY (scenario_key, after_day)
+);
+
 -- One row per story being played. The branch IS the playthrough's private village.
 CREATE TABLE playthrough (
     branch_id    INT PRIMARY KEY REFERENCES branch,

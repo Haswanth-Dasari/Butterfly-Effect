@@ -3,6 +3,7 @@ on: [push, pull_request]
 jobs:
   database:
     runs-on: ubuntu-latest
+    timeout-minutes: 10          # a stuck job fails after 10 minutes instead of spinning forever
     services:
       postgres:
         image: postgres:16
@@ -10,13 +11,19 @@ jobs:
         ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
-    env: { PGPASSWORD: postgres, PGHOST: localhost, PGUSER: postgres, PGDATABASE: butterfly_test }
+    env:
+      PGPASSWORD: postgres
+      PGHOST: localhost
+      PGUSER: postgres
+      PGDATABASE: butterfly_test
+      PGOPTIONS: "-c statement_timeout=300000 -c lock_timeout=60000"   # runaway query / lock wait -> a clear error
     steps:
       - uses: actions/checkout@v4
       - name: Run every SQL suite on a fresh database
-        run: ./scripts/run_tests.sh
+        run: bash ./scripts/run_tests.sh
   app:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,7 +32,7 @@ jobs:
       - name: Generated story seed is in sync with slice.json
         run: |
           node db/scenarios/build_seed.mjs mystery
-          git diff --exit-code db/seed/05_story_mystery.sql
+          git --no-pager diff --exit-code db/seed/05_story_mystery.sql
       - name: Syntax check backend and demo server
         run: |
           for f in backend/src/*.js backend/src/routes/*.js backend/dev/mock-server.mjs db/scenarios/build_seed.mjs; do node --check "$f"; done

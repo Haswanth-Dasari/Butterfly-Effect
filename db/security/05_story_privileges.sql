@@ -7,7 +7,8 @@ ALTER FUNCTION story_scene(INT, INT) SECURITY DEFINER SET search_path = public, 
 ALTER FUNCTION story_board(INT, INT) SECURITY DEFINER SET search_path = public, pg_temp;
 ALTER FUNCTION story_compass(INT, INT) SECURITY DEFINER SET search_path = public, pg_temp;
 
-GRANT SELECT ON scenario, case_link, clue, clue_link, story_day, story_beat, story_option, story_ending, playthrough
+GRANT SELECT ON scenario, case_link, clue, clue_link, story_day, story_beat, story_option, story_ending, playthrough,
+    story_witness, story_witness_factor, story_night
     TO game_master_role, auditor_role;
 
 GRANT EXECUTE ON FUNCTION

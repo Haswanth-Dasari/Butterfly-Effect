@@ -7,7 +7,7 @@ export const CHAPTERS = [
   { id: 'case', title: 'Your case', body: [
     'You are Rowan Hollis, mill helper at Tobin\u2019s Mill, foster child of the Hollis family. On the night of the third day the mill burns and Tobin is found dead. Every sign points at you. The Reeve arrives on the twelfth day to judge, and unless you find the truth, you are the verdict.',
     'You win by understanding what really happened and proving it. There is no combat and no timer except the calendar: every day the village moves on, whether or not you do.',
-    'The game you are playing now is the opening chapter: the three quiet days before the fire, the fire itself, and the first day of the investigation.'] },
+    'The game you are playing now covers the first eight days: the three quiet days before the fire, the fire itself, the arrival of the law, and the first night something is decided without you.'] },
   { id: 'day', title: 'How a day works', body: [
     'Each day has a morning, a daytime and a night. You have THREE actions a day, spent on scenes (see \u201cScenes and choices\u201d). When you are done, press End day. Time moves on: prices drift, moods change, and consequences set in motion days ago finally arrive. The Evening Bell tells you what changed.',
     'You cannot save actions for tomorrow. A day you spend badly is gone.'] },
@@ -39,6 +39,11 @@ export const CHAPTERS = [
   { id: 'time', title: 'Look Back and parallel villages', body: [
     'The Look back tab lets you slide through time and see the village on any past day: prices, moods, who was where.',
     'The Worlds tab lets you go back to any day and take a different path. A second village grows beside the first; the original stays exactly as it was. In a story this is a limited second chance, and the village may sense it.'] },
+  { id: 'nights', title: 'Nights, and protecting people', body: [
+    'Someone in this village is dangerous. On some nights he acts. He chooses whoever is most dangerous to him: whoever knows the most, and whoever you have drawn attention to, and is not protected.',
+    'What you do changes who that is. Talking to a witness, finding them, telling the wrong person what you have learned, all make them more exposed. Protecting someone, by sitting up with them or sheltering them, means he cannot act on them that night. Protection costs an action, and you only have three.',
+    'You cannot protect everyone. If everyone he would act on is protected, he turns on you instead. The village always feels wrong the day before: dogs that will not settle, doors left open. Pay attention to the first scene of the day.',
+    'After a night like this, grief costs you something too: sometimes an action the next day.'] },
   { id: 'death', title: 'Danger and death', body: [
     'Death is permanent. People can die in this story, and so can you. Evidence you collected from someone survives them; evidence you did not collect does not.',
     'No child is ever harmed. Wrong accusations, though, have consequences: if you name the wrong person and the village believes you, you will live with it.'] },

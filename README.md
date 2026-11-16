@@ -8,7 +8,7 @@ The game is only the story on top. **PostgreSQL is the engine and the source of 
 
 ## New: story mode, *Who Burned the Mill?*
 
-You are Rowan, a mill helper with a burned past. Three quiet days, then the mill burns and the miller is dead, and everything points at you. Investigate with three actions a day; the village is a real database that remembers every choice. Choose your temperament, and choose **Bold** (no hints) or **Guided** (a Compass that tells you whether you are getting closer, never who). The **Almanac** (press H) explains every rule. This release is the opening chapters (days 1 to 4), with a cold open, a first-day coach, a countdown to the Reeve's arrival, an end-of-day hook and on-map reactions; see `docs/story/` for the full story bible and `docs/story/02_slice_as_built.md` for how it runs on the engine.
+You are Rowan, a mill helper with a burned past. Three quiet days, then the mill burns and the miller is dead, and everything points at you. Investigate with three actions a day; the village is a real database that remembers every choice. Choose your temperament, and choose **Bold** (no hints) or **Guided** (a Compass that tells you whether you are getting closer, never who). The **Almanac** (press H) explains every rule. This release covers days 1 to 8 (the quiet days, the fire, the arrival of the law, and a villain who chooses a victim at night depending on what you did), with a cold open, a first-day coach, a countdown to the Reeve's arrival, an end-of-day hook and on-map reactions; see `docs/story/` for the full story bible and `docs/story/02_slice_as_built.md` for how it runs on the engine.
 
 ![Story mode](docs/screenshots/s03_day1.png)
 
@@ -49,7 +49,7 @@ An in-memory server that speaks the same API (simplified rules) so you can try o
 | Folder | Contents |
 |---|---|
 | `db/schema`, `db/procedures`, `db/views`, `db/security`, `db/seed` | The database: DDL, engine, views, roles and RLS, seed village |
-| `db/tests` | 13 SQL test suites (`scripts/run_tests.ps1` / `.sh` run each on a fresh database) |
+| `db/tests` | 15 SQL test suites (`scripts/run_tests.ps1` / `.sh` run each on a fresh database) |
 | `db/demo` | Seven narrated SQL demos (first evening, ripple, Ask Why, parallel villages, tamper, rebuild) |
 | `backend/` | Node/Express API + WebSocket relay (`npm start`), plus `dev/mock-server.mjs` |
 | `frontend/` | Plain-JS single-page UI with an SVG village map (no build step) |
@@ -75,7 +75,7 @@ Each day you have **three actions**: gift, trade, steal, rumor, build, hire, set
 
 ## Verified status (honest notes)
 
-- **Story mode:** the UI and demo server were played end to end in a headless browser. The new PostgreSQL code for it (`db/scenarios/`, three small edits to core procedures, `db/tests/14_story_slice_tests.sql`) has **not been run yet**. Push and check the GitHub Actions tab, or run `scripts/run_tests.ps1`; if suite 14 fails, the log names the exact step.
+- **Story mode:** the UI and demo server were played end to end in a headless browser. The new PostgreSQL code for it (`db/scenarios/`, three small edits to core procedures, `db/tests/14_story_slice_tests.sql`, `db/tests/15_story_nights_tests.sql`) has **not been run yet**. Push and check the GitHub Actions tab, or run `scripts/run_tests.ps1`; if suite 14 fails, the log names the exact step.
 
 - The SQL, experiments and their results were produced and run against PostgreSQL 16 during development; raw outputs are in `experiments/results/`.
 - The front end and the demo server were exercised end to end in a headless browser (join, act, end day, Evening Bell, Ask Why, Look Back, fork, compare, leaderboard, responsive layout). That test environment had no PostgreSQL, so the **new Express routes in `backend/src/routes/world.js` and the modified routes in `queries.js` have been syntax-checked but not run against a live database**. Run `scripts/setup.ps1`, `npm start` and click through once before the demo; `docs/demo_script.md` has the checklist.

@@ -74,6 +74,7 @@ function effectFromOp(op) {
     const a = S.actors.find((x) => x.id === op.enter);
     return { action: 'story_enter', actor: null, payload: { entity_id: a.id, state: a.state }, visibility: 'private' };
   }
+  if (op.synthetic) return { action: 'story_choice', actor: PROT, payload: { beat: op.synthetic.beat, option: op.synthetic.option, cost: op.synthetic.cost }, visibility: 'private' };
   if (op.event) {
     const e = op.event; const payload = { kind: e.kind, text: e.text };
     if (e.target) payload.target_actor = e.target;
@@ -109,6 +110,21 @@ for (const r of S.rules || []) for (const op of r.effects) {
   const c = {};
   for (const [k, v] of Object.entries(r.when)) c[k] = k.startsWith('state_') ? { entity_id: PROT, key: v.key, value: v.value } : v;
   rules.push({ trigger: r.trigger, cond: c, eff: effectFromOp(op), why: r.why || op.why || null });
+}
+
+// ---- Wick's agenda: who he watches, and what each night's outcome does (all data) ----
+if (S.witnesses?.length) {
+  emit(`INSERT INTO story_witness (scenario_key, actor_id, label, base_threat) VALUES`);
+  emit(S.witnesses.map((w) => `(${q(sc.key)}, ${w.actor}, ${q(w.label)}, ${w.base})`).join(',\n') + ';\n');
+  const fac = S.witnesses.flatMap((w) => Object.entries(w.factors || {}).filter(([, v]) => v > 0).map(([f, v]) => `(${q(sc.key)}, ${w.actor}, ${q(f)}, ${v})`));
+  if (fac.length) emit(`INSERT INTO story_witness_factor (scenario_key, actor_id, flag, weight) VALUES\n${fac.join(',\n')};\n`);
+}
+if (S.nights?.length) {
+  emit(`INSERT INTO story_night (scenario_key, after_day) VALUES`);
+  emit(S.nights.map((n) => `(${q(sc.key)}, ${n.after_day})`).join(',\n') + ';\n');
+  for (const n of S.nights) for (const [victim, ops] of Object.entries(n.outcomes)) for (const op of ops) {
+    pushRule('story_event', condFrom({ scenario: sc.key, payload_eq: { kind: 'wick_night', night: n.after_day, victim: Number(victim) } }, op.when), op);
+  }
 }
 
 emit(`INSERT INTO rule (trigger_action_type, condition, effect_template, narrative_template, delay_ticks) VALUES`);
